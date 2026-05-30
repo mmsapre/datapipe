@@ -1,0 +1,48 @@
+package com.mas.sap.prak.client360.config;
+
+public class RelationshipConfig {
+
+    private String parent;
+
+    private String child;
+
+    private String relation;
+
+    private String joinField;
+
+    public String getParent() {
+        return parent;
+    }
+
+    public void setParent(
+            String parent) {
+        this.parent = parent;
+    }
+
+    public String getChild() {
+        return child;
+    }
+
+    public void setChild(
+            String child) {
+        this.child = child;
+    }
+
+    public String getRelation() {
+        return relation;
+    }
+
+    public void setRelation(
+            String relation) {
+        this.relation = relation;
+    }
+
+    public String getJoinField() {
+        return joinField;
+    }
+
+    public void setJoinField(
+            String joinField) {
+        this.joinField = joinField;
+    }
+}
