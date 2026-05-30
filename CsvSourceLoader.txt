@@ -1,0 +1,63 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.config.SourceConfig;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+import org.apache.commons.csv.*;
+
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
+
+public class CsvSourceLoader {
+
+    public List<ImportedRecord> load(
+            String directory,
+            SourceConfig source)
+            throws Exception {
+
+        String file =
+                directory
+                + "/"
+                + source.getFileName();
+
+        List<ImportedRecord> records =
+                new ArrayList<>();
+
+        try(
+                FileReader reader =
+                        new FileReader(file);
+
+                CSVParser parser =
+                        CSVFormat.DEFAULT
+                                .builder()
+                                .setHeader()
+                                .setSkipHeaderRecord(true)
+                                .build()
+                                .parse(reader)
+        ) {
+
+            long row = 1;
+
+            for(CSVRecord csv : parser) {
+
+                ImportedRecord record =
+                        new ImportedRecord();
+
+                record.setRowNumber(row++);
+
+                record.setSourceName(
+                        source.getSourceName());
+
+                record.setEntityType(
+                        source.getEntityType());
+
+                csv.toMap()
+                        .forEach(record::put);
+
+                records.add(record);
+            }
+        }
+
+        return records;
+    }
+}
