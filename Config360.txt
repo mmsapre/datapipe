@@ -1,0 +1,188 @@
+Client360PipelineConfig.java
+
+package com.client360.config;
+import java.util.List;
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.context.annotation.Configuration;
+@Configuration
+@ConfigurationProperties(prefix = "client360")
+public class Client360PipelineConfig {
+    private ImportConfig importConfig;
+    private ExportConfig export;
+    private PostgresConfig postgres;
+    private GraphConfig graph;
+    private SearchConfig search;
+    private ThreadingConfig threading;
+    private BlockingConfig blocking;
+    private SimilarityConfig similarity;
+    private SemanticConfig semantic;
+    private FusionConfig fusion;
+    private IncrementalConfig incremental;
+    private EntityResolutionConfig entityResolution;
+    private List<SourceConfig> sources;
+    private List<RelationshipConfig> relationships;
+    // Getters and Setters
+    public static class ImportConfig {
+        private String csvDirectory;
+        private String archiveDirectory;
+        private String failedDirectory;
+        private String filePattern;
+        private String delimiter;
+        private String encoding;
+        private boolean headerRow;
+        private int batchSize;
+        private boolean incrementalEnabled;
+        private String hashAlgorithm;
+        // Getters and Setters
+    }
+    public static class ExportConfig {
+        private String directory;
+        private boolean overwriteExisting;
+        private boolean csvEnabled;
+        private boolean postgresEnabled;
+        private boolean graphEnabled;
+        private boolean dashboardEnabled;
+        private DatasetConfig datasets;
+        // Getters and Setters
+    }
+    public static class DatasetConfig {
+        private boolean importedRecords;
+        private boolean blockingKeys;
+        private boolean candidatePairs;
+        private boolean matchResults;
+        private boolean clusters;
+        private boolean fusedEntities;
+        private boolean relationships;
+        private boolean graphNodes;
+        private boolean graphEdges;
+        private boolean searchIndex;
+        private boolean lineage;
+        // Getters and Setters
+    }
+    public static class PostgresConfig {
+        private boolean enabled;
+        private String jdbcUrl;
+        private String username;
+        private String password;
+        private String schema;
+        private int batchSize;
+        private String writeMode;
+        // Getters and Setters
+    }
+    public static class GraphConfig {
+        private boolean enabled;
+        private String provider;
+        private String host;
+        private int port;
+        private String graphName;
+        private String searchableNodeFields;
+        private String searchableEdgeFields;
+        private boolean storeSearchText;
+        private boolean storeClusterId;
+        private boolean storeConfidenceScore;
+        // Getters and Setters
+    }
+    public static class SearchConfig {
+        private boolean enabled;
+        private boolean buildSearchText;
+        private String separator;
+        private boolean includeEntityType;
+        private boolean includeRelations;
+        private boolean includeIdentifiers;
+        private boolean includeDisplayFields;
+        // Getters and Setters
+    }
+    public static class ThreadingConfig {
+        private boolean enabled;
+        private int importerThreads;
+        private int blockingThreads;
+        private int candidateThreads;
+        private int matchingThreads;
+        private int fusionThreads;
+        private int postgresExportThreads;
+        private int graphExportThreads;
+        private int queueCapacity;
+        // Getters and Setters
+    }
+    public static class BlockingConfig {
+        private boolean enabled;
+        private boolean crossSourceBlocking;
+        private boolean normalizeValues;
+        private boolean ignoreCase;
+        private boolean trimValues;
+        private boolean removeSpecialChars;
+        private int minimumBlockSize;
+        private int maximumBlockSize;
+        private boolean generateCompositeKey;
+        // Getters and Setters
+    }
+    public static class SimilarityConfig {
+        private double exactWeight;
+        private double jaroWeight;
+        private double semanticWeight;
+        private double candidateThreshold;
+        private double matchThreshold;
+        private double autoAcceptThreshold;
+        private double autoRejectThreshold;
+        // Getters and Setters
+    }
+    public static class SemanticConfig {
+        private boolean enabled;
+        private String embeddingModel;
+        private String llmUrl;
+        private String llmToken;
+        private boolean cacheEnabled;
+        private int cacheSize;
+        private List<String> enabledEntityTypes;
+        // Getters and Setters
+    }
+    public static class FusionConfig {
+        private boolean enabled;
+        private String logicalIdStrategy;
+        private String canonicalNameStrategy;
+        private double confidenceThreshold;
+        private boolean retainSourceValues;
+        private boolean keepLineage;
+        private boolean keepHistory;
+        // Getters and Setters
+    }
+    public static class IncrementalConfig {
+        private boolean enabled;
+        private boolean storeRecordHash;
+        private boolean storeBlockHash;
+        private boolean storeCandidateHash;
+        private boolean storeMatchHash;
+        private boolean storeClusterHash;
+        private boolean rebuildOnSearchFieldChange;
+        private boolean rebuildOnBlockingChange;
+        private boolean rebuildOnMatchingChange;
+        // Getters and Setters
+    }
+    public static class EntityResolutionConfig {
+        private boolean createLogicalId;
+        private boolean createClusters;
+        private String clusterStrategy;
+        private boolean maintainHistory;
+        private boolean maintainLineage;
+        // Getters and Setters
+    }
+    public static class SourceConfig {
+        private String sourceName;
+        private String fileName;
+        private String entityType;
+        private String entityIdField;
+        private String canonicalNameField;
+        private List<String> blockingFields;
+        private List<String> searchFields;
+        private List<String> displayFields;
+        private List<String> matchingFields;
+        private List<String> relationFields;
+        // Getters and Setters
+    }
+    public static class RelationshipConfig {
+        private String parent;
+        private String child;
+        private String relation;
+        // Getters and Setters
+    }
+}
