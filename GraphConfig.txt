@@ -1,0 +1,20 @@
+package com.mas.sap.prak.client360.config;
+
+public class GraphConfig {
+
+    private boolean enabled;
+
+    private String provider;
+
+    private String host;
+
+    private int port;
+
+    private String graphName;
+
+    private String searchableNodeFields;
+
+    private String searchableEdgeFields;
+
+    // getters setters
+}
