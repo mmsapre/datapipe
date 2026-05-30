@@ -1,0 +1,72 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public final class RelationshipConfigMapper {
+
+    private RelationshipConfigMapper() {
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<RelationshipConfig>
+    mapRelationships(
+            Map<String,Object> root) {
+
+        List<RelationshipConfig> result =
+                new ArrayList<>();
+
+        List<Map<String,Object>> relations =
+                (List<Map<String,Object>>)
+                        root.get(
+                                "relationships");
+
+        if(relations == null) {
+            return result;
+        }
+
+        for(Map<String,Object> relation :
+                relations) {
+
+            RelationshipConfig cfg =
+                    new RelationshipConfig();
+
+            cfg.setParent(
+                    getString(
+                            relation,
+                            "parent"));
+
+            cfg.setChild(
+                    getString(
+                            relation,
+                            "child"));
+
+            cfg.setRelation(
+                    getString(
+                            relation,
+                            "relation"));
+
+            cfg.setJoinField(
+                    getString(
+                            relation,
+                            "join-field"));
+
+            result.add(cfg);
+        }
+
+        return result;
+    }
+
+    private static String getString(
+            Map<String,Object> map,
+            String key) {
+
+        Object value =
+                map.get(key);
+
+        return value == null
+                ? null
+                : value.toString();
+    }
+}
