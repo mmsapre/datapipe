@@ -1,0 +1,53 @@
+client360:
+  blocking:
+    enabled: true
+    cross-source-blocking: true
+    normalize-values: true
+    ignore-case: true
+    trim-values: true
+    remove-special-chars: true
+    minimum-block-size: 2
+    maximum-block-size: 10000
+    generate-composite-key: true
+  similarity:
+    exact-weight: 0.50
+    jaro-weight: 0.30
+    semantic-weight: 0.20
+    candidate-threshold: 0.70
+    match-threshold: 0.85
+    auto-accept-threshold: 0.95
+    auto-reject-threshold: 0.50
+  semantic:
+    enabled: true
+    embedding-model: all-MiniLM-L6-v2
+    llm-url: http://localhost:11434
+    llm-token: ""
+    cache-enabled: true
+    cache-size: 100000
+    enabled-entity-types:
+      - PARTY
+      - MASTERGROUP
+  fusion:
+    enabled: true
+    logical-id-strategy: BUSINESS_KEY
+    canonical-name-strategy: LONGEST_VALUE
+    confidence-threshold: 0.85
+    retain-source-values: true
+    keep-lineage: true
+    keep-history: true
+  incremental:
+    enabled: true
+    store-record-hash: true
+    store-block-hash: true
+    store-candidate-hash: true
+    store-match-hash: true
+    store-cluster-hash: true
+    rebuild-on-search-field-change: false
+    rebuild-on-blocking-change: true
+    rebuild-on-matching-change: true
+  entity-resolution:
+    create-logical-id: true
+    create-clusters: true
+    cluster-strategy: CONNECTED_COMPONENTS
+    maintain-history: true
+    maintain-lineage: true
