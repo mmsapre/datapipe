@@ -1,0 +1,42 @@
+package com.mas.sap.prak.client360.export;
+
+import com.mas.sap.prak.client360.blocking.BlockingKey;
+
+import java.io.FileWriter;
+import java.util.List;
+
+public class BlockingKeyExporter {
+
+    public void export(
+            String file,
+            List<BlockingKey> keys)
+            throws Exception {
+
+        try(FileWriter writer =
+                    new FileWriter(file)) {
+
+            writer.write(
+                    "entity_id,"
+                    + "entity_type,"
+                    + "block_key,"
+                    + "field,"
+                    + "value\n");
+
+            for(BlockingKey key :
+                    keys) {
+
+                writer.write(
+                        key.getEntityId()
+                        + ","
+                        + key.getEntityType()
+                        + ","
+                        + key.getBlockKey()
+                        + ","
+                        + key.getSourceField()
+                        + ","
+                        + key.getBlockValue()
+                        + "\n");
+            }
+        }
+    }
+}
