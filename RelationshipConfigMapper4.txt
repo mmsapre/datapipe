@@ -1,0 +1,65 @@
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+public final class RelationshipConfigMapper {
+
+    private RelationshipConfigMapper() {
+    }
+
+    public static List<MrdRelationshipConfig> map(
+            List<Map<String,Object>> relationshipMaps) {
+
+        if (relationshipMaps == null) {
+            return Collections.emptyList();
+        }
+
+        List<MrdRelationshipConfig> result =
+                new ArrayList<>();
+
+        for (Map<String,Object> map
+                : relationshipMaps) {
+
+            MrdRelationshipConfig cfg =
+                    new MrdRelationshipConfig();
+
+            cfg.setParent(
+                    stringValue(
+                            map,
+                            "parent"));
+
+            cfg.setChild(
+                    stringValue(
+                            map,
+                            "child"));
+
+            cfg.setRelation(
+                    stringValue(
+                            map,
+                            "relation"));
+
+            cfg.setJoinField(
+                    stringValue(
+                            map,
+                            "join-field"));
+
+            result.add(cfg);
+        }
+
+        return result;
+    }
+
+    private static String stringValue(
+            Map<String,Object> map,
+            String key) {
+
+        Object value =
+                map.get(key);
+
+        return value == null
+                ? null
+                : value.toString();
+    }
+}
