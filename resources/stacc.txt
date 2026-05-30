@@ -1,0 +1,27 @@
+- source-name: st_account_gcs
+
+  file-name: 1.pmrd.t_st_account_gcs.csv
+
+  entity-type: ST_ACCOUNT
+
+  entity-id-field: account_id
+
+  canonical-name-field: account_id
+
+  blocking-fields:
+    - account_id
+    - le_id
+
+  search-fields:
+    - account_id
+    - le_id
+    - le_sub_fun
+    - region_nm
+
+  display-fields:
+    - account_id
+    - le_id
+    - region_nm
+
+  relation-fields:
+    - le_id
