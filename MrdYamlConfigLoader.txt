@@ -1,0 +1,354 @@
+package com.hsbc.gbm.hss.mrd.em.config;
+
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.InputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
+public class MrdYamlConfigLoader {
+
+    public MrdPipelineConfig load(String yamlFile)
+            throws Exception {
+
+        Yaml yaml = new Yaml();
+
+        try (InputStream input =
+                     Thread.currentThread()
+                             .getContextClassLoader()
+                             .getResourceAsStream(yamlFile)) {
+
+            if (input == null) {
+                throw new IllegalArgumentException(
+                        "Cannot find file : "
+                                + yamlFile);
+            }
+
+            Map<String,Object> root =
+                    yaml.load(input);
+
+            Map<String,Object> client360 =
+                    getMap(root,"client360");
+
+            MrdPipelineConfig config =
+                    new MrdPipelineConfig();
+
+            config.setImportConfig(
+                    readImport(
+                            getMap(client360,
+                                    "import")));
+
+            config.setExportConfig(
+                    readExport(
+                            getMap(client360,
+                                    "export")));
+
+            config.setBlockingConfig(
+                    readBlocking(
+                            getMap(client360,
+                                    "blocking")));
+
+            config.setSimilarityConfig(
+                    readSimilarity(
+                            getMap(client360,
+                                    "similarity")));
+
+            config.setThreading(
+                    readThreading(
+                            getMap(client360,
+                                    "threading")));
+
+            config.setSources(
+                    SourceConfigMapper.map(
+                            getList(client360,
+                                    "sources")));
+
+            config.setRelationships(
+                    RelationshipConfigMapper.map(
+                            getList(client360,
+                                    "relationships")));
+
+            return config;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String,Object> getMap(
+            Map<String,Object> parent,
+            String key) {
+
+        if(parent == null) {
+            return Collections.emptyMap();
+        }
+
+        Object value = parent.get(key);
+
+        if(value == null) {
+            return Collections.emptyMap();
+        }
+
+        return (Map<String,Object>) value;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String,Object>> getList(
+            Map<String,Object> parent,
+            String key) {
+
+        if(parent == null) {
+            return Collections.emptyList();
+        }
+
+        Object value = parent.get(key);
+
+        if(value == null) {
+            return Collections.emptyList();
+        }
+
+        return (List<Map<String,Object>>) value;
+    }
+
+    private boolean getBoolean(
+            Map<String,Object> map,
+            String key,
+            boolean defaultValue) {
+
+        if(map == null) {
+            return defaultValue;
+        }
+
+        Object value = map.get(key);
+
+        if(value == null) {
+            return defaultValue;
+        }
+
+        return Boolean.parseBoolean(
+                value.toString());
+    }
+
+    private int getInt(
+            Map<String,Object> map,
+            String key,
+            int defaultValue) {
+
+        if(map == null) {
+            return defaultValue;
+        }
+
+        Object value = map.get(key);
+
+        if(value == null) {
+            return defaultValue;
+        }
+
+        return Integer.parseInt(
+                value.toString());
+    }
+
+    private String getString(
+            Map<String,Object> map,
+            String key,
+            String defaultValue) {
+
+        if(map == null) {
+            return defaultValue;
+        }
+
+        Object value = map.get(key);
+
+        if(value == null) {
+            return defaultValue;
+        }
+
+        return value.toString();
+    }
+
+    private MrdImportConfig readImport(
+            Map<String,Object> map) {
+
+        MrdImportConfig cfg =
+                new MrdImportConfig();
+
+        cfg.setCsvDirectory(
+                getString(
+                        map,
+                        "csv-directory",
+                        "data/import"));
+
+        cfg.setArchiveDirectory(
+                getString(
+                        map,
+                        "archive-directory",
+                        "data/archive"));
+
+        cfg.setFailedDirectory(
+                getString(
+                        map,
+                        "failed-directory",
+                        "data/failed"));
+
+        cfg.setBatchSize(
+                getInt(
+                        map,
+                        "batch-size",
+                        5000));
+
+        return cfg;
+    }
+
+    private MrdExportConfig readExport(
+            Map<String,Object> map) {
+
+        MrdExportConfig cfg =
+                new MrdExportConfig();
+
+        cfg.setDirectory(
+                getString(
+                        map,
+                        "directory",
+                        "data/export"));
+
+        cfg.setCsvEnabled(
+                getBoolean(
+                        map,
+                        "csv-enabled",
+                        true));
+
+        cfg.setPostgresEnabled(
+                getBoolean(
+                        map,
+                        "postgres-enabled",
+                        false));
+
+        cfg.setGraphEnabled(
+                getBoolean(
+                        map,
+                        "graph-enabled",
+                        false));
+
+        return cfg;
+    }
+
+    private MrdBlockingConfig readBlocking(
+            Map<String,Object> map) {
+
+        MrdBlockingConfig cfg =
+                new MrdBlockingConfig();
+
+        cfg.setEnabled(
+                getBoolean(
+                        map,
+                        "enabled",
+                        true));
+
+        cfg.setCrossSourceBlocking(
+                getBoolean(
+                        map,
+                        "cross-source-blocking",
+                        true));
+
+        cfg.setNormalizeValues(
+                getBoolean(
+                        map,
+                        "normalize-values",
+                        true));
+
+        cfg.setIgnoreCase(
+                getBoolean(
+                        map,
+                        "ignore-case",
+                        true));
+
+        cfg.setMinimumBlockSize(
+                getInt(
+                        map,
+                        "minimum-block-size",
+                        2));
+
+        cfg.setMaximumBlockSize(
+                getInt(
+                        map,
+                        "maximum-block-size",
+                        10000));
+
+        return cfg;
+    }
+
+    private MrdSimilarityConfig readSimilarity(
+            Map<String,Object> map) {
+
+        MrdSimilarityConfig cfg =
+                new MrdSimilarityConfig();
+
+        cfg.setExactWeight(
+                Double.parseDouble(
+                        getString(
+                                map,
+                                "exact-weight",
+                                "0.5")));
+
+        cfg.setJaroWeight(
+                Double.parseDouble(
+                        getString(
+                                map,
+                                "jaro-weight",
+                                "0.3")));
+
+        cfg.setSemanticWeight(
+                Double.parseDouble(
+                        getString(
+                                map,
+                                "semantic-weight",
+                                "0.2")));
+
+        cfg.setMatchThreshold(
+                Double.parseDouble(
+                        getString(
+                                map,
+                                "match-threshold",
+                                "0.85")));
+
+        return cfg;
+    }
+
+    private MrdThreadingConfig readThreading(
+            Map<String,Object> map) {
+
+        MrdThreadingConfig cfg =
+                new MrdThreadingConfig();
+
+        cfg.setEnabled(
+                getBoolean(
+                        map,
+                        "enabled",
+                        true));
+
+        cfg.setImporterThreads(
+                getInt(
+                        map,
+                        "importer-threads",
+                        4));
+
+        cfg.setBlockingThreads(
+                getInt(
+                        map,
+                        "blocking-threads",
+                        8));
+
+        cfg.setCandidateThreads(
+                getInt(
+                        map,
+                        "candidate-threads",
+                        8));
+
+        cfg.setMatchingThreads(
+                getInt(
+                        map,
+                        "matching-threads",
+                        8));
+
+        return cfg;
+    }
+}
