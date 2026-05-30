@@ -1,0 +1,19 @@
+- source-name: arrangement_role
+
+  file-name: 6.pmrd.t_arrangement_role.csv
+
+  entity-type: ARRANGEMENT_ROLE
+
+  entity-id-field: arrange_role_id
+
+  blocking-fields:
+    - arrange_id
+    - role_id
+
+  search-fields:
+    - arrange_id
+    - role_id
+
+  relation-fields:
+    - arrange_id
+    - role_id
