@@ -1,0 +1,30 @@
+@Configuration
+@ConfigurationProperties(prefix = "client360")
+@Getter
+@Setter
+public class PipelineConfig {
+
+    private ImportConfig importConfig;
+
+    private ExportConfig export;
+
+    private PostgresConfig postgres;
+
+    private GraphConfig graph;
+
+    private SearchConfig search;
+
+    private BlockingConfig blocking;
+
+    private SimilarityConfig similarity;
+
+    private SemanticConfig semantic;
+
+    private FusionConfig fusion;
+
+    private IncrementalConfig incremental;
+
+    private List<SourceConfig> sources;
+
+    private List<RelationshipConfig> relationships;
+}
