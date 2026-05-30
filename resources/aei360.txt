@@ -1,0 +1,29 @@
+- source-name: alternate_identifier
+
+  file-name: 9.pmrd.t_alternate_identifier.csv
+
+  entity-type: ALTERNATE_IDENTIFIER
+
+  entity-id-field: alternate_tp_value
+
+  canonical-name-field: alternate_tp_value
+
+  blocking-fields:
+    - alternate_tp_value
+
+  search-fields:
+    - alternate_tp_value
+    - alternate_id_tp
+    - account_mrd_id
+
+  display-fields:
+    - alternate_tp_value
+    - alternate_id_tp
+
+  relation-fields:
+    - account_mrd_id
+
+  rules:
+    - field: alternate_tp_value
+      algorithm: EXACT
+      weight: 1.0
