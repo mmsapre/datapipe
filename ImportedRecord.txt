@@ -1,0 +1,73 @@
+package com.mas.sap.prak.client360.model;
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class ImportedRecord {
+
+    private long rowNumber;
+
+    private String sourceName;
+
+    private String entityType;
+
+    private String logicalEntityId;
+
+    private final Map<String,Object> fields =
+            new HashMap<>();
+
+    public void put(
+            String key,
+            Object value) {
+
+        fields.put(key,value);
+    }
+
+    public Object get(
+            String key) {
+
+        return fields.get(key);
+    }
+
+    public Map<String,Object> getFields() {
+        return fields;
+    }
+
+    public long getRowNumber() {
+        return rowNumber;
+    }
+
+    public void setRowNumber(long rowNumber) {
+        this.rowNumber = rowNumber;
+    }
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(
+            String sourceName) {
+
+        this.sourceName = sourceName;
+    }
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(
+            String entityType) {
+
+        this.entityType = entityType;
+    }
+
+    public String getLogicalEntityId() {
+        return logicalEntityId;
+    }
+
+    public void setLogicalEntityId(
+            String logicalEntityId) {
+
+        this.logicalEntityId = logicalEntityId;
+    }
+}
