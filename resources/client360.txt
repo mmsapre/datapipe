@@ -1,0 +1,512 @@
+client360:
+
+  import:
+
+    csv-directory: data/import
+
+    archive-directory: data/archive
+
+    failed-directory: data/failed
+
+    file-pattern: "*.csv"
+
+    delimiter: ","
+
+    encoding: UTF-8
+
+    header-row: true
+
+    incremental-enabled: true
+
+    hash-algorithm: SHA256
+
+    batch-size: 5000
+
+  export:
+
+    directory: data/export
+
+    csv-enabled: true
+
+    postgres-enabled: true
+
+    graph-enabled: true
+
+    overwrite-existing: true
+
+    datasets:
+
+      imported-records: true
+      blocking-keys: true
+      candidate-pairs: true
+      match-results: true
+      clusters: true
+      fused-entities: true
+      relationships: true
+      graph-nodes: true
+      graph-edges: true
+      search-index: true
+
+  postgres:
+
+    enabled: true
+
+    jdbc-url: jdbc:postgresql://localhost:5432/client360
+
+    username: postgres
+
+    password: postgres
+
+    schema: client360
+
+    batch-size: 1000
+
+    write-mode: UPSERT
+
+  graph:
+
+    enabled: true
+
+    provider: FALKORDB
+
+    host: localhost
+
+    port: 6379
+
+    graph-name: CLIENT360
+
+    searchable-node-fields: search-fields
+
+    searchable-edge-fields: relation-fields
+
+  search:
+
+    enabled: true
+
+    build-search-text: true
+
+    separator: " "
+
+    include-entity-type: true
+
+    include-relations: true
+
+  blocking:
+
+    enabled: true
+
+    cross-source-blocking: true
+
+    normalize-values: true
+
+    ignore-case: true
+
+    remove-special-chars: true
+
+    minimum-block-size: 2
+
+    maximum-block-size: 10000
+
+  similarity:
+
+    exact-weight: 0.40
+
+    jaro-weight: 0.30
+
+    semantic-weight: 0.30
+
+    candidate-threshold: 0.70
+
+    match-threshold: 0.85
+
+    auto-accept-threshold: 0.95
+
+    auto-reject-threshold: 0.50
+
+  semantic:
+
+    enabled: true
+
+    embedding-model: all-MiniLM-L6-v2
+
+    llm-url: http://localhost:11434
+
+    llm-token: ""
+
+    cache-enabled: true
+
+  fusion:
+
+    logical-id-strategy: BUSINESS_KEY
+
+    canonical-name-strategy: LONGEST_VALUE
+
+    retain-source-values: true
+
+    confidence-threshold: 0.85
+
+  incremental:
+
+    enabled: true
+
+    store-record-hash: true
+
+    store-candidate-hash: true
+
+    store-match-hash: true
+
+    store-cluster-hash: true
+
+    rebuild-on-search-field-change: false
+
+    rebuild-on-matching-change: true
+
+    rebuild-on-blocking-change: true
+
+  sources:
+
+    #
+    # PARTY
+    #
+
+    - source-name: party
+
+      file-name: 5.pmrd.t_party.csv
+
+      entity-type: PARTY
+
+      entity-id-field: mrd_id
+
+      canonical-name-field: party_name
+
+      blocking-fields:
+        - grid
+        - mrd_id
+
+      search-fields:
+        - grid
+        - mrd_id
+        - party_name
+        - country
+
+      display-fields:
+        - party_name
+        - country
+        - grid
+
+      matching-fields:
+        - party_name
+        - legal_name
+
+      relation-fields:
+        - parent_grid
+
+      rules:
+
+        - field: mrd_id
+          algorithm: EXACT
+          weight: 0.60
+
+        - field: party_name
+          algorithm: JARO
+          weight: 0.25
+
+        - field: legal_name
+          algorithm: SEMANTIC
+          weight: 0.15
+
+    #
+    # ACCOUNT
+    #
+
+    - source-name: account
+
+      file-name: 2.pmrd.t_account.csv
+
+      entity-type: SEC_ACCOUNT
+
+      entity-id-field: account_mrd_id
+
+      canonical-name-field: account_nm
+
+      blocking-fields:
+        - client_grid
+        - account_mrd_id
+
+      search-fields:
+        - account_mrd_id
+        - account_nm
+        - client_grid
+        - account_tp
+
+      display-fields:
+        - account_nm
+        - account_tp
+
+      matching-fields:
+        - account_nm
+
+      relation-fields:
+        - client_grid
+
+      rules:
+
+        - field: account_mrd_id
+          algorithm: EXACT
+          weight: 0.70
+
+        - field: account_nm
+          algorithm: JARO
+          weight: 0.30
+
+    #
+    # CASH ACCOUNT
+    #
+
+    - source-name: cash_account
+
+      file-name: 3.pmrd.t_cash_account.csv
+
+      entity-type: CASH_ACCOUNT
+
+      entity-id-field: cash_mrd_account
+
+      canonical-name-field: cash_account_nm
+
+      blocking-fields:
+        - client_grid
+        - cash_mrd_account
+
+      search-fields:
+        - cash_mrd_account
+        - cash_account_nm
+        - client_grid
+
+      matching-fields:
+        - cash_account_nm
+
+      relation-fields:
+        - client_grid
+
+    #
+    # LINKED ACCOUNT
+    #
+
+    - source-name: linked_account
+
+      file-name: 4.pmrd.t_linked_account.csv
+
+      entity-type: ACCOUNT_LINK
+
+      entity-id-field: sec_mrd_account
+
+      blocking-fields:
+        - client_grid
+
+      search-fields:
+        - sec_mrd_account
+        - cash_mrd_account
+        - client_grid
+
+      matching-fields:
+        - sec_mrd_account
+        - cash_mrd_account
+
+      relation-fields:
+        - sec_mrd_account
+        - cash_mrd_account
+
+    #
+    # ALTERNATE IDENTIFIER
+    #
+
+    - source-name: alternate_identifier
+
+      file-name: 1.pmrd.t_alternate_identifier.csv
+
+      entity-type: ALTERNATE_IDENTIFIER
+
+      entity-id-field: alternate_tp_value
+
+      blocking-fields:
+        - alternate_tp_value
+
+      search-fields:
+        - alternate_tp_value
+        - alternate_tp
+        - mrd_id
+
+      matching-fields:
+        - alternate_tp_value
+
+      relation-fields:
+        - mrd_id
+
+    #
+    # MASTERGROUP
+    #
+
+    - source-name: mastergroup
+
+      file-name: 6.pmrd.t_mastergroup.csv
+
+      entity-type: MASTERGROUP
+
+      entity-id-field: parent_grid
+
+      blocking-fields:
+        - parent_grid
+
+      search-fields:
+        - parent_grid
+        - mg_name
+        - mg_type
+
+      matching-fields:
+        - mg_name
+
+      relation-fields:
+        - parent_grid
+
+    #
+    # MASTERGROUP MEMBERSHIP
+    #
+
+    - source-name: mastergroup_membership
+
+      file-name: 7.pmrd.t_mastergroup_membership.csv
+
+      entity-type: MASTERGROUP_MEMBER
+
+      entity-id-field: child_grid
+
+      blocking-fields:
+        - parent_grid
+        - child_grid
+
+      search-fields:
+        - parent_grid
+        - child_grid
+
+      matching-fields:
+        - child_grid
+
+      relation-fields:
+        - parent_grid
+        - child_grid
+
+    #
+    # ARRANGEMENT ROLE
+    #
+
+    - source-name: arrangement_role
+
+      file-name: 8.pmrd.t_arrangement_role.csv
+
+      entity-type: ARRANGEMENT_ROLE
+
+      entity-id-field: role_value
+
+      blocking-fields:
+        - role_value
+
+      search-fields:
+        - role_value
+        - role_type
+        - arrange_id
+
+      matching-fields:
+        - role_value
+
+      relation-fields:
+        - arrange_id
+
+    #
+    # CONTACT
+    #
+
+    - source-name: contact
+
+      file-name: 9.pmrd.t_contact.csv
+
+      entity-type: CONTACT
+
+      entity-id-field: email
+
+      blocking-fields:
+        - email
+        - phone
+
+      search-fields:
+        - first_name
+        - last_name
+        - email
+        - phone
+
+      matching-fields:
+        - first_name
+        - last_name
+        - email
+
+      relation-fields:
+        - mrd_id
+
+    #
+    # SECURITY
+    #
+
+    - source-name: security
+
+      file-name: 10.pmrd.t_security.csv
+
+      entity-type: SECURITY
+
+      entity-id-field: isin
+
+      blocking-fields:
+        - isin
+        - cusip
+
+      search-fields:
+        - isin
+        - cusip
+        - security_name
+
+      matching-fields:
+        - security_name
+        - isin
+
+      relation-fields:
+        - account_mrd_id
+
+  relationships:
+
+    - parent: PARTY
+      child: SEC_ACCOUNT
+      relation: OWNS
+      join-field: client_grid
+
+    - parent: PARTY
+      child: CASH_ACCOUNT
+      relation: OWNS
+      join-field: client_grid
+
+    - parent: MASTERGROUP
+      child: PARTY
+      relation: HAS_MEMBER
+      join-field: parent_grid
+
+    - parent: SEC_ACCOUNT
+      child: CASH_ACCOUNT
+      relation: LINKED_TO
+      join-field: linked_account
+
+    - parent: PARTY
+      child: CONTACT
+      relation: HAS_CONTACT
+      join-field: mrd_id
+
+    - parent: SEC_ACCOUNT
+      child: SECURITY
+      relation: HOLDS
+      join-field: account_mrd_id
