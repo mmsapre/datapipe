@@ -1,0 +1,22 @@
+@Service
+@RequiredArgsConstructor
+public class CandidateService {
+
+    private final PipelineConfig config;
+
+    public void generate() {
+
+        config.getSources()
+              .forEach(source -> {
+
+                  System.out.println(
+                          source.getEntityType());
+
+                  System.out.println(
+                          source.getBlockingFields());
+
+                  System.out.println(
+                          source.getMatchingFields());
+              });
+    }
+}
