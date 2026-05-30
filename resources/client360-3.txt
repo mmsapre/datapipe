@@ -1,0 +1,53 @@
+client360:
+  import:
+    csv-directory: data/import
+    archive-directory: data/archive
+    failed-directory: data/failed
+    file-pattern: "*.csv"
+    delimiter: ","
+    encoding: UTF-8
+    header-row: true
+    batch-size: 5000
+    incremental-enabled: true
+    hash-algorithm: SHA256
+  export:
+    directory: data/export
+    overwrite-existing: true
+    csv-enabled: true
+    postgres-enabled: true
+    graph-enabled: true
+    dashboard-enabled: true
+  postgres:
+    enabled: true
+    jdbc-url: jdbc:postgresql://localhost:5432/client360
+    username: postgres
+    password: postgres
+    schema: client360
+    batch-size: 1000
+    write-mode: UPSERT
+  graph:
+    enabled: true
+    provider: FALKORDB
+    host: localhost
+    port: 6379
+    graph-name: CLIENT360
+    searchable-node-fields: search-fields
+    searchable-edge-fields: relation-fields
+  search:
+    enabled: true
+    build-search-text: true
+    separator: " "
+    include-entity-type: true
+    include-relations: true
+    include-identifiers: true
+    include-display-fields: true
+  threading:
+    enabled: true
+    importer-threads: 4
+    blocking-threads: 8
+    candidate-threads: 8
+    matching-threads: 8
+    fusion-threads: 4
+    postgres-export-threads: 4
+    graph-export-threads: 4
+    queue-capacity: 50000
