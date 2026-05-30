@@ -1,0 +1,30 @@
+- source-name: role
+
+  file-name: 7.pmrd.t_role.csv
+
+  entity-type: ROLE
+
+  entity-id-field: role_value
+
+  canonical-name-field: role_value
+
+  blocking-fields:
+    - role_value
+    - mrd_id
+
+  search-fields:
+    - role_value
+    - role_tp
+    - mrd_id
+
+  display-fields:
+    - role_tp
+    - role_value
+
+  relation-fields:
+    - mrd_id
+
+  rules:
+    - field: role_value
+      algorithm: EXACT
+      weight: 1.0
