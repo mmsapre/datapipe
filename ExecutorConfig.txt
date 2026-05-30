@@ -1,0 +1,16 @@
+package com.mas.sap.prak.client360.config;
+
+public class ExecutorConfig {
+
+    private int importThreads;
+
+    private int candidateThreads;
+
+    private int matchingThreads;
+
+    private int fusionThreads;
+
+    private int graphThreads;
+
+    // getters setters
+}
