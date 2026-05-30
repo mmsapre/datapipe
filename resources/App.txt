@@ -1,0 +1,10 @@
+spring:
+
+  config:
+
+    import:
+
+      - classpath:client360.yml
+      - classpath:entity-config.yml
+      - classpath:relationship-config.yml
+      - classpath:matching-config.yml
