@@ -1,0 +1,37 @@
+package com.mas.sap.prak.client360.config;
+
+public class RuleConfig {
+
+    private String field;
+
+    private String algorithm;
+
+    private double weight;
+
+    public String getField() {
+        return field;
+    }
+
+    public void setField(
+            String field) {
+        this.field = field;
+    }
+
+    public String getAlgorithm() {
+        return algorithm;
+    }
+
+    public void setAlgorithm(
+            String algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(
+            double weight) {
+        this.weight = weight;
+    }
+}
