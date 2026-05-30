@@ -1,0 +1,24 @@
+public class BlockingKey {
+
+    private String entityId;
+
+    private String entityType;
+
+    private String sourceName;
+
+    private String blockKey;
+
+    /*
+     * Which blocking rule generated it
+     * e.g.
+     * mrd_id
+     * country
+     * country+party_name
+     */
+    private String sourceField;
+
+    /*
+     * Lookup ImportedRecord
+     */
+    private long recordIndex;
+}
