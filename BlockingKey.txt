@@ -1,0 +1,37 @@
+package com.mas.sap.prak.client360.blocking;
+
+import java.util.Map;
+
+public class BlockingKey {
+
+    private String entityId;
+
+    private String entityType;
+
+    private String blockKey;
+
+    private String sourceField;
+
+    private String blockValue;
+
+    private Map<String,Object>
+            searchAttributes;
+
+    public BlockingKey(
+            String entityId,
+            String entityType,
+            String blockKey,
+            String sourceField,
+            String blockValue,
+            Map<String,Object> searchAttributes) {
+
+        this.entityId = entityId;
+        this.entityType = entityType;
+        this.blockKey = blockKey;
+        this.sourceField = sourceField;
+        this.blockValue = blockValue;
+        this.searchAttributes = searchAttributes;
+    }
+
+    // getters
+}
