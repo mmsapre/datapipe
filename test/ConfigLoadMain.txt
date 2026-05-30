@@ -1,0 +1,27 @@
+public class ConfigLoadMain {
+
+    public static void main(
+            String[] args)
+            throws Exception {
+
+        PipelineConfig config =
+                new YamlConfigLoader()
+                        .load(
+                                "client360.yml");
+
+        System.out.println(
+                "Sources="
+                + config.getSources()
+                        .size());
+
+        System.out.println(
+                "Import Dir="
+                + config.getImportConfig()
+                        .getCsvDirectory());
+
+        System.out.println(
+                "Blocking Threads="
+                + config.getThreading()
+                        .getBlockingThreads());
+    }
+}
