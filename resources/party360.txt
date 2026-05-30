@@ -1,0 +1,49 @@
+- source-name: party
+
+  file-name: 5.pmrd.t_party.csv
+
+  entity-type: PARTY
+
+  entity-id-field: mrd_id
+
+  canonical-name-field: name
+
+  blocking-fields:
+    - customer_grid
+    - mrd_id
+    - alternate_identifier
+
+  search-fields:
+    - customer_grid
+    - mrd_id
+    - name
+    - alternate_name
+    - country_of_hq
+    - alternate_identifier
+
+  display-fields:
+    - name
+    - party_tp
+    - party_st
+    - country_of_hq
+
+  matching-fields:
+    - name
+    - alternate_name
+
+  relation-fields:
+    - customer_grid
+    - mrd_id
+
+  rules:
+    - field: mrd_id
+      algorithm: EXACT
+      weight: 0.60
+
+    - field: name
+      algorithm: JARO
+      weight: 0.25
+
+    - field: alternate_name
+      algorithm: SEMANTIC
+      weight: 0.15
