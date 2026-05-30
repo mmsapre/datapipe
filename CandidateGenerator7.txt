@@ -1,0 +1,234 @@
+package com.mas.sap.prak.client360.candidate;
+
+import com.mas.sap.prak.client360.blocking.BlockingKey;
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import com.mas.sap.prak.client360.config.SourceConfig;
+import com.mas.sap.prak.client360.importer.ImportResult;
+import com.mas.sap.prak.client360.importer.ImportedRecord;
+
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+
+public class CandidateGenerator {
+
+    private final PipelineConfig config;
+
+    public CandidateGenerator(
+            PipelineConfig config) {
+
+        this.config = config;
+    }
+
+    public List<CandidatePair> generate(
+            List<BlockingKey> blockingKeys,
+            Map<String,ImportResult> importResults)
+            throws Exception {
+
+        Map<String,List<BlockingKey>> blocks =
+                blockingKeys.stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        BlockingKey::getBlockKey));
+
+        ExecutorService executor =
+                Executors.newFixedThreadPool(
+                        config.getThreading()
+                                .getCandidateThreads());
+
+        List<Future<List<CandidatePair>>>
+                futures =
+                new ArrayList<>();
+
+        for(Map.Entry<String,List<BlockingKey>> block :
+                blocks.entrySet()) {
+
+            futures.add(
+                    executor.submit(
+                            () -> generateCandidates(
+                                    block.getValue(),
+                                    importResults)));
+        }
+
+        List<CandidatePair> result =
+                new ArrayList<>();
+
+        for(Future<List<CandidatePair>> future :
+                futures) {
+
+            result.addAll(
+                    future.get());
+        }
+
+        executor.shutdown();
+
+        return result;
+    }
+
+    private List<CandidatePair> generateCandidates(
+            List<BlockingKey> keys,
+            Map<String,ImportResult> importResults) {
+
+        List<CandidatePair> result =
+                new ArrayList<>();
+
+        int size = keys.size();
+
+        for(int i=0;i<size;i++) {
+
+            BlockingKey left =
+                    keys.get(i);
+
+            for(int j=i+1;j<size;j++) {
+
+                BlockingKey right =
+                        keys.get(j);
+
+                if(left.getEntityId()
+                        .equals(
+                                right.getEntityId())) {
+
+                    continue;
+                }
+
+                result.add(
+                        buildPair(
+                                left,
+                                right,
+                                importResults));
+            }
+        }
+
+        return result;
+    }
+
+    private CandidatePair buildPair(
+            BlockingKey left,
+            BlockingKey right,
+            Map<String,ImportResult> importResults) {
+
+        ImportedRecord leftRecord =
+                resolveRecord(
+                        left,
+                        importResults);
+
+        ImportedRecord rightRecord =
+                resolveRecord(
+                        right,
+                        importResults);
+
+        SourceConfig leftSource =
+                resolveSource(
+                        left.getSourceName());
+
+        SourceConfig rightSource =
+                resolveSource(
+                        right.getSourceName());
+
+        CandidatePair pair =
+                new CandidatePair();
+
+        pair.setLeftEntityId(
+                left.getEntityId());
+
+        pair.setRightEntityId(
+                right.getEntityId());
+
+        pair.setLeftEntityType(
+                left.getEntityType());
+
+        pair.setRightEntityType(
+                right.getEntityType());
+
+        pair.setBlockKey(
+                left.getBlockKey());
+
+        pair.setSourceField(
+                left.getSourceField());
+
+        pair.setLeftSearchFields(
+                extractFields(
+                        leftRecord,
+                        leftSource.getSearchFields()));
+
+        pair.setRightSearchFields(
+                extractFields(
+                        rightRecord,
+                        rightSource.getSearchFields()));
+
+        pair.setLeftDisplayFields(
+                extractFields(
+                        leftRecord,
+                        leftSource.getDisplayFields()));
+
+        pair.setRightDisplayFields(
+                extractFields(
+                        rightRecord,
+                        rightSource.getDisplayFields()));
+
+        pair.setLeftMatchingFields(
+                extractFields(
+                        leftRecord,
+                        leftSource.getMatchingFields()));
+
+        pair.setRightMatchingFields(
+                extractFields(
+                        rightRecord,
+                        rightSource.getMatchingFields()));
+
+        return pair;
+    }
+
+    private ImportedRecord resolveRecord(
+            BlockingKey key,
+            Map<String,ImportResult> importResults) {
+
+        ImportResult result =
+                importResults.get(
+                        key.getSourceName());
+
+        if(result == null) {
+            return null;
+        }
+
+        return result.getRecords()
+                .get(
+                        key.getRecordIndex());
+    }
+
+    private SourceConfig resolveSource(
+            String sourceName) {
+
+        return config.getSources()
+                .stream()
+                .filter(
+                        s -> s.getSourceName()
+                                .equals(
+                                        sourceName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private Map<String,Object> extractFields(
+            ImportedRecord record,
+            List<String> fields) {
+
+        Map<String,Object> result =
+                new LinkedHashMap<>();
+
+        if(record == null ||
+                fields == null) {
+
+            return result;
+        }
+
+        for(String field : fields) {
+
+            result.put(
+                    field,
+                    record.get(field));
+        }
+
+        return result;
+    }
+}
