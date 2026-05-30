@@ -1,0 +1,8 @@
+spring:
+
+  config:
+
+    import:
+
+      - classpath:entity-config.yml
+      - classpath:relationship-config.yml
