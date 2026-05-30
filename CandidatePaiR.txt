@@ -1,0 +1,37 @@
+package com.mas.sap.prak.client360.candidate;
+
+public class CandidatePair {
+
+    private String leftEntityId;
+
+    private String rightEntityId;
+
+    private String leftEntityType;
+
+    private String rightEntityType;
+
+    private String blockKey;
+
+    private String blockHint;
+
+    public CandidatePair() {
+    }
+
+    public CandidatePair(
+            String leftEntityId,
+            String rightEntityId,
+            String leftEntityType,
+            String rightEntityType,
+            String blockKey,
+            String blockHint) {
+
+        this.leftEntityId = leftEntityId;
+        this.rightEntityId = rightEntityId;
+        this.leftEntityType = leftEntityType;
+        this.rightEntityType = rightEntityType;
+        this.blockKey = blockKey;
+        this.blockHint = blockHint;
+    }
+
+    // getters setters
+}
