@@ -1,0 +1,167 @@
+package com.mas.sap.prak.client360;
+
+import com.mas.sap.prak.client360.blocking.BlockingKey;
+import com.mas.sap.prak.client360.blocking.BlockingKeyGenerator;
+import com.mas.sap.prak.client360.candidate.CandidateGenerator;
+import com.mas.sap.prak.client360.candidate.CandidatePair;
+import com.mas.sap.prak.client360.candidate.CandidatePairExporter;
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import com.mas.sap.prak.client360.config.SourceConfig;
+import com.mas.sap.prak.client360.config.YamlConfigLoader;
+import com.mas.sap.prak.client360.importer.ImportResult;
+import com.mas.sap.prak.client360.importer.ImportedRecord;
+import com.mas.sap.prak.client360.importer.ParallelImportService;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+public class Client360CandidateMain {
+
+    public static void main(
+            String[] args)
+            throws Exception {
+
+        System.out.println(
+                "====================================");
+
+        System.out.println(
+                "CLIENT360 CANDIDATE GENERATION");
+
+        System.out.println(
+                "====================================");
+
+        PipelineConfig config =
+                new YamlConfigLoader()
+                        .load(
+                                "client360.yml");
+
+        System.out.println(
+                "Sources Loaded = "
+                + config.getSources().size());
+
+        ParallelImportService importer =
+                new ParallelImportService(
+                        config);
+
+        Map<String,ImportResult>
+                importResults =
+                importer.importAll();
+
+        long totalRecords = 0;
+
+        for(Map.Entry<String,ImportResult> entry :
+                importResults.entrySet()) {
+
+            System.out.println(
+                    entry.getKey()
+                    + " records="
+                    + entry.getValue()
+                           .getRecords()
+                           .size());
+
+            totalRecords +=
+                    entry.getValue()
+                         .getRecords()
+                         .size();
+        }
+
+        System.out.println(
+                "Total Imported Records="
+                + totalRecords);
+
+        BlockingKeyGenerator
+                blockingGenerator =
+                new BlockingKeyGenerator(
+                        config);
+
+        List<BlockingKey>
+                allBlockingKeys =
+                new ArrayList<>();
+
+        for(SourceConfig source :
+                config.getSources()) {
+
+            ImportResult result =
+                    importResults.get(
+                            source.getSourceName());
+
+            if(result == null) {
+                continue;
+            }
+
+            List<BlockingKey> keys =
+                    blockingGenerator.generate(
+                            source,
+                            result.getRecords());
+
+            allBlockingKeys.addAll(
+                    keys);
+
+            System.out.println(
+                    source.getSourceName()
+                    + " blocking keys="
+                    + keys.size());
+        }
+
+        System.out.println(
+                "Total Blocking Keys="
+                + allBlockingKeys.size());
+
+        /*
+         * Build record cache
+         *
+         * source-name ->
+         *      Map<recordIndex,ImportedRecord>
+         */
+
+        Map<String,
+                Map<Long,ImportedRecord>>
+                recordCache =
+                new HashMap<>();
+
+        for(Map.Entry<String,ImportResult> entry :
+                importResults.entrySet()) {
+
+            recordCache.put(
+                    entry.getKey(),
+                    entry.getValue()
+                         .getRecords());
+        }
+
+        CandidateGenerator
+                candidateGenerator =
+                new CandidateGenerator(
+                        config);
+
+        List<CandidatePair> pairs =
+                candidateGenerator.generate(
+                        allBlockingKeys,
+                        recordCache);
+
+        System.out.println(
+                "Candidate Pairs="
+                + pairs.size());
+
+        CandidatePairExporter
+                exporter =
+                new CandidatePairExporter(
+                        config);
+
+        exporter.export(
+                pairs);
+
+        System.out.println(
+                "candidate_pairs.csv exported");
+
+        System.out.println(
+                "====================================");
+
+        System.out.println(
+                "PROCESS COMPLETE");
+
+        System.out.println(
+                "====================================");
+    }
+}
