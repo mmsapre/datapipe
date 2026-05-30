@@ -1,0 +1,26 @@
+package com.mas.sap.prak.client360.config;
+
+public class ImportConfig {
+
+    private String csvDirectory;
+
+    private String archiveDirectory;
+
+    private String failedDirectory;
+
+    private String filePattern;
+
+    private String delimiter;
+
+    private String encoding;
+
+    private boolean headerRow;
+
+    private boolean incrementalEnabled;
+
+    private String hashAlgorithm;
+
+    private int batchSize;
+
+    // getters setters
+}
