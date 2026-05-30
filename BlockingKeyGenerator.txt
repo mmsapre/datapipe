@@ -1,0 +1,53 @@
+package com.mas.sap.prak.client360.blocking;
+
+import com.mas.sap.prak.client360.config.SourceConfig;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+
+import java.util.*;
+
+public class BlockingKeyGenerator {
+
+    public List<BlockingKey> generate(
+            ImportedRecord record,
+            SourceConfig source) {
+
+        List<BlockingKey> keys =
+                new ArrayList<>();
+
+        for(String field :
+                source.getBlockingFields()) {
+
+            Object value =
+                    record.get(field);
+
+            if(value == null) {
+                continue;
+            }
+
+            Map<String,Object>
+                    search =
+                    new HashMap<>();
+
+            for(String searchField :
+                    source.getSearchFields()) {
+
+                search.put(
+                        searchField,
+                        record.get(searchField));
+            }
+
+            keys.add(
+                    new BlockingKey(
+                            record.getLogicalEntityId(),
+                            source.getEntityType(),
+                            field.toUpperCase()
+                                    + "_"
+                                    + value,
+                            field,
+                            value.toString(),
+                            search));
+        }
+
+        return keys;
+    }
+}
