@@ -1,0 +1,60 @@
+package com.mas.sap.prak.client360.runner;
+
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import lombok.RequiredArgsConstructor;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+public class ConfigDumpRunner
+        implements CommandLineRunner {
+
+    private final PipelineConfig config;
+
+    @Override
+    public void run(String... args) {
+
+        System.out.println("===== CLIENT360 CONFIG =====");
+
+        System.out.println(
+                "CSV Dir="
+                + config.getImportConfig()
+                        .getCsvDirectory());
+
+        System.out.println(
+                "Export Dir="
+                + config.getExport()
+                        .getDirectory());
+
+        System.out.println(
+                "Graph="
+                + config.getGraph()
+                        .getGraphName());
+
+        System.out.println(
+                "Sources="
+                + config.getSources().size());
+
+        config.getSources()
+                .forEach(s -> {
+
+                    System.out.println(
+                            s.getEntityType()
+                            + " -> "
+                            + s.getFileName());
+
+                    System.out.println(
+                            " Blocking="
+                            + s.getBlockingFields());
+
+                    System.out.println(
+                            " Search="
+                            + s.getSearchFields());
+
+                    System.out.println(
+                            " Match="
+                            + s.getMatchingFields());
+                });
+    }
+}
