@@ -1,0 +1,16 @@
+package com.mas.sap.prak.client360.config;
+
+public class SearchConfig {
+
+    private boolean enabled;
+
+    private boolean buildSearchText;
+
+    private String separator;
+
+    private boolean includeEntityType;
+
+    private boolean includeRelations;
+
+    // getters setters
+}
