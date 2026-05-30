@@ -1,0 +1,80 @@
+package com.mas.sap.prak.client360;
+
+import com.mas.sap.prak.client360.blocking.*;
+import com.mas.sap.prak.client360.candidate.*;
+import com.mas.sap.prak.client360.config.*;
+import com.mas.sap.prak.client360.importer.*;
+
+import java.util.*;
+
+public class Client360CandidateMain {
+
+    public static void main(
+            String[] args)
+            throws Exception {
+
+        PipelineConfig config =
+                new YamlConfigLoader()
+                        .load(
+                                "client360.yml");
+
+        ParallelImportService importer =
+                new ParallelImportService(
+                        config);
+
+        Map<String,ImportResult>
+                results =
+                importer.importAll();
+
+        BlockingKeyGenerator blockingGenerator =
+                new BlockingKeyGenerator(
+                        config);
+
+        List<BlockingKey>
+                blockingKeys =
+                new ArrayList<>();
+
+        for(SourceConfig source :
+                config.getSources()) {
+
+            ImportResult result =
+                    results.get(
+                            source.getSourceName());
+
+            if(result == null) {
+                continue;
+            }
+
+            blockingKeys.addAll(
+                    blockingGenerator.generate(
+                            source,
+                            result.getRecords()));
+        }
+
+        System.out.println(
+                "Blocking Keys = "
+                + blockingKeys.size());
+
+        CandidateGenerator generator =
+                new CandidateGenerator(
+                        config);
+
+        List<CandidatePair> pairs =
+                generator.generate(
+                        blockingKeys);
+
+        System.out.println(
+                "Candidate Pairs = "
+                + pairs.size());
+
+        CandidatePairExporter exporter =
+                new CandidatePairExporter(
+                        config.getExportConfig());
+
+        exporter.export(
+                pairs);
+
+        System.out.println(
+                "Candidate Generation Complete");
+    }
+}
