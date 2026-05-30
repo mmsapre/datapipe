@@ -1,0 +1,37 @@
+relationships:
+
+  - parent: PARTY
+    child: ACCOUNT
+    relation: OWNS
+    join-field: mrd_id
+
+  - parent: PARTY
+    child: ROLE
+    relation: HAS_ROLE
+    join-field: mrd_id
+
+  - parent: ACCOUNT
+    child: ALTERNATE_IDENTIFIER
+    relation: HAS_IDENTIFIER
+    join-field: account_mrd_id
+
+  - parent: ACCOUNT
+    child: ACCOUNT_LINK
+    relation: LINKED_TO
+
+  - parent: ACCOUNT
+    child: ARRANGEMENT_ROLE
+    relation: PARTICIPATES_IN
+
+  - parent: MASTERGROUP
+    child: PARTY
+    relation: MEMBER_OF
+    join-field: child_grid
+
+  - parent: GRID_MAPPING
+    child: PARTY
+    relation: CLIENT_GRID
+
+  - parent: GRID_MAPPING
+    child: ACCOUNT
+    relation: SERVICES
