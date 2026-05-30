@@ -1,0 +1,65 @@
+package com.mas.sap.prak.client360.test;
+
+import com.mas.sap.prak.client360.Client360Application;
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import com.mas.sap.prak.client360.export.ImportedRecordExporter;
+import com.mas.sap.prak.client360.importer.ImportResult;
+import com.mas.sap.prak.client360.importer.ParallelImportService;
+
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.Map;
+
+public class ImportAllSourcesMain {
+
+    public static void main(
+            String[] args)
+            throws Exception {
+
+        ConfigurableApplicationContext ctx =
+                new SpringApplicationBuilder(
+                        Client360Application.class)
+                        .run(args);
+
+        PipelineConfig config =
+                ctx.getBean(
+                        PipelineConfig.class);
+
+        ParallelImportService service =
+                new ParallelImportService(
+                        config);
+
+        Map<String,ImportResult>
+                imported =
+                service.importAll();
+
+        ImportedRecordExporter exporter =
+                new ImportedRecordExporter();
+
+        imported.values()
+                .forEach(result -> {
+
+                    try {
+
+                        exporter.export(
+                                "target/import_"
+                                + result.getEntityType()
+                                + ".csv",
+                                result.getRecords());
+
+                        System.out.println(
+                                result.getEntityType()
+                                + " -> "
+                                + result.getRecords()
+                                        .size());
+
+                    } catch(Exception ex) {
+
+                        ex.printStackTrace();
+                    }
+                });
+
+        ctx.close();
+    }
+}
