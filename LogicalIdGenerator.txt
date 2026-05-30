@@ -1,0 +1,20 @@
+package com.mas.sap.prak.client360.identity;
+
+import com.mas.sap.prak.client360.config.SourceConfig;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+
+public class LogicalIdGenerator {
+
+    public String generate(
+            ImportedRecord record,
+            SourceConfig source) {
+
+        Object id =
+                record.get(
+                        source.getEntityIdField());
+
+        return source.getEntityType()
+                + "-"
+                + String.valueOf(id);
+    }
+}
