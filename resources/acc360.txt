@@ -1,0 +1,39 @@
+- source-name: account
+
+  file-name: 2.pmrd.t_account.csv
+
+  entity-type: ACCOUNT
+
+  entity-id-field: account_mrd_id
+
+  canonical-name-field: account_nm
+
+  blocking-fields:
+    - account_mrd_id
+    - account_nm
+
+  search-fields:
+    - account_mrd_id
+    - account_nm
+    - account_tp
+    - region_nm
+
+  display-fields:
+    - account_nm
+    - account_tp
+    - region_nm
+
+  matching-fields:
+    - account_nm
+
+  relation-fields:
+    - account_mrd_id
+
+  rules:
+    - field: account_mrd_id
+      algorithm: EXACT
+      weight: 0.80
+
+    - field: account_nm
+      algorithm: JARO
+      weight: 0.20
