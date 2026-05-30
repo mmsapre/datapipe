@@ -1,0 +1,82 @@
+client360:
+
+sources:
+
+- source-name: party
+  file-name: 5.pmrd.t_party.csv
+  entity-type: PARTY
+  entity-id-field: mrd_id
+  canonical-name-field: name
+  blocking-fields:
+    - customer_grid
+    - mrd_id
+    - alternate_identifier
+  search-fields:
+    - customer_grid
+    - mrd_id
+    - name
+    - alternate_name
+    - country_of_hq
+    - alternate_identifier
+  display-fields:
+    - name
+    - party_tp
+    - party_st
+    - country_of_hq
+  matching-fields:
+    - name
+    - alternate_name
+  relation-fields:
+    - customer_grid
+    - mrd_id
+- source-name: account
+  file-name: 2.pmrd.t_account.csv
+  entity-type: ACCOUNT
+  entity-id-field: account_mrd_id
+  canonical-name-field: account_nm
+  blocking-fields:
+    - account_mrd_id
+  search-fields:
+    - account_mrd_id
+    - account_nm
+    - account_tp
+    - region_nm
+  display-fields:
+    - account_nm
+    - account_tp
+    - region_nm
+  matching-fields:
+    - account_nm
+- source-name: st_account_gcs
+  file-name: 1.pmrd.t_st_account_gcs.csv
+  entity-type: ST_ACCOUNT
+  entity-id-field: account_id
+- source-name: account_arrangement_mapping
+  file-name: 3.pmrd.t_account_arrange_mapping.csv
+  entity-type: ACCOUNT_ARRANGEMENT
+  entity-id-field: account_arrange_id
+- source-name: gridding_mapping
+  file-name: 4.pmrd.t_gridding_mapping_gcs.csv
+  entity-type: GRID_MAPPING
+  entity-id-field: arrange_id
+- source-name: arrangement_role
+  file-name: 6.pmrd.t_arrangement_role.csv
+  entity-type: ARRANGEMENT_ROLE
+  entity-id-field: arrange_role_id
+- source-name: role
+  file-name: 7.pmrd.t_role.csv
+  entity-type: ROLE
+  entity-id-field: role_value
+- source-name: linkage_account
+  file-name: 8.pmrd.t_linkage_account.csv
+  entity-type: ACCOUNT_LINK
+  entity-id-field: link_acc_id
+- source-name: alternate_identifier
+  file-name: 9.pmrd.t_alternate_identifier.csv
+  entity-type: ALTERNATE_IDENTIFIER
+  entity-id-field: alternate_tp_value
+- source-name: mastergroup_membership
+  file-name: 10.pmrd.t_mastergroup_membership.csv
+  entity-type: MASTERGROUP
+  entity-id-field: mg_id
+  canonical-name-field: mg_name
