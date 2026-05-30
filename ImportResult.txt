@@ -1,0 +1,44 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.model.ImportedRecord;
+
+import java.util.List;
+
+public class ImportResult {
+
+    private String sourceName;
+
+    private String entityType;
+
+    private List<ImportedRecord> records;
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(
+            String sourceName) {
+
+        this.sourceName = sourceName;
+    }
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(
+            String entityType) {
+
+        this.entityType = entityType;
+    }
+
+    public List<ImportedRecord> getRecords() {
+        return records;
+    }
+
+    public void setRecords(
+            List<ImportedRecord> records) {
+
+        this.records = records;
+    }
+}
