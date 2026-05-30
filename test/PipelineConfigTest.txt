@@ -1,0 +1,28 @@
+package com.mas.sap.prak.client360;
+
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class PipelineConfigTest {
+
+    @Autowired
+    private PipelineConfig config;
+
+    @Test
+    void verifyConfigLoaded() {
+
+        System.out.println(
+                config.getSources().size());
+
+        config.getSources()
+                .forEach(
+                        s -> System.out.println(
+                                s.getEntityType()
+                                + " "
+                                + s.getFileName()
+                        ));
+    }
+}
