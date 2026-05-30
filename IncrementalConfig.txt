@@ -1,0 +1,22 @@
+package com.mas.sap.prak.client360.config;
+
+public class IncrementalConfig {
+
+    private boolean enabled;
+
+    private boolean storeRecordHash;
+
+    private boolean storeCandidateHash;
+
+    private boolean storeMatchHash;
+
+    private boolean storeClusterHash;
+
+    private boolean rebuildOnSearchFieldChange;
+
+    private boolean rebuildOnMatchingChange;
+
+    private boolean rebuildOnBlockingChange;
+
+    // getters setters
+}
