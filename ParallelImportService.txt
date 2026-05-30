@@ -1,0 +1,72 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import com.mas.sap.prak.client360.config.SourceConfig;
+
+import java.util.*;
+import java.util.concurrent.*;
+
+public class ParallelImportService {
+
+    private final PipelineConfig config;
+
+    public ParallelImportService(
+            PipelineConfig config) {
+
+        this.config = config;
+    }
+
+    public Map<String,ImportResult>
+    importAll()
+            throws Exception {
+
+        ExecutorService executor =
+                Executors.newFixedThreadPool(
+                        config.getExecutor()
+                              .getImportThreads());
+
+        try {
+
+            List<Future<ImportResult>>
+                    futures =
+                    new ArrayList<>();
+
+            for(SourceConfig source :
+                    config.getSources()) {
+
+                futures.add(
+                        executor.submit(
+                                new ImportTask(
+                                        config
+                                                .getImportConfig()
+                                                .getCsvDirectory(),
+                                        source)));
+            }
+
+            Map<String,ImportResult>
+                    result =
+                    new LinkedHashMap<>();
+
+            for(Future<ImportResult> future :
+                    futures) {
+
+                ImportResult importResult =
+                        future.get();
+
+                result.put(
+                        importResult.getEntityType(),
+                        importResult);
+            }
+
+            return result;
+
+        } finally {
+
+            executor.shutdown();
+
+            executor.awaitTermination(
+                    1,
+                    TimeUnit.MINUTES);
+        }
+    }
+}
