@@ -1,0 +1,37 @@
+@Component
+@RequiredArgsConstructor
+public class ConfigurationValidator {
+
+    private final PipelineConfig config;
+
+    @PostConstruct
+    public void validate() {
+
+        if(config.getSources() == null
+                || config.getSources().isEmpty()) {
+
+            throw new IllegalStateException(
+                    "No source definitions configured");
+        }
+
+        for(SourceConfig source :
+                config.getSources()) {
+
+            if(source.getBlockingFields() == null
+                    || source.getBlockingFields().isEmpty()) {
+
+                throw new IllegalStateException(
+                        source.getEntityType()
+                        + " missing blocking fields");
+            }
+
+            if(source.getSearchFields() == null
+                    || source.getSearchFields().isEmpty()) {
+
+                throw new IllegalStateException(
+                        source.getEntityType()
+                        + " missing search fields");
+            }
+        }
+    }
+}
