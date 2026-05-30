@@ -1,0 +1,14 @@
+package com.mas.sap.prak.client360.config;
+
+public class FusionConfig {
+
+    private String logicalIdStrategy;
+
+    private String canonicalNameStrategy;
+
+    private boolean retainSourceValues;
+
+    private double confidenceThreshold;
+
+    // getters setters
+}
