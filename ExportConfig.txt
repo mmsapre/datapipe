@@ -1,0 +1,20 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.Map;
+
+public class ExportConfig {
+
+    private String directory;
+
+    private boolean csvEnabled;
+
+    private boolean postgresEnabled;
+
+    private boolean graphEnabled;
+
+    private boolean overwriteExisting;
+
+    private Map<String,Boolean> datasets;
+
+    // getters setters
+}
