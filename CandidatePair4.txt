@@ -1,0 +1,36 @@
+package com.mas.sap.prak.client360.candidate;
+
+import java.util.Map;
+
+public class CandidatePair {
+
+    private String leftEntityId;
+
+    private String rightEntityId;
+
+    private String leftEntityType;
+
+    private String rightEntityType;
+
+    private String blockKey;
+
+    private String sourceField;
+
+    private ImportedRecord leftRecord;
+
+    private ImportedRecord rightRecord;
+
+    private Map<String,Object> leftSearchData;
+
+    private Map<String,Object> rightSearchData;
+
+    private Map<String,Object> leftDisplayData;
+
+    private Map<String,Object> rightDisplayData;
+
+    private Map<String,Object> leftRelationData;
+
+    private Map<String,Object> rightRelationData;
+
+    // getters setters
+}
