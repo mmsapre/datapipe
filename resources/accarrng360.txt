@@ -1,0 +1,18 @@
+- source-name: account_arrangement_mapping
+
+  file-name: 3.pmrd.t_account_arrange_mapping.csv
+
+  entity-type: ACCOUNT_ARRANGEMENT
+
+  entity-id-field: account_arrange_id
+
+  blocking-fields:
+    - account_mrd_id
+
+  search-fields:
+    - account_mrd_id
+    - arrange_id
+
+  relation-fields:
+    - account_mrd_id
+    - arrange_id
