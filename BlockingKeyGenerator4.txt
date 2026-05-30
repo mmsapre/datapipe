@@ -1,0 +1,106 @@
+package com.mas.sap.prak.client360.blocking;
+
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import com.mas.sap.prak.client360.config.SourceConfig;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class BlockingKeyGenerator {
+
+    private final PipelineConfig config;
+
+    public BlockingKeyGenerator(
+            PipelineConfig config) {
+
+        this.config = config;
+    }
+
+    public List<BlockingKey> generate(
+            SourceConfig source,
+            List<ImportedRecord> records) {
+
+        List<BlockingKey> result =
+                new ArrayList<>();
+
+        for (ImportedRecord record : records) {
+
+            String entityId =
+                    getEntityId(
+                            record,
+                            source);
+
+            for (String field :
+                    source.getBlockingFields()) {
+
+                Object value =
+                        record.get(field);
+
+                if (value == null) {
+                    continue;
+                }
+
+                String blockKey =
+                        normalize(
+                                value.toString());
+
+                if (blockKey.isEmpty()) {
+                    continue;
+                }
+
+                result.add(
+                        new BlockingKey(
+                                entityId,
+                                source.getEntityType(),
+                                source.getSourceName(),
+                                blockKey,
+                                field));
+            }
+        }
+
+        return result;
+    }
+
+    private String getEntityId(
+            ImportedRecord record,
+            SourceConfig source) {
+
+        Object value =
+                record.get(
+                        source.getEntityIdField());
+
+        return value == null
+                ? ""
+                : value.toString();
+    }
+
+    private String normalize(
+            String value) {
+
+        if(value == null) {
+            return "";
+        }
+
+        String normalized =
+                value.trim();
+
+        if(config.getBlockingConfig()
+                .isIgnoreCase()) {
+
+            normalized =
+                    normalized.toUpperCase();
+        }
+
+        if(config.getBlockingConfig()
+                .isRemoveSpecialChars()) {
+
+            normalized =
+                    normalized.replaceAll(
+                            "[^A-Z0-9 ]",
+                            "");
+        }
+
+        return normalized;
+    }
+}
