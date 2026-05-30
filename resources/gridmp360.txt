@@ -1,0 +1,24 @@
+- source-name: gridding_mapping
+
+  file-name: 4.pmrd.t_gridding_mapping_gcs.csv
+
+  entity-type: GRID_MAPPING
+
+  entity-id-field: arrange_id
+
+  blocking-fields:
+    - client_grid
+    - client_mrd_id
+    - contracting_le_id
+
+  search-fields:
+    - client_grid
+    - client_mrd_id
+    - contracting_le_id
+    - parent_le
+
+  relation-fields:
+    - client_grid
+    - client_mrd_id
+    - contracting_le_id
+    - client_servicing_entity_mrd_id
