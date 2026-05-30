@@ -1,0 +1,106 @@
+package com.mas.sap.prak.client360.candidate;
+
+import com.mas.sap.prak.client360.blocking.BlockingKey;
+import com.mas.sap.prak.client360.config.PipelineConfig;
+
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+
+public class CandidateGenerator {
+
+    private final PipelineConfig config;
+
+    public CandidateGenerator(
+            PipelineConfig config) {
+
+        this.config = config;
+    }
+
+    public List<CandidatePair> generate(
+            List<BlockingKey> blockingKeys)
+            throws Exception {
+
+        Map<String,List<BlockingKey>>
+                blocks =
+                blockingKeys.stream()
+                        .collect(
+                                Collectors.groupingBy(
+                                        BlockingKey::getBlockKey));
+
+        ExecutorService executor =
+                Executors.newFixedThreadPool(
+                        config.getThreading()
+                                .getCandidateThreads());
+
+        List<Future<List<CandidatePair>>>
+                futures =
+                new ArrayList<>();
+
+        for(Map.Entry<String,List<BlockingKey>> entry :
+                blocks.entrySet()) {
+
+            futures.add(
+                    executor.submit(
+                            () -> generateCandidates(
+                                    entry.getKey(),
+                                    entry.getValue())));
+        }
+
+        List<CandidatePair> result =
+                new ArrayList<>();
+
+        for(Future<List<CandidatePair>> future :
+                futures) {
+
+            result.addAll(
+                    future.get());
+        }
+
+        executor.shutdown();
+
+        return result;
+    }
+
+    private List<CandidatePair>
+    generateCandidates(
+            String blockKey,
+            List<BlockingKey> keys) {
+
+        List<CandidatePair> result =
+                new ArrayList<>();
+
+        int size =
+                keys.size();
+
+        for(int i=0;i<size;i++) {
+
+            BlockingKey left =
+                    keys.get(i);
+
+            for(int j=i+1;j<size;j++) {
+
+                BlockingKey right =
+                        keys.get(j);
+
+                if(left.getEntityId()
+                        .equals(
+                                right.getEntityId())) {
+
+                    continue;
+                }
+
+                result.add(
+                        new CandidatePair(
+                                left.getEntityId(),
+                                right.getEntityId(),
+                                left.getEntityType(),
+                                right.getEntityType(),
+                                blockKey,
+                                left.getBlockHint()));
+            }
+        }
+
+        return result;
+    }
+}
