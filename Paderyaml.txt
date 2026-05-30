@@ -1,4 +1,4 @@
-package com.hsbc.gbm.hss.mrd.em.config;
+
 
 import org.yaml.snakeyaml.Yaml;
 
