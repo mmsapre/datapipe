@@ -1,0 +1,46 @@
+
+
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class MrdRelationshipConfigLoader {
+
+    public List<MrdRelationshipConfig> load(
+            String fileName)
+            throws Exception {
+
+        try(InputStream input =
+                    Thread.currentThread()
+                            .getContextClassLoader()
+                            .getResourceAsStream(fileName)) {
+
+            Yaml yaml = new Yaml();
+
+            Map<String,Object> root =
+                    yaml.load(input);
+
+            List<Map<String,Object>> rels =
+                    (List<Map<String,Object>>)
+                            root.get("relationships");
+
+            List<MrdRelationshipConfig>
+                    result =
+                    new ArrayList<>();
+
+            for(Map<String,Object> rel :
+                    rels) {
+
+                result.add(
+                        MrdRelationshipConfigMapper
+                                .map(rel));
+            }
+
+            return result;
+        }
+
+    }
+}
