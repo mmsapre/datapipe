@@ -1,0 +1,58 @@
+package com.mas.sap.prak.client360.test;
+
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import com.mas.sap.prak.client360.importer.*;
+import com.mas.sap.prak.client360.blocking.*;
+import com.mas.sap.prak.client360.export.*;
+
+public class Client360ImportMain {
+
+    public static void main(
+            String[] args)
+            throws Exception {
+
+        PipelineConfig config =
+                new YamlConfigLoader()
+                        .load(
+                                "client360.yml");
+
+        ParallelImportService importer =
+                new ParallelImportService(
+                        config);
+
+        var imported =
+                importer.importAll();
+
+        BlockingKeyGenerator blocker =
+                new BlockingKeyGenerator();
+
+        List<BlockingKey> allKeys =
+                new ArrayList<>();
+
+        imported.values()
+                .forEach(result -> {
+
+                    result.getRecords()
+                            .forEach(record -> {
+
+                                allKeys.addAll(
+                                        blocker.generate(
+                                                record,
+                                                result.getSource()));
+                            });
+                });
+
+        new BlockingKeyExporter()
+                .export(
+                        "target/blocking_keys.csv",
+                        allKeys);
+
+        System.out.println(
+                "Imported Sources="
+                + imported.size());
+
+        System.out.println(
+                "Blocking Keys="
+                + allKeys.size());
+    }
+}
