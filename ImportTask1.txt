@@ -1,0 +1,53 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.config.SourceConfig;
+import com.mas.sap.prak.client360.identity.LogicalIdGenerator;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+
+import java.util.List;
+import java.util.concurrent.Callable;
+
+public class ImportTask
+        implements Callable<ImportResult> {
+
+    private final String directory;
+
+    private final SourceConfig source;
+
+    public ImportTask(
+            String directory,
+            SourceConfig source) {
+
+        this.directory = directory;
+        this.source = source;
+    }
+
+    @Override
+    public ImportResult call()
+            throws Exception {
+
+        CsvSourceLoader loader =
+                new CsvSourceLoader();
+
+        LogicalIdGenerator idGenerator =
+                new LogicalIdGenerator();
+
+        List<ImportedRecord> records =
+                loader.load(
+                        directory,
+                        source);
+
+        for(ImportedRecord record :
+                records) {
+
+            record.setLogicalEntityId(
+                    idGenerator.generate(
+                            record,
+                            source));
+        }
+
+        return new ImportResult(
+                source,
+                records);
+    }
+}
