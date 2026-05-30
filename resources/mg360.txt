@@ -1,0 +1,37 @@
+- source-name: mastergroup_membership
+
+  file-name: 10.pmrd.t_mastergroup_membership.csv
+
+  entity-type: MASTERGROUP
+
+  entity-id-field: mg_id
+
+  canonical-name-field: mg_name
+
+  blocking-fields:
+    - parent_grid
+    - child_grid
+
+  search-fields:
+    - mg_id
+    - mg_name
+    - parent_grid
+    - child_grid
+
+  display-fields:
+    - mg_name
+    - parent_grid
+    - child_grid
+
+  relation-fields:
+    - parent_grid
+    - child_grid
+
+  rules:
+    - field: mg_id
+      algorithm: EXACT
+      weight: 0.80
+
+    - field: mg_name
+      algorithm: JARO
+      weight: 0.20
