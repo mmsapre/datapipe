@@ -1,0 +1,12 @@
+@SpringBootApplication
+@EnableConfigurationProperties(
+        PipelineConfig.class)
+public class Client360Application {
+
+    public static void main(String[] args) {
+
+        SpringApplication.run(
+                Client360Application.class,
+                args);
+    }
+}
