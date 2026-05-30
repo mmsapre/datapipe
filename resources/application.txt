@@ -1,8 +1,119 @@
 spring:
 
+  application:
+    name: client360
+
   config:
-
     import:
+      - classpath:client360.yml
 
-      - classpath:entity-config.yml
-      - classpath:relationship-config.yml
+server:
+  port: 8080
+
+logging:
+
+  level:
+
+    root: INFO
+
+    com.mas.sap.prak.client360: DEBUG
+
+management:
+
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+---
+# PostgreSQL datasource
+
+spring:
+
+  datasource:
+
+    url: jdbc:postgresql://localhost:5432/client360
+
+    username: postgres
+
+    password: postgres
+
+    driver-class-name: org.postgresql.Driver
+
+    hikari:
+
+      pool-name: client360-pool
+
+      maximum-pool-size: 20
+
+      minimum-idle: 5
+
+      connection-timeout: 30000
+
+      idle-timeout: 600000
+
+      max-lifetime: 1800000
+
+---
+# JPA
+
+spring:
+
+  jpa:
+
+    open-in-view: false
+
+    hibernate:
+      ddl-auto: none
+
+    properties:
+
+      hibernate:
+
+        jdbc:
+          batch_size: 1000
+
+        order_inserts: true
+
+        order_updates: true
+
+---
+# FalkorDB
+
+falkordb:
+
+  host: localhost
+
+  port: 6379
+
+  graph-name: CLIENT360
+
+---
+# Async processing
+
+client360:
+
+  executor:
+
+    import-threads: 4
+
+    candidate-threads: 8
+
+    matching-threads: 8
+
+    fusion-threads: 4
+
+    graph-threads: 2
+
+---
+# CSV export
+
+client360:
+
+  export:
+
+    write-header: true
+
+    delimiter: ","
+
+    quote-mode: MINIMAL
