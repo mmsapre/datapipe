@@ -103,4 +103,32 @@ public class BlockingKeyGenerator {
 
         return normalized;
     }
+private String buildCompositeKey(
+        ImportedRecord record,
+        List<String> fields) {
+
+    StringBuilder sb =
+            new StringBuilder();
+
+    for(String field : fields) {
+
+        Object value =
+                record.get(field);
+
+        if(value == null) {
+            continue;
+        }
+
+        if(sb.length() > 0) {
+            sb.append("|");
+        }
+
+        sb.append(
+                normalize(
+                        value.toString()));
+    }
+
+    return sb.toString();
+}
+
 }
