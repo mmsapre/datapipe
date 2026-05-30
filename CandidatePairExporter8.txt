@@ -1,0 +1,94 @@
+package com.mas.sap.prak.client360.candidate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.util.List;
+
+public class CandidatePairExporter {
+
+    private final PipelineConfig config;
+
+    private final ObjectMapper mapper =
+            new ObjectMapper();
+
+    public CandidatePairExporter(
+            PipelineConfig config) {
+
+        this.config = config;
+    }
+
+    public void export(
+            List<CandidatePair> pairs)
+            throws Exception {
+
+        File exportFile =
+                new File(
+                        config.getExportConfig()
+                                .getDirectory(),
+                        "candidate_pairs.csv");
+
+        try(CSVPrinter printer =
+                    new CSVPrinter(
+                            new FileWriter(
+                                    exportFile),
+                            CSVFormat.DEFAULT
+                                    .withHeader(
+                                            "left_entity_id",
+                                            "right_entity_id",
+                                            "left_entity_type",
+                                            "right_entity_type",
+                                            "block_key",
+                                            "source_field",
+                                            "left_search_fields",
+                                            "right_search_fields",
+                                            "left_display_fields",
+                                            "right_display_fields",
+                                            "left_matching_fields",
+                                            "right_matching_fields"))) {
+
+            for(CandidatePair pair :
+                    pairs) {
+
+                printer.printRecord(
+                        pair.getLeftEntityId(),
+
+                        pair.getRightEntityId(),
+
+                        pair.getLeftEntityType(),
+
+                        pair.getRightEntityType(),
+
+                        pair.getBlockKey(),
+
+                        pair.getSourceField(),
+
+                        mapper.writeValueAsString(
+                                pair.getLeftSearchFields()),
+
+                        mapper.writeValueAsString(
+                                pair.getRightSearchFields()),
+
+                        mapper.writeValueAsString(
+                                pair.getLeftDisplayFields()),
+
+                        mapper.writeValueAsString(
+                                pair.getRightDisplayFields()),
+
+                        mapper.writeValueAsString(
+                                pair.getLeftMatchingFields()),
+
+                        mapper.writeValueAsString(
+                                pair.getRightMatchingFields()));
+            }
+        }
+
+        System.out.println(
+                "Candidate pairs exported : "
+                + exportFile.getAbsolutePath());
+    }
+}
