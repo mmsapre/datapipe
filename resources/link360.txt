@@ -1,0 +1,19 @@
+- source-name: linkage_account
+
+  file-name: 8.pmrd.t_linkage_account.csv
+
+  entity-type: ACCOUNT_LINK
+
+  entity-id-field: link_acc_id
+
+  blocking-fields:
+    - cash_mrd_account
+    - sec_mrd_account_id
+
+  search-fields:
+    - cash_mrd_account
+    - sec_mrd_account_id
+
+  relation-fields:
+    - cash_mrd_account
+    - sec_mrd_account_id
