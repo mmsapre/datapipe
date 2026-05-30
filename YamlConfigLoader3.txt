@@ -1,0 +1,514 @@
+package com.mas.sap.prak.client360.config;
+
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.InputStream;
+import java.util.Map;
+
+public class YamlConfigLoader {
+
+    public PipelineConfig load(
+            String client360File)
+            throws Exception {
+
+        Yaml yaml = new Yaml();
+
+        try (InputStream input =
+                     Thread.currentThread()
+                             .getContextClassLoader()
+                             .getResourceAsStream(
+                                     client360File)) {
+
+            if (input == null) {
+
+                throw new IllegalArgumentException(
+                        "Cannot find file "
+                                + client360File);
+            }
+
+            Map<String,Object> root =
+                    yaml.load(input);
+
+            Map<String,Object> client360 =
+                    getMap(
+                            root,
+                            "client360");
+
+            PipelineConfig config =
+                    buildConfig(client360);
+
+            EntityConfigLoader entityLoader =
+                    new EntityConfigLoader();
+
+            config.setSources(
+                    entityLoader.load(
+                            "entity-config.yml"));
+
+            RelationshipConfigLoader
+                    relationshipLoader =
+                    new RelationshipConfigLoader();
+
+            config.setRelationships(
+                    relationshipLoader.load(
+                            "relationship-config.yml"));
+
+            return config;
+        }
+    }
+
+    private PipelineConfig buildConfig(
+            Map<String,Object> root) {
+
+        PipelineConfig config =
+                new PipelineConfig();
+
+        config.setImportConfig(
+                readImport(
+                        getMap(root,"import")));
+
+        config.setExportConfig(
+                readExport(
+                        getMap(root,"export")));
+
+        config.setPostgresConfig(
+                readPostgres(
+                        getMap(root,"postgres")));
+
+        config.setGraphConfig(
+                readGraph(
+                        getMap(root,"graph")));
+
+        config.setSearchConfig(
+                readSearch(
+                        getMap(root,"search")));
+
+        config.setThreading(
+                readThreading(
+                        getMap(root,"threading")));
+
+        config.setBlockingConfig(
+                readBlocking(
+                        getMap(root,"blocking")));
+
+        config.setSimilarityConfig(
+                readSimilarity(
+                        getMap(root,"similarity")));
+
+        config.setSemanticConfig(
+                readSemantic(
+                        getMap(root,"semantic")));
+
+        config.setFusionConfig(
+                readFusion(
+                        getMap(root,"fusion")));
+
+        config.setIncrementalConfig(
+                readIncremental(
+                        getMap(root,"incremental")));
+
+        return config;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String,Object> getMap(
+            Map<String,Object> parent,
+            String key) {
+
+        if(parent == null) {
+            return null;
+        }
+
+        Object value =
+                parent.get(key);
+
+        if(value == null) {
+            return null;
+        }
+
+        return (Map<String,Object>) value;
+    }
+
+    private String getString(
+            Map<String,Object> map,
+            String key) {
+
+        if(map == null) {
+            return null;
+        }
+
+        Object value =
+                map.get(key);
+
+        return value == null
+                ? null
+                : value.toString();
+    }
+
+    private int getInt(
+            Map<String,Object> map,
+            String key) {
+
+        if(map == null) {
+            return 0;
+        }
+
+        Object value =
+                map.get(key);
+
+        if(value == null) {
+            return 0;
+        }
+
+        return Integer.parseInt(
+                value.toString());
+    }
+
+    private double getDouble(
+            Map<String,Object> map,
+            String key) {
+
+        if(map == null) {
+            return 0.0;
+        }
+
+        Object value =
+                map.get(key);
+
+        if(value == null) {
+            return 0.0;
+        }
+
+        return Double.parseDouble(
+                value.toString());
+    }
+
+    private boolean getBoolean(
+            Map<String,Object> map,
+            String key) {
+
+        if(map == null) {
+            return false;
+        }
+
+        Object value =
+                map.get(key);
+
+        return value != null
+                && Boolean.parseBoolean(
+                        value.toString());
+    }
+
+    private ImportConfig readImport(
+            Map<String,Object> map) {
+
+        ImportConfig cfg =
+                new ImportConfig();
+
+        cfg.setCsvDirectory(
+                getString(
+                        map,
+                        "csv-directory"));
+
+        cfg.setArchiveDirectory(
+                getString(
+                        map,
+                        "archive-directory"));
+
+        cfg.setFailedDirectory(
+                getString(
+                        map,
+                        "failed-directory"));
+
+        cfg.setFilePattern(
+                getString(
+                        map,
+                        "file-pattern"));
+
+        cfg.setDelimiter(
+                getString(
+                        map,
+                        "delimiter"));
+
+        cfg.setEncoding(
+                getString(
+                        map,
+                        "encoding"));
+
+        cfg.setHeaderRow(
+                getBoolean(
+                        map,
+                        "header-row"));
+
+        cfg.setBatchSize(
+                getInt(
+                        map,
+                        "batch-size"));
+
+        return cfg;
+    }
+
+    private ExportConfig readExport(
+            Map<String,Object> map) {
+
+        ExportConfig cfg =
+                new ExportConfig();
+
+        cfg.setDirectory(
+                getString(
+                        map,
+                        "directory"));
+
+        cfg.setCsvEnabled(
+                getBoolean(
+                        map,
+                        "csv-enabled"));
+
+        cfg.setPostgresEnabled(
+                getBoolean(
+                        map,
+                        "postgres-enabled"));
+
+        cfg.setGraphEnabled(
+                getBoolean(
+                        map,
+                        "graph-enabled"));
+
+        return cfg;
+    }
+
+    private PostgresConfig readPostgres(
+            Map<String,Object> map) {
+
+        PostgresConfig cfg =
+                new PostgresConfig();
+
+        cfg.setJdbcUrl(
+                getString(
+                        map,
+                        "jdbc-url"));
+
+        cfg.setUsername(
+                getString(
+                        map,
+                        "username"));
+
+        cfg.setPassword(
+                getString(
+                        map,
+                        "password"));
+
+        cfg.setSchema(
+                getString(
+                        map,
+                        "schema"));
+
+        cfg.setBatchSize(
+                getInt(
+                        map,
+                        "batch-size"));
+
+        return cfg;
+    }
+
+    private GraphConfig readGraph(
+            Map<String,Object> map) {
+
+        GraphConfig cfg =
+                new GraphConfig();
+
+        cfg.setProvider(
+                getString(
+                        map,
+                        "provider"));
+
+        cfg.setHost(
+                getString(
+                        map,
+                        "host"));
+
+        cfg.setPort(
+                getInt(
+                        map,
+                        "port"));
+
+        cfg.setGraphName(
+                getString(
+                        map,
+                        "graph-name"));
+
+        return cfg;
+    }
+
+    private SearchConfig readSearch(
+            Map<String,Object> map) {
+
+        SearchConfig cfg =
+                new SearchConfig();
+
+        cfg.setEnabled(
+                getBoolean(
+                        map,
+                        "enabled"));
+
+        cfg.setBuildSearchText(
+                getBoolean(
+                        map,
+                        "build-search-text"));
+
+        return cfg;
+    }
+
+    private ThreadingConfig readThreading(
+            Map<String,Object> map) {
+
+        ThreadingConfig cfg =
+                new ThreadingConfig();
+
+        cfg.setImporterThreads(
+                getInt(
+                        map,
+                        "importer-threads"));
+
+        cfg.setBlockingThreads(
+                getInt(
+                        map,
+                        "blocking-threads"));
+
+        cfg.setCandidateThreads(
+                getInt(
+                        map,
+                        "candidate-threads"));
+
+        cfg.setMatchingThreads(
+                getInt(
+                        map,
+                        "matching-threads"));
+
+        cfg.setFusionThreads(
+                getInt(
+                        map,
+                        "fusion-threads"));
+
+        return cfg;
+    }
+
+    private BlockingConfig readBlocking(
+            Map<String,Object> map) {
+
+        BlockingConfig cfg =
+                new BlockingConfig();
+
+        cfg.setEnabled(
+                getBoolean(
+                        map,
+                        "enabled"));
+
+        cfg.setCrossSourceBlocking(
+                getBoolean(
+                        map,
+                        "cross-source-blocking"));
+
+        cfg.setMinimumBlockSize(
+                getInt(
+                        map,
+                        "minimum-block-size"));
+
+        cfg.setMaximumBlockSize(
+                getInt(
+                        map,
+                        "maximum-block-size"));
+
+        return cfg;
+    }
+
+    private SimilarityConfig readSimilarity(
+            Map<String,Object> map) {
+
+        SimilarityConfig cfg =
+                new SimilarityConfig();
+
+        cfg.setExactWeight(
+                getDouble(
+                        map,
+                        "exact-weight"));
+
+        cfg.setJaroWeight(
+                getDouble(
+                        map,
+                        "jaro-weight"));
+
+        cfg.setSemanticWeight(
+                getDouble(
+                        map,
+                        "semantic-weight"));
+
+        cfg.setMatchThreshold(
+                getDouble(
+                        map,
+                        "match-threshold"));
+
+        return cfg;
+    }
+
+    private SemanticConfig readSemantic(
+            Map<String,Object> map) {
+
+        SemanticConfig cfg =
+                new SemanticConfig();
+
+        cfg.setEnabled(
+                getBoolean(
+                        map,
+                        "enabled"));
+
+        cfg.setEmbeddingModel(
+                getString(
+                        map,
+                        "embedding-model"));
+
+        cfg.setLlmUrl(
+                getString(
+                        map,
+                        "llm-url"));
+
+        return cfg;
+    }
+
+    private FusionConfig readFusion(
+            Map<String,Object> map) {
+
+        FusionConfig cfg =
+                new FusionConfig();
+
+        cfg.setLogicalIdStrategy(
+                getString(
+                        map,
+                        "logical-id-strategy"));
+
+        cfg.setConfidenceThreshold(
+                getDouble(
+                        map,
+                        "confidence-threshold"));
+
+        return cfg;
+    }
+
+    private IncrementalConfig readIncremental(
+            Map<String,Object> map) {
+
+        IncrementalConfig cfg =
+                new IncrementalConfig();
+
+        cfg.setEnabled(
+                getBoolean(
+                        map,
+                        "enabled"));
+
+        cfg.setStoreRecordHash(
+                getBoolean(
+                        map,
+                        "store-record-hash"));
+
+        return cfg;
+    }
+}
