@@ -1,0 +1,177 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public final class SourceConfigMapper {
+
+    private SourceConfigMapper() {
+    }
+
+    @SuppressWarnings("unchecked")
+    public static List<SourceConfig> mapSources(
+            Map<String,Object> root) {
+
+        List<SourceConfig> result =
+                new ArrayList<>();
+
+        List<Map<String,Object>> sources =
+                (List<Map<String,Object>>)
+                        root.get("sources");
+
+        if(sources == null) {
+            return result;
+        }
+
+        for(Map<String,Object> sourceMap :
+                sources) {
+
+            SourceConfig source =
+                    new SourceConfig();
+
+            source.setSourceName(
+                    getString(
+                            sourceMap,
+                            "source-name"));
+
+            source.setFileName(
+                    getString(
+                            sourceMap,
+                            "file-name"));
+
+            source.setEntityType(
+                    getString(
+                            sourceMap,
+                            "entity-type"));
+
+            source.setEntityIdField(
+                    getString(
+                            sourceMap,
+                            "entity-id-field"));
+
+            source.setCanonicalNameField(
+                    getString(
+                            sourceMap,
+                            "canonical-name-field"));
+
+            source.setBlockingFields(
+                    getStringList(
+                            sourceMap,
+                            "blocking-fields"));
+
+            source.setSearchFields(
+                    getStringList(
+                            sourceMap,
+                            "search-fields"));
+
+            source.setDisplayFields(
+                    getStringList(
+                            sourceMap,
+                            "display-fields"));
+
+            source.setMatchingFields(
+                    getStringList(
+                            sourceMap,
+                            "matching-fields"));
+
+            source.setRelationFields(
+                    getStringList(
+                            sourceMap,
+                            "relation-fields"));
+
+            source.setRules(
+                    mapRules(sourceMap));
+
+            result.add(source);
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<RuleConfig> mapRules(
+            Map<String,Object> sourceMap) {
+
+        List<RuleConfig> rules =
+                new ArrayList<>();
+
+        List<Map<String,Object>> ruleMaps =
+                (List<Map<String,Object>>)
+                        sourceMap.get("rules");
+
+        if(ruleMaps == null) {
+            return rules;
+        }
+
+        for(Map<String,Object> ruleMap :
+                ruleMaps) {
+
+            RuleConfig rule =
+                    new RuleConfig();
+
+            rule.setField(
+                    getString(
+                            ruleMap,
+                            "field"));
+
+            rule.setAlgorithm(
+                    getString(
+                            ruleMap,
+                            "algorithm"));
+
+            Object weight =
+                    ruleMap.get("weight");
+
+            if(weight != null) {
+
+                rule.setWeight(
+                        ((Number)weight)
+                                .doubleValue());
+            }
+
+            rules.add(rule);
+        }
+
+        return rules;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<String> getStringList(
+            Map<String,Object> map,
+            String key) {
+
+        List<String> result =
+                new ArrayList<>();
+
+        Object value =
+                map.get(key);
+
+        if(value == null) {
+            return result;
+        }
+
+        List<Object> list =
+                (List<Object>) value;
+
+        for(Object o : list) {
+
+            result.add(
+                    String.valueOf(o));
+        }
+
+        return result;
+    }
+
+    private static String getString(
+            Map<String,Object> map,
+            String key) {
+
+        Object value =
+                map.get(key);
+
+        return value == null
+                ? null
+                : value.toString();
+    }
+}
