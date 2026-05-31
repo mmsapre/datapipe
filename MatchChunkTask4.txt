@@ -1,0 +1,42 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.candidate.CandidatePair;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+
+public class MatchChunkTask
+        implements Callable<List<EntityMatch>> {
+
+    private final
+    List<CandidatePair> pairs;
+
+    private final
+    EntityMatchingEngine engine;
+
+    public MatchChunkTask(
+            List<CandidatePair> pairs,
+            EntityMatchingEngine engine) {
+
+        this.pairs = pairs;
+        this.engine = engine;
+    }
+
+    @Override
+    public List<EntityMatch> call() {
+
+        List<EntityMatch> result =
+                new ArrayList<>();
+
+        for(CandidatePair pair :
+                pairs) {
+
+            result.add(
+                    engine.matchPair(
+                            pair));
+        }
+
+        return result;
+    }
+}
