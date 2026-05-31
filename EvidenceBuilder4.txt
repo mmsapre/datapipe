@@ -1,0 +1,67 @@
+package com.mas.sap.prak.client360.matching;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class EvidenceBuilder {
+
+    public void populate(
+            EntityMatch match,
+            List<MatchFeature> features) {
+
+        List<MatchedField> matched =
+                new ArrayList<>();
+
+        List<MatchedField> unmatched =
+                new ArrayList<>();
+
+        for(MatchFeature feature :
+                features) {
+
+            MatchedField field =
+                    new MatchedField();
+
+            field.setField(
+                    feature.getField());
+
+            field.setComparator(
+                    feature.getComparator());
+
+            field.setLeftValue(
+                    feature.getLeftValue());
+
+            field.setRightValue(
+                    feature.getRightValue());
+
+            field.setSimilarity(
+                    feature.getScore());
+
+            field.setWeight(
+                    feature.getWeight());
+
+            field.setMatched(
+                    feature.isMatched());
+
+            if(feature.isMatched()) {
+
+                field.setReason(
+                        "Similarity above threshold");
+
+                matched.add(field);
+            }
+            else {
+
+                field.setReason(
+                        "Similarity below threshold");
+
+                unmatched.add(field);
+            }
+        }
+
+        match.setMatchedFields(
+                matched);
+
+        match.setUnmatchedFields(
+                unmatched);
+    }
+}
