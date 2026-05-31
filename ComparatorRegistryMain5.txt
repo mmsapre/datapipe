@@ -1,0 +1,32 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.config.PipelineConfig;
+
+public class ComparatorRegistryMain {
+
+    public static void main(
+            String[] args) {
+
+        PipelineConfig config =
+                new PipelineConfig();
+
+        ComparatorRegistry registry =
+                ComparatorRegistryFactory
+                        .create(
+                                config);
+
+        System.out.println(
+                "Comparators="
+                + registry.size());
+
+        for(ComparatorType type :
+                ComparatorType.values()) {
+
+            System.out.println(
+                    type
+                    + " -> "
+                    + registry.contains(
+                            type));
+        }
+    }
+}
