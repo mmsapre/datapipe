@@ -1,0 +1,292 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.candidate.CandidatePair;
+import com.mas.sap.prak.client360.config.PipelineConfig;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class MatchingEngine {
+
+    private final PipelineConfig config;
+
+    private final ExactSimilarity exact = new ExactSimilarity();
+    private final JaroWinklerSimilarity jaro = new JaroWinklerSimilarity();
+    private final SemanticSimilarity semantic;
+    private final ProbabilityCalculator probabilityCalculator =
+            new ProbabilityCalculator();
+
+    public MatchingEngine(PipelineConfig config) {
+        this.config = config;
+        this.semantic = new SemanticSimilarity(config.getSemanticConfig());
+    }
+
+    public List<MatchResult> match(List<CandidatePair> pairs) {
+
+        List<MatchResult> results = new ArrayList<>();
+
+        for (CandidatePair pair : pairs) {
+            results.add(match(pair));
+        }
+
+        return results;
+    }
+
+    public MatchResult match(CandidatePair pair) {
+
+        List<MatchEvidence> evidence = new ArrayList<>();
+
+        addMatchingEvidence(pair, evidence);
+        addSearchEvidence(pair, evidence);
+        addRelationEvidence(pair, evidence);
+
+        double probability =
+                probabilityCalculator.calculate(evidence);
+
+        MatchResult result = new MatchResult();
+
+        result.setCandidatePair(pair);
+        result.setEvidence(evidence);
+        result.setFinalProbability(probability);
+        result.setMatchPercentage(probability * 100.0);
+
+        result.setExactScore(avg(evidence, "EXACT"));
+        result.setFuzzyScore(avg(evidence, "JARO"));
+        result.setSemanticScore(avg(evidence, "SEMANTIC"));
+        result.setSearchScore(avgType(evidence, "SEARCH"));
+        result.setRelationScore(avgType(evidence, "RELATION"));
+
+        double accept =
+                config.getSimilarityConfig()
+                        .getAutoAcceptThreshold();
+
+        double reject =
+                config.getSimilarityConfig()
+                        .getAutoRejectThreshold();
+
+        if (probability >= accept) {
+            result.setStatus(MatchStatus.AUTO_ACCEPT);
+        } else if (probability <= reject) {
+            result.setStatus(MatchStatus.AUTO_REJECT);
+        } else {
+            result.setStatus(MatchStatus.REVIEW);
+        }
+
+        return result;
+    }
+
+    private void addMatchingEvidence(
+            CandidatePair pair,
+            List<MatchEvidence> evidence) {
+
+        Map<String, Object> left =
+                pair.getLeftMatchingFields();
+
+        Map<String, Object> right =
+                pair.getRightMatchingFields();
+
+        if (left == null || right == null) {
+            return;
+        }
+
+        for (String field : left.keySet()) {
+
+            Object lv = left.get(field);
+            Object rv = right.get(field);
+
+            String l = str(lv);
+            String r = str(rv);
+
+            if (l == null || r == null) {
+                continue;
+            }
+
+            double exactScore =
+                    exact.score(l, r);
+
+            double jaroScore =
+                    jaro.score(l, r);
+
+            double semanticScore =
+                    semantic.score(l, r);
+
+            addEvidence(
+                    evidence,
+                    field,
+                    "EXACT",
+                    l,
+                    r,
+                    exactScore,
+                    config.getSimilarityConfig().getExactWeight(),
+                    "MATCHING");
+
+            addEvidence(
+                    evidence,
+                    field,
+                    "JARO",
+                    l,
+                    r,
+                    jaroScore,
+                    config.getSimilarityConfig().getJaroWeight(),
+                    "MATCHING");
+
+            addEvidence(
+                    evidence,
+                    field,
+                    "SEMANTIC",
+                    l,
+                    r,
+                    semanticScore,
+                    config.getSimilarityConfig().getSemanticWeight(),
+                    "MATCHING");
+        }
+    }
+
+    private void addSearchEvidence(
+            CandidatePair pair,
+            List<MatchEvidence> evidence) {
+
+        Map<String, Object> left =
+                pair.getLeftSearchFields();
+
+        Map<String, Object> right =
+                pair.getRightSearchFields();
+
+        if (left == null || right == null) {
+            return;
+        }
+
+        for (String field : left.keySet()) {
+
+            Object lv = left.get(field);
+            Object rv = right.get(field);
+
+            String l = str(lv);
+            String r = str(rv);
+
+            if (l == null || r == null) {
+                continue;
+            }
+
+            double score;
+
+            if (isIdentifier(field)) {
+                score = exact.score(l, r);
+            } else {
+                score = Math.max(
+                        exact.score(l, r),
+                        jaro.score(l, r));
+            }
+
+            addEvidence(
+                    evidence,
+                    field,
+                    "SEARCH_SUPPORT",
+                    l,
+                    r,
+                    score,
+                    0.10,
+                    "SEARCH");
+        }
+    }
+
+    private void addRelationEvidence(
+            CandidatePair pair,
+            List<MatchEvidence> evidence) {
+
+        /*
+         * Relation evidence from current candidate context:
+         * Same block key/source field means these two records
+         * share a relationship-relevant value such as mrd_id,
+         * client_grid, parent_grid, account_mrd_id, etc.
+         */
+
+        double score =
+                pair.getBlockKey() == null
+                        ? 0.0
+                        : 1.0;
+
+        addEvidence(
+                evidence,
+                pair.getSourceField(),
+                "BLOCK_RELATION",
+                pair.getBlockKey(),
+                pair.getBlockKey(),
+                score,
+                0.15,
+                "RELATION");
+    }
+
+    private void addEvidence(
+            List<MatchEvidence> evidence,
+            String field,
+            String algorithm,
+            String left,
+            String right,
+            double score,
+            double weight,
+            String evidenceType) {
+
+        MatchEvidence e = new MatchEvidence();
+
+        e.setField(field);
+        e.setAlgorithm(algorithm);
+        e.setLeftValue(left);
+        e.setRightValue(right);
+        e.setScore(score);
+        e.setWeight(weight);
+        e.setEvidenceType(evidenceType);
+
+        evidence.add(e);
+    }
+
+    private boolean isIdentifier(String field) {
+
+        String f = field.toLowerCase();
+
+        return f.contains("id")
+                || f.contains("mrd")
+                || f.contains("grid")
+                || f.contains("lei")
+                || f.contains("isin")
+                || f.contains("cusip")
+                || f.contains("email")
+                || f.contains("phone");
+    }
+
+    private String str(Object value) {
+
+        if (value == null) {
+            return null;
+        }
+
+        String s = value.toString().trim();
+
+        return s.isEmpty()
+                ? null
+                : s;
+    }
+
+    private double avg(
+            List<MatchEvidence> evidence,
+            String algorithm) {
+
+        return evidence.stream()
+                .filter(e -> algorithm.equals(e.getAlgorithm()))
+                .mapToDouble(MatchEvidence::getScore)
+                .average()
+                .orElse(0.0);
+    }
+
+    private double avgType(
+            List<MatchEvidence> evidence,
+            String type) {
+
+        return evidence.stream()
+                .filter(e -> type.equals(e.getEvidenceType()))
+                .mapToDouble(MatchEvidence::getScore)
+                .average()
+                .orElse(0.0);
+    }
+}
