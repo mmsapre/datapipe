@@ -1,0 +1,74 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mas.sap.prak.client360.config.PipelineConfig;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.util.List;
+
+public class MatchResultExporter {
+
+    private final PipelineConfig config;
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    public MatchResultExporter(PipelineConfig config) {
+        this.config = config;
+    }
+
+    public void export(List<MatchResult> results)
+            throws Exception {
+
+        File file =
+                new File(
+                        config.getExportConfig().getDirectory(),
+                        "match_results.csv");
+
+        try (CSVPrinter printer =
+                     new CSVPrinter(
+                             new FileWriter(file),
+                             CSVFormat.DEFAULT.withHeader(
+                                     "left_entity_id",
+                                     "right_entity_id",
+                                     "left_entity_type",
+                                     "right_entity_type",
+                                     "block_key",
+                                     "source_field",
+                                     "exact_score",
+                                     "fuzzy_score",
+                                     "semantic_score",
+                                     "search_score",
+                                     "relation_score",
+                                     "final_probability",
+                                     "match_percentage",
+                                     "status",
+                                     "evidence_json"))) {
+
+            for (MatchResult result : results) {
+
+                printer.printRecord(
+                        result.getCandidatePair().getLeftEntityId(),
+                        result.getCandidatePair().getRightEntityId(),
+                        result.getCandidatePair().getLeftEntityType(),
+                        result.getCandidatePair().getRightEntityType(),
+                        result.getCandidatePair().getBlockKey(),
+                        result.getCandidatePair().getSourceField(),
+                        result.getExactScore(),
+                        result.getFuzzyScore(),
+                        result.getSemanticScore(),
+                        result.getSearchScore(),
+                        result.getRelationScore(),
+                        result.getFinalProbability(),
+                        result.getMatchPercentage(),
+                        result.getStatus(),
+                        mapper.writeValueAsString(result.getEvidence()));
+            }
+        }
+
+        System.out.println(
+                "Match results exported : "
+                        + file.getAbsolutePath());
+    }
+}
