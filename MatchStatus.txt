@@ -1,0 +1,7 @@
+package com.mas.sap.prak.client360.matching;
+
+public enum MatchStatus {
+    AUTO_ACCEPT,
+    REVIEW,
+    AUTO_REJECT
+}
