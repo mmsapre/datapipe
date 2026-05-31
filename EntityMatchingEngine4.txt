@@ -1,0 +1,226 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.candidate.CandidatePair;
+import com.mas.sap.prak.client360.config.*;
+
+import java.util.*;
+import java.util.concurrent.*;
+
+public class EntityMatchingEngine {
+
+    private final PipelineConfig config;
+
+    private final ComparatorRegistry registry;
+
+    private final FeatureExtractor featureExtractor;
+
+    private final EvidenceBuilder evidenceBuilder =
+            new EvidenceBuilder();
+
+    private final ProbabilityCalculator
+            probabilityCalculator =
+            new ProbabilityCalculator();
+
+    public EntityMatchingEngine(
+            PipelineConfig config) {
+
+        this.config = config;
+
+        this.registry =
+                ComparatorRegistryFactory
+                        .create(config);
+
+        this.featureExtractor =
+                new FeatureExtractor(
+                        registry);
+    }
+
+    public List<EntityMatch> match(
+            List<CandidatePair> pairs)
+            throws Exception {
+
+        int threads =
+                config.getThreading()
+                        .getMatchingThreads();
+
+        if(threads <= 1) {
+
+            return matchSequential(
+                    pairs);
+        }
+
+        return matchParallel(
+                pairs,
+                threads);
+    }
+
+    private List<EntityMatch> matchSequential(
+            List<CandidatePair> pairs) {
+
+        List<EntityMatch> result =
+                new ArrayList<>();
+
+        for(CandidatePair pair :
+                pairs) {
+
+            result.add(
+                    matchPair(pair));
+        }
+
+        return result;
+    }
+
+    private List<EntityMatch> matchParallel(
+            List<CandidatePair> pairs,
+            int threads)
+            throws Exception {
+
+        ExecutorService executor =
+                Executors.newFixedThreadPool(
+                        threads);
+
+        List<Future<List<EntityMatch>>>
+                futures =
+                new ArrayList<>();
+
+        int chunkSize =
+                Math.max(
+                        pairs.size()
+                                / threads,
+                        100);
+
+        for(int i=0;
+            i<pairs.size();
+            i+=chunkSize) {
+
+            int end =
+                    Math.min(
+                            i + chunkSize,
+                            pairs.size());
+
+            futures.add(
+                    executor.submit(
+                            new MatchChunkTask(
+                                    pairs.subList(
+                                            i,
+                                            end),
+                                    this)));
+        }
+
+        List<EntityMatch> result =
+                new ArrayList<>();
+
+        for(Future<List<EntityMatch>>
+                future :
+                futures) {
+
+            result.addAll(
+                    future.get());
+        }
+
+        executor.shutdown();
+
+        return result;
+    }
+
+    public EntityMatch matchPair(
+            CandidatePair pair) {
+
+        EntityMatch match =
+                new EntityMatch();
+
+        match.setCandidatePair(
+                pair);
+
+        SourceConfig source =
+                findSource(
+                        pair.getLeftEntityType());
+
+        List<MatchFeature>
+                features =
+                featureExtractor.extract(
+                        pair,
+                        source);
+
+        evidenceBuilder.populate(
+                match,
+                features);
+
+        RelationshipMatch rel =
+                new RelationshipMatch();
+
+        rel.setRelationField(
+                pair.getSourceField());
+
+        rel.setLeftValue(
+                pair.getBlockKey());
+
+        rel.setRightValue(
+                pair.getBlockKey());
+
+        rel.setMatched(
+                true);
+
+        rel.setScore(
+                1.0);
+
+        match.getRelationshipMatches()
+                .add(rel);
+
+        double probability =
+                probabilityCalculator
+                        .calculate(
+                                match);
+
+        match.setProbability(
+                probability);
+
+        match.setMatchPercentage(
+                probability
+                * 100);
+
+        SimilarityConfig similarity =
+                config.getSimilarityConfig();
+
+        if(probability >=
+                similarity
+                        .getAutoAcceptThreshold()) {
+
+            match.setStatus(
+                    MatchStatus.AUTO_ACCEPT);
+        }
+        else if(probability <=
+                similarity
+                        .getAutoRejectThreshold()) {
+
+            match.setStatus(
+                    MatchStatus.AUTO_REJECT);
+        }
+        else {
+
+            match.setStatus(
+                    MatchStatus.REVIEW);
+        }
+
+        return match;
+    }
+
+    private SourceConfig findSource(
+            String entityType) {
+
+        for(SourceConfig source :
+                config.getSources()) {
+
+            if(source.getEntityType()
+                    .equalsIgnoreCase(
+                            entityType)) {
+
+                return source;
+            }
+        }
+
+        throw new IllegalArgumentException(
+                "No source found "
+                + entityType);
+    }
+}
