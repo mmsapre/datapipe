@@ -1,0 +1,49 @@
+package com.mas.sap.prak.client360.matching;
+
+import org.apache.commons.text.similarity.LevenshteinDistance;
+
+public class LevenshteinSimilarity
+        implements SimilarityAlgorithm {
+
+    private final
+    LevenshteinDistance distance =
+            new LevenshteinDistance();
+
+    @Override
+    public ComparatorType getType() {
+
+        return ComparatorType.LEVENSHTEIN;
+    }
+
+    @Override
+    public double score(
+            String left,
+            String right) {
+
+        if(left == null ||
+           right == null) {
+
+            return 0.0;
+        }
+
+        int maxLength =
+                Math.max(
+                        left.length(),
+                        right.length());
+
+        if(maxLength == 0) {
+
+            return 1.0;
+        }
+
+        int diff =
+                distance.apply(
+                        left,
+                        right);
+
+        return 1.0 -
+                ((double) diff
+                        /
+                        maxLength);
+    }
+}
