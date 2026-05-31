@@ -1,0 +1,6 @@
+package com.mas.sap.prak.client360.matching;
+
+public interface SimilarityAlgorithm {
+
+    double score(String left, String right);
+}
