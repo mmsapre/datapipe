@@ -1,0 +1,10 @@
+package com.mas.sap.prak.client360.matching;
+
+public interface SimilarityAlgorithm {
+
+    ComparatorType getType();
+
+    double score(
+            String left,
+            String right);
+}
