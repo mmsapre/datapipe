@@ -1,0 +1,16 @@
+package com.mas.sap.prak.client360.matching;
+
+public enum ComparatorType {
+
+    EXACT,
+
+    JARO,
+
+    LEVENSHTEIN,
+
+    METAPHONE,
+
+    SEMANTIC,
+
+    RELATIONSHIP
+}
