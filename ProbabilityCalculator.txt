@@ -1,0 +1,23 @@
+package com.mas.sap.prak.client360.matching;
+
+import java.util.List;
+
+public class ProbabilityCalculator {
+
+    public double calculate(List<MatchEvidence> evidence) {
+
+        double score = 0.0;
+        double weight = 0.0;
+
+        for (MatchEvidence e : evidence) {
+            score += e.getScore() * e.getWeight();
+            weight += e.getWeight();
+        }
+
+        if (weight == 0.0) {
+            return 0.0;
+        }
+
+        return score / weight;
+    }
+}
