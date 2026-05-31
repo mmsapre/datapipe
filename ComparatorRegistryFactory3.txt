@@ -1,0 +1,37 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.config.PipelineConfig;
+
+public final class ComparatorRegistryFactory {
+
+    private ComparatorRegistryFactory() {
+    }
+
+    public static ComparatorRegistry create(
+            PipelineConfig config) {
+
+        ComparatorRegistry registry =
+                new ComparatorRegistry();
+
+        registry.register(
+                new ExactSimilarity());
+
+        registry.register(
+                new JaroSimilarity());
+
+        registry.register(
+                new LevenshteinSimilarity());
+
+        registry.register(
+                new MetaphoneSimilarity());
+
+        registry.register(
+                new SemanticSimilarity(
+                        config.getSemanticConfig()));
+
+        registry.register(
+                new RelationshipSimilarity());
+
+        return registry;
+    }
+}
