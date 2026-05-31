@@ -1,0 +1,65 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.config.SemanticConfig;
+
+public class SemanticSimilarity
+        implements SimilarityAlgorithm {
+
+    private final
+    SemanticConfig config;
+
+    private final
+    JaroSimilarity fallback =
+            new JaroSimilarity();
+
+    public SemanticSimilarity(
+            SemanticConfig config) {
+
+        this.config = config;
+    }
+
+    @Override
+    public ComparatorType getType() {
+
+        return ComparatorType.SEMANTIC;
+    }
+
+    @Override
+    public double score(
+            String left,
+            String right) {
+
+        if(left == null ||
+           right == null) {
+
+            return 0.0;
+        }
+
+        if(config == null ||
+           !config.isEnabled()) {
+
+            return fallback.score(
+                    left,
+                    right);
+        }
+
+        /*
+         Replace later with
+
+         Embedding generation
+
+         Cosine similarity
+
+         Example:
+
+         return embeddingClient
+                .similarity(
+                        left,
+                        right);
+        */
+
+        return fallback.score(
+                left,
+                right);
+    }
+}
