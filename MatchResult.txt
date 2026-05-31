@@ -1,0 +1,24 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.candidate.CandidatePair;
+import java.util.List;
+
+public class MatchResult {
+
+    private CandidatePair candidatePair;
+
+    private double exactScore;
+    private double fuzzyScore;
+    private double semanticScore;
+    private double searchScore;
+    private double relationScore;
+
+    private double finalProbability;
+    private double matchPercentage;
+
+    private MatchStatus status;
+
+    private List<MatchEvidence> evidence;
+
+    // getters and setters
+}
