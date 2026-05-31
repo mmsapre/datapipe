@@ -1,0 +1,34 @@
+package com.mas.sap.prak.client360.config;
+
+public class CrossBlockConfig {
+
+    private String targetEntityType;
+
+    private String leftField;
+
+    private String rightField;
+
+    public String getTargetEntityType() {
+        return targetEntityType;
+    }
+
+    public void setTargetEntityType(String targetEntityType) {
+        this.targetEntityType = targetEntityType;
+    }
+
+    public String getLeftField() {
+        return leftField;
+    }
+
+    public void setLeftField(String leftField) {
+        this.leftField = leftField;
+    }
+
+    public String getRightField() {
+        return rightField;
+    }
+
+    public void setRightField(String rightField) {
+        this.rightField = rightField;
+    }
+}
