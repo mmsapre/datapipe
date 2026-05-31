@@ -1,0 +1,108 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.candidate.CandidatePair;
+import com.mas.sap.prak.client360.config.ComparatorRule;
+import com.mas.sap.prak.client360.config.MatchingRule;
+import com.mas.sap.prak.client360.config.SourceConfig;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FeatureExtractor {
+
+    private final ComparatorRegistry registry;
+
+    public FeatureExtractor(
+            ComparatorRegistry registry) {
+
+        this.registry = registry;
+    }
+
+    public List<MatchFeature> extract(
+            CandidatePair pair,
+            SourceConfig source) {
+
+        List<MatchFeature> features =
+                new ArrayList<>();
+
+        for(MatchingRule rule :
+                source.getRules()) {
+
+            Object left =
+                    pair.getLeftMatchingFields()
+                            .get(rule.getField());
+
+            Object right =
+                    pair.getRightMatchingFields()
+                            .get(rule.getField());
+
+            String leftValue =
+                    value(left);
+
+            String rightValue =
+                    value(right);
+
+            if(leftValue == null ||
+               rightValue == null) {
+
+                continue;
+            }
+
+            for(ComparatorRule comparator :
+                    rule.getComparators()) {
+
+                ComparatorType type =
+                        ComparatorType.valueOf(
+                                comparator
+                                        .getType());
+
+                SimilarityAlgorithm algorithm =
+                        registry.get(type);
+
+                double score =
+                        algorithm.score(
+                                leftValue,
+                                rightValue);
+
+                MatchFeature feature =
+                        new MatchFeature();
+
+                feature.setField(
+                        rule.getField());
+
+                feature.setComparator(
+                        type.name());
+
+                feature.setLeftValue(
+                        leftValue);
+
+                feature.setRightValue(
+                        rightValue);
+
+                feature.setScore(
+                        score);
+
+                feature.setWeight(
+                        comparator.getWeight());
+
+                feature.setMatched(
+                        score >= 0.85);
+
+                feature.setEvidenceType(
+                        "MATCHING");
+
+                features.add(feature);
+            }
+        }
+
+        return features;
+    }
+
+    private String value(
+            Object value) {
+
+        return value == null
+                ? null
+                : value.toString();
+    }
+}
