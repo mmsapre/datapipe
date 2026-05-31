@@ -1,0 +1,411 @@
+package com.mas.sap.prak.client360.candidate;
+
+import com.mas.sap.prak.client360.blocking.BlockingKey;
+import com.mas.sap.prak.client360.config.CrossBlockConfig;
+import com.mas.sap.prak.client360.config.SourceConfig;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+
+import java.util.*;
+import java.util.stream.Collectors;
+
+public class CandidateGenerator {
+
+    private final Map<String,SourceConfig>
+            sourceConfigMap;
+
+    public CandidateGenerator(
+            List<SourceConfig> sources) {
+
+        sourceConfigMap =
+                sources.stream()
+                        .collect(
+                                Collectors.toMap(
+                                        SourceConfig::getSourceName,
+                                        s -> s));
+    }
+
+    public List<CandidatePair> generate(
+
+            List<BlockingKey> blockingKeys,
+
+            Map<String,
+                    List<ImportedRecord>>
+                    importResults) {
+
+        List<CandidatePair> result =
+                new ArrayList<>();
+
+        generateSameSourceCandidates(
+                blockingKeys,
+                importResults,
+                result);
+
+        generateCrossSourceCandidates(
+                importResults,
+                result);
+
+        return result;
+    }
+
+    private void generateSameSourceCandidates(
+
+            List<BlockingKey> blockingKeys,
+
+            Map<String,
+                    List<ImportedRecord>>
+                    importResults,
+
+            List<CandidatePair> result) {
+
+        Map<String,List<BlockingKey>>
+                groupedBlocks =
+                blockingKeys.stream()
+                        .collect(
+                                Collectors.groupingBy(
+
+                                        k ->
+                                                k.getEntityType()
+                                                + "|"
+                                                + k.getSourceField()
+                                                + "|"
+                                                + k.getBlockKey()
+                                ));
+
+        for(List<BlockingKey> block
+                : groupedBlocks.values()) {
+
+            if(block.size() < 2) {
+                continue;
+            }
+
+            for(int i=0;
+                i<block.size();
+                i++) {
+
+                for(int j=i+1;
+                    j<block.size();
+                    j++) {
+
+                    CandidatePair pair =
+                            buildPair(
+
+                                    block.get(i),
+
+                                    block.get(j),
+
+                                    importResults
+                            );
+
+                    if(pair != null) {
+                        result.add(pair);
+                    }
+                }
+            }
+        }
+    }
+
+    private void generateCrossSourceCandidates(
+
+            Map<String,
+                    List<ImportedRecord>>
+                    importResults,
+
+            List<CandidatePair> result) {
+
+        for(SourceConfig leftSource
+                : sourceConfigMap.values()) {
+
+            if(leftSource.isRelationshipOnly()) {
+                continue;
+            }
+
+            for(CrossBlockConfig rule
+                    : leftSource.getCrossBlocks()) {
+
+                SourceConfig rightSource =
+                        findByEntityType(
+                                rule.getTargetEntityType());
+
+                if(rightSource == null) {
+                    continue;
+                }
+
+                List<ImportedRecord> leftRecords =
+                        importResults.get(
+                                leftSource.getSourceName());
+
+                List<ImportedRecord> rightRecords =
+                        importResults.get(
+                                rightSource.getSourceName());
+
+                if(leftRecords == null ||
+                   rightRecords == null) {
+
+                    continue;
+                }
+
+                createCrossCandidates(
+
+                        leftRecords,
+
+                        rightRecords,
+
+                        leftSource,
+
+                        rightSource,
+
+                        rule,
+
+                        result
+                );
+            }
+        }
+    }
+
+    private void createCrossCandidates(
+
+            List<ImportedRecord> leftRecords,
+
+            List<ImportedRecord> rightRecords,
+
+            SourceConfig leftSource,
+
+            SourceConfig rightSource,
+
+            CrossBlockConfig rule,
+
+            List<CandidatePair> result) {
+
+        Map<Object,
+                List<ImportedRecord>>
+                rightIndex =
+                new HashMap<>();
+
+        for(ImportedRecord record
+                : rightRecords) {
+
+            Object value =
+                    record.getValues()
+                            .get(
+                                    rule.getRightField());
+
+            if(value == null) {
+                continue;
+            }
+
+            rightIndex
+                    .computeIfAbsent(
+                            value,
+                            k ->
+                                    new ArrayList<>())
+                    .add(record);
+        }
+
+        for(ImportedRecord left
+                : leftRecords) {
+
+            Object value =
+                    left.getValues()
+                            .get(
+                                    rule.getLeftField());
+
+            if(value == null) {
+                continue;
+            }
+
+            List<ImportedRecord> matches =
+                    rightIndex.get(value);
+
+            if(matches == null) {
+                continue;
+            }
+
+            for(ImportedRecord right
+                    : matches) {
+
+                CandidatePair pair =
+                        new CandidatePair();
+
+                pair.setLeftEntityId(
+                        left.getEntityId());
+
+                pair.setRightEntityId(
+                        right.getEntityId());
+
+                pair.setLeftEntityType(
+                        leftSource.getEntityType());
+
+                pair.setRightEntityType(
+                        rightSource.getEntityType());
+
+                pair.setBlockKey(
+                        value.toString());
+
+                pair.setSourceField(
+                        rule.getLeftField());
+
+                pair.setLeftSearchFields(
+                        extractFields(
+                                left,
+                                leftSource
+                                        .getSearchFields()));
+
+                pair.setRightSearchFields(
+                        extractFields(
+                                right,
+                                rightSource
+                                        .getSearchFields()));
+
+                pair.setLeftDisplayFields(
+                        extractFields(
+                                left,
+                                leftSource
+                                        .getDisplayFields()));
+
+                pair.setRightDisplayFields(
+                        extractFields(
+                                right,
+                                rightSource
+                                        .getDisplayFields()));
+
+                pair.setLeftMatchingFields(
+                        extractFields(
+                                left,
+                                leftSource
+                                        .getMatchingFields()));
+
+                pair.setRightMatchingFields(
+                        extractFields(
+                                right,
+                                rightSource
+                                        .getMatchingFields()));
+
+                result.add(pair);
+            }
+        }
+    }
+
+    private CandidatePair buildPair(
+
+            BlockingKey left,
+
+            BlockingKey right,
+
+            Map<String,
+                    List<ImportedRecord>>
+                    importResults) {
+
+        ImportedRecord leftRecord =
+                importResults
+                        .get(left.getSourceName())
+                        .get(
+                                (int)
+                                left.getRecordIndex());
+
+        ImportedRecord rightRecord =
+                importResults
+                        .get(right.getSourceName())
+                        .get(
+                                (int)
+                                right.getRecordIndex());
+
+        SourceConfig leftConfig =
+                sourceConfigMap.get(
+                        left.getSourceName());
+
+        SourceConfig rightConfig =
+                sourceConfigMap.get(
+                        right.getSourceName());
+
+        CandidatePair pair =
+                new CandidatePair();
+
+        pair.setLeftEntityId(
+                left.getEntityId());
+
+        pair.setRightEntityId(
+                right.getEntityId());
+
+        pair.setLeftEntityType(
+                left.getEntityType());
+
+        pair.setRightEntityType(
+                right.getEntityType());
+
+        pair.setBlockKey(
+                left.getBlockKey());
+
+        pair.setSourceField(
+                left.getSourceField());
+
+        pair.setLeftSearchFields(
+                extractFields(
+                        leftRecord,
+                        leftConfig.getSearchFields()));
+
+        pair.setRightSearchFields(
+                extractFields(
+                        rightRecord,
+                        rightConfig.getSearchFields()));
+
+        pair.setLeftDisplayFields(
+                extractFields(
+                        leftRecord,
+                        leftConfig.getDisplayFields()));
+
+        pair.setRightDisplayFields(
+                extractFields(
+                        rightRecord,
+                        rightConfig.getDisplayFields()));
+
+        pair.setLeftMatchingFields(
+                extractFields(
+                        leftRecord,
+                        leftConfig.getMatchingFields()));
+
+        pair.setRightMatchingFields(
+                extractFields(
+                        rightRecord,
+                        rightConfig.getMatchingFields()));
+
+        return pair;
+    }
+
+    private Map<String,Object> extractFields(
+
+            ImportedRecord record,
+
+            List<String> fields) {
+
+        Map<String,Object> result =
+                new LinkedHashMap<>();
+
+        if(record == null) {
+            return result;
+        }
+
+        for(String field : fields) {
+
+            result.put(
+                    field,
+                    record.getValues()
+                            .get(field));
+        }
+
+        return result;
+    }
+
+    private SourceConfig findByEntityType(
+            String entityType) {
+
+        return sourceConfigMap
+                .values()
+                .stream()
+                .filter(
+                        s ->
+                                entityType.equals(
+                                        s.getEntityType()))
+                .findFirst()
+                .orElse(null);
+    }
+}
