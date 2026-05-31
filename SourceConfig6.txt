@@ -1,0 +1,172 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SourceConfig {
+
+    private String sourceName;
+
+    private String fileName;
+
+    private String entityType;
+
+    private String entityIdField;
+
+    private String canonicalNameField;
+
+    private List<String> blockingFields =
+            new ArrayList<>();
+
+    private List<String> searchFields =
+            new ArrayList<>();
+
+    private List<String> displayFields =
+            new ArrayList<>();
+
+    private List<String> matchingFields =
+            new ArrayList<>();
+
+    private List<String> relationFields =
+            new ArrayList<>();
+
+    private boolean candidateEnabled =
+            true;
+
+    private boolean relationshipOnly =
+            false;
+
+    private List<CrossBlockConfig> crossBlocks =
+            new ArrayList<>();
+
+    public String getSourceName() {
+        return sourceName;
+    }
+
+    public void setSourceName(String sourceName) {
+        this.sourceName = sourceName;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(String entityType) {
+        this.entityType = entityType;
+    }
+
+    public String getEntityIdField() {
+        return entityIdField;
+    }
+
+    public void setEntityIdField(String entityIdField) {
+        this.entityIdField = entityIdField;
+    }
+
+    public String getCanonicalNameField() {
+        return canonicalNameField;
+    }
+
+    public void setCanonicalNameField(
+            String canonicalNameField) {
+
+        this.canonicalNameField =
+                canonicalNameField;
+    }
+
+    public List<String> getBlockingFields() {
+        return blockingFields;
+    }
+
+    public void setBlockingFields(
+            List<String> blockingFields) {
+
+        this.blockingFields =
+                blockingFields;
+    }
+
+    public List<String> getSearchFields() {
+        return searchFields;
+    }
+
+    public void setSearchFields(
+            List<String> searchFields) {
+
+        this.searchFields =
+                searchFields;
+    }
+
+    public List<String> getDisplayFields() {
+        return displayFields;
+    }
+
+    public void setDisplayFields(
+            List<String> displayFields) {
+
+        this.displayFields =
+                displayFields;
+    }
+
+    public List<String> getMatchingFields() {
+        return matchingFields;
+    }
+
+    public void setMatchingFields(
+            List<String> matchingFields) {
+
+        this.matchingFields =
+                matchingFields;
+    }
+
+    public List<String> getRelationFields() {
+        return relationFields;
+    }
+
+    public void setRelationFields(
+            List<String> relationFields) {
+
+        this.relationFields =
+                relationFields;
+    }
+
+    public boolean isCandidateEnabled() {
+        return candidateEnabled;
+    }
+
+    public void setCandidateEnabled(
+            boolean candidateEnabled) {
+
+        this.candidateEnabled =
+                candidateEnabled;
+    }
+
+    public boolean isRelationshipOnly() {
+        return relationshipOnly;
+    }
+
+    public void setRelationshipOnly(
+            boolean relationshipOnly) {
+
+        this.relationshipOnly =
+                relationshipOnly;
+    }
+
+    public List<CrossBlockConfig> getCrossBlocks() {
+        return crossBlocks;
+    }
+
+    public void setCrossBlocks(
+            List<CrossBlockConfig> crossBlocks) {
+
+        this.crossBlocks =
+                crossBlocks;
+    }
+}
