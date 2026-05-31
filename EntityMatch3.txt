@@ -1,0 +1,130 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.candidate.CandidatePair;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class EntityMatch {
+
+    private CandidatePair candidatePair;
+
+    private double probability;
+
+    private double matchPercentage;
+
+    private MatchStatus status;
+
+    private List<MatchedField>
+            matchedFields =
+            new ArrayList<>();
+
+    private List<MatchedField>
+            unmatchedFields =
+            new ArrayList<>();
+
+    private List<MatchedField>
+            supportingFields =
+            new ArrayList<>();
+
+    private List<RelationshipMatch>
+            relationshipMatches =
+            new ArrayList<>();
+
+    public CandidatePair getCandidatePair() {
+        return candidatePair;
+    }
+
+    public void setCandidatePair(
+            CandidatePair candidatePair) {
+
+        this.candidatePair = candidatePair;
+    }
+
+    public double getProbability() {
+        return probability;
+    }
+
+    public void setProbability(
+            double probability) {
+
+        this.probability = probability;
+    }
+
+    public double getMatchPercentage() {
+        return matchPercentage;
+    }
+
+    public void setMatchPercentage(
+            double matchPercentage) {
+
+        this.matchPercentage =
+                matchPercentage;
+    }
+
+    public MatchStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(
+            MatchStatus status) {
+
+        this.status = status;
+    }
+
+    public List<MatchedField>
+    getMatchedFields() {
+
+        return matchedFields;
+    }
+
+    public void setMatchedFields(
+            List<MatchedField>
+                    matchedFields) {
+
+        this.matchedFields =
+                matchedFields;
+    }
+
+    public List<MatchedField>
+    getUnmatchedFields() {
+
+        return unmatchedFields;
+    }
+
+    public void setUnmatchedFields(
+            List<MatchedField>
+                    unmatchedFields) {
+
+        this.unmatchedFields =
+                unmatchedFields;
+    }
+
+    public List<MatchedField>
+    getSupportingFields() {
+
+        return supportingFields;
+    }
+
+    public void setSupportingFields(
+            List<MatchedField>
+                    supportingFields) {
+
+        this.supportingFields =
+                supportingFields;
+    }
+
+    public List<RelationshipMatch>
+    getRelationshipMatches() {
+
+        return relationshipMatches;
+    }
+
+    public void setRelationshipMatches(
+            List<RelationshipMatch>
+                    relationshipMatches) {
+
+        this.relationshipMatches =
+                relationshipMatches;
+    }
+}
