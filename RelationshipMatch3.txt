@@ -1,0 +1,54 @@
+package com.mas.sap.prak.client360.matching;
+
+public class RelationshipMatch {
+
+    private String relationField;
+
+    private String leftValue;
+
+    private String rightValue;
+
+    private boolean matched;
+
+    private double score;
+
+    public String getRelationField() {
+        return relationField;
+    }
+
+    public void setRelationField(String relationField) {
+        this.relationField = relationField;
+    }
+
+    public String getLeftValue() {
+        return leftValue;
+    }
+
+    public void setLeftValue(String leftValue) {
+        this.leftValue = leftValue;
+    }
+
+    public String getRightValue() {
+        return rightValue;
+    }
+
+    public void setRightValue(String rightValue) {
+        this.rightValue = rightValue;
+    }
+
+    public boolean isMatched() {
+        return matched;
+    }
+
+    public void setMatched(boolean matched) {
+        this.matched = matched;
+    }
+
+    public double getScore() {
+        return score;
+    }
+
+    public void setScore(double score) {
+        this.score = score;
+    }
+}
