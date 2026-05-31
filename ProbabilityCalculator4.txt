@@ -1,0 +1,84 @@
+package com.mas.sap.prak.client360.matching;
+
+public class ProbabilityCalculator {
+
+    public double calculate(
+            EntityMatch match) {
+
+        double score = 0;
+
+        double weight = 0;
+
+        for(MatchedField field :
+                match.getMatchedFields()) {
+
+            score +=
+                    field.getSimilarity()
+                    *
+                    field.getWeight();
+
+            weight +=
+                    field.getWeight();
+        }
+
+        for(MatchedField field :
+                match.getUnmatchedFields()) {
+
+            score +=
+                    field.getSimilarity()
+                    *
+                    field.getWeight();
+
+            weight +=
+                    field.getWeight();
+        }
+
+        for(RelationshipMatch rel :
+                match.getRelationshipMatches()) {
+
+            score +=
+                    rel.getScore()
+                    * 0.15;
+
+            weight +=
+                    0.15;
+        }
+
+        if(weight == 0) {
+
+            return 0;
+        }
+
+        double probability =
+                score / weight;
+
+        /*
+         * Identifier penalty
+         */
+
+        for(MatchedField field :
+                match.getUnmatchedFields()) {
+
+            String name =
+                    field.getField()
+                            .toLowerCase();
+
+            if(name.contains("lei")
+                    ||
+               name.contains("id")
+                    ||
+               name.contains("grid")) {
+
+                if(field.getSimilarity()
+                        == 0) {
+
+                    probability =
+                            probability
+                            * 0.25;
+                }
+            }
+        }
+
+        return probability;
+    }
+}
