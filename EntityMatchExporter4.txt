@@ -1,0 +1,57 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.csv.*;
+
+import java.io.FileWriter;
+import java.util.List;
+
+public class EntityMatchExporter {
+
+    private final ObjectMapper mapper =
+            new ObjectMapper();
+
+    public void export(
+            String file,
+            List<EntityMatch> matches)
+            throws Exception {
+
+        try(CSVPrinter printer =
+                    new CSVPrinter(
+                            new FileWriter(file),
+                            CSVFormat.DEFAULT
+                                    .builder()
+                                    .setHeader(
+                                            "leftEntityId",
+                                            "rightEntityId",
+                                            "probability",
+                                            "status",
+                                            "matchedFields",
+                                            "unmatchedFields")
+                                    .build())) {
+
+            for(EntityMatch match :
+                    matches) {
+
+                printer.printRecord(
+
+                        match.getCandidatePair()
+                                .getLeftEntityId(),
+
+                        match.getCandidatePair()
+                                .getRightEntityId(),
+
+                        match.getProbability(),
+
+                        match.getStatus(),
+
+                        mapper.writeValueAsString(
+                                match.getMatchedFields()),
+
+                        mapper.writeValueAsString(
+                                match.getUnmatchedFields())
+                );
+            }
+        }
+    }
+}
