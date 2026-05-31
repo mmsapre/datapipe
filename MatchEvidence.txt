@@ -1,0 +1,14 @@
+package com.mas.sap.prak.client360.matching;
+
+public class MatchEvidence {
+
+    private String field;
+    private String algorithm;
+    private String leftValue;
+    private String rightValue;
+    private double score;
+    private double weight;
+    private String evidenceType;
+
+    // getters and setters
+}
