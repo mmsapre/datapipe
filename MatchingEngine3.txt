@@ -1,0 +1,158 @@
+package com.mas.sap.prak.client360.matching;
+
+import com.mas.sap.prak.client360.candidate.CandidatePair;
+import com.mas.sap.prak.client360.config.PipelineConfig;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
+public class MatchingEngine {
+
+    private final PipelineConfig config;
+
+    public MatchingEngine(
+            PipelineConfig config) {
+
+        this.config = config;
+    }
+
+    public List<MatchResult> match(
+            List<CandidatePair> pairs)
+            throws Exception {
+
+        int threads =
+                config.getThreading()
+                        .getMatchingThreads();
+
+        if(threads <= 1) {
+
+            System.out.println(
+                    "Running Sequential Matching");
+
+            return matchSequential(
+                    pairs);
+        }
+
+        System.out.println(
+                "Running Parallel Matching : "
+                + threads
+                + " threads");
+
+        return matchParallel(
+                pairs,
+                threads);
+    }
+
+    private List<MatchResult> matchSequential(
+            List<CandidatePair> pairs) {
+
+        List<MatchResult> results =
+                new ArrayList<>();
+
+        for(CandidatePair pair :
+                pairs) {
+
+            results.add(
+                    matchPair(pair));
+        }
+
+        return results;
+    }
+
+    private List<MatchResult> matchParallel(
+            List<CandidatePair> pairs,
+            int threads)
+            throws Exception {
+
+        int chunkSize =
+                calculateChunkSize(
+                        pairs.size(),
+                        threads);
+
+        ExecutorService executor =
+                Executors.newFixedThreadPool(
+                        threads);
+
+        List<Future<List<MatchResult>>>
+                futures =
+                new ArrayList<>();
+
+        for(int i=0;
+            i<pairs.size();
+            i+=chunkSize) {
+
+            int end =
+                    Math.min(
+                            i + chunkSize,
+                            pairs.size());
+
+            List<CandidatePair>
+                    chunk =
+                    pairs.subList(
+                            i,
+                            end);
+
+            futures.add(
+                    executor.submit(
+                            new MatchChunkTask(
+                                    chunk,
+                                    this)));
+        }
+
+        List<MatchResult>
+                results =
+                new ArrayList<>();
+
+        for(Future<List<MatchResult>> future :
+                futures) {
+
+            results.addAll(
+                    future.get());
+        }
+
+        executor.shutdown();
+
+        return results;
+    }
+
+    private int calculateChunkSize(
+            int size,
+            int threads) {
+
+        int chunk =
+                size / threads;
+
+        return Math.max(
+                chunk,
+                100);
+    }
+
+    public MatchResult matchPair(
+            CandidatePair pair) {
+
+        /*
+         * existing matching logic
+         *
+         * exact
+         * jaro
+         * semantic
+         * search evidence
+         * relation evidence
+         */
+
+        return buildMatchResult(
+                pair);
+    }
+
+    private MatchResult buildMatchResult(
+            CandidatePair pair) {
+
+        MatchResult result =
+                new MatchResult();
+
+        // existing implementation
+
+        return result;
+    }
+}
