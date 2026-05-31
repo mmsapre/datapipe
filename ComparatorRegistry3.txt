@@ -1,0 +1,50 @@
+package com.mas.sap.prak.client360.matching;
+
+import java.util.EnumMap;
+import java.util.Map;
+
+public class ComparatorRegistry {
+
+    private final
+    Map<ComparatorType,
+            SimilarityAlgorithm>
+            comparators =
+            new EnumMap<>(
+                    ComparatorType.class);
+
+    public void register(
+            SimilarityAlgorithm algorithm) {
+
+        comparators.put(
+                algorithm.getType(),
+                algorithm);
+    }
+
+    public SimilarityAlgorithm get(
+            ComparatorType type) {
+
+        SimilarityAlgorithm algorithm =
+                comparators.get(type);
+
+        if(algorithm == null) {
+
+            throw new IllegalArgumentException(
+                    "Comparator not registered : "
+                    + type);
+        }
+
+        return algorithm;
+    }
+
+    public boolean contains(
+            ComparatorType type) {
+
+        return comparators.containsKey(
+                type);
+    }
+
+    public int size() {
+
+        return comparators.size();
+    }
+}
