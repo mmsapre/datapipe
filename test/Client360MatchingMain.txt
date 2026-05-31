@@ -1,0 +1,53 @@
+package com.mas.sap.prak.client360;
+
+import com.mas.sap.prak.client360.candidate.*;
+import com.mas.sap.prak.client360.config.*;
+import com.mas.sap.prak.client360.matching.*;
+
+import java.util.List;
+
+public class Client360MatchingMain {
+
+    public static void main(
+            String[] args)
+            throws Exception {
+
+        PipelineConfig config =
+                new YamlConfigLoader()
+                        .load(
+                                "client360.yml");
+
+        CandidatePairCsvLoader loader =
+                new CandidatePairCsvLoader();
+
+        List<CandidatePair> pairs =
+                loader.load(
+                        "data/export/candidate_pairs.csv");
+
+        System.out.println(
+                "Candidate Pairs = "
+                + pairs.size());
+
+        EntityMatchingEngine engine =
+                new EntityMatchingEngine(
+                        config);
+
+        List<EntityMatch> matches =
+                engine.match(
+                        pairs);
+
+        System.out.println(
+                "Matches = "
+                + matches.size());
+
+        EntityMatchExporter exporter =
+                new EntityMatchExporter();
+
+        exporter.export(
+                "data/export/entity_matches.csv",
+                matches);
+
+        System.out.println(
+                "Export Complete");
+    }
+}
