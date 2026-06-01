@@ -1,0 +1,389 @@
+client360:
+
+  sources:
+
+    - source-name: st_account
+
+      file-name: 1.pmrd.t_st_account_gcs.csv
+
+      entity-type: ST_ACCOUNT
+
+      entity-id-field: account_id
+
+      canonical-name-field: account_id
+
+      candidate-enabled: true
+
+      relationship-only: false
+
+      cross-source-enabled: false
+
+      blocking-fields:
+        - account_id
+
+      search-fields:
+        - account_id
+        - le_id
+        - region_nm
+
+      display-fields:
+        - account_id
+        - region_nm
+
+      matching-fields:
+        - account_id
+
+      relation-fields:
+        - le_id
+        - le_sub_function
+
+      entity-match:
+
+        threshold: 1.0
+
+        auto-accept: 1.0
+
+        auto-reject: 0.0
+
+        comparators:
+
+          - field: account_id
+            algorithm: EXACT
+            weight: 1.0
+
+    - source-name: account
+
+      file-name: 2.pmrd.t_account.csv
+
+      entity-type: SEC_ACCOUNT
+
+      entity-id-field: account_mrd_id
+
+      canonical-name-field: account_nm
+
+      candidate-enabled: true
+
+      relationship-only: false
+
+      cross-source-enabled: true
+
+      blocking-fields:
+        - account_mrd_id
+
+      search-fields:
+        - account_mrd_id
+        - account_nm
+        - account_tp
+
+      display-fields:
+        - account_nm
+        - account_tp
+
+      matching-fields:
+        - account_mrd_id
+        - account_nm
+
+      relation-fields:
+        - account_mrd_id
+
+      cross-blocks:
+
+        - target-entity-type: ALTERNATE_IDENTIFIER
+
+          left-field: account_mrd_id
+
+          right-field: mrd_id
+
+          weight: 1.0
+
+      entity-match:
+
+        threshold: 0.85
+
+        auto-accept: 0.95
+
+        auto-reject: 0.50
+
+        comparators:
+
+          - field: account_mrd_id
+            algorithm: EXACT
+            weight: 0.80
+
+          - field: account_nm
+            algorithm: JARO_WINKLER
+            weight: 0.20
+
+    - source-name: gridding_mapping
+
+      file-name: 4.pmrd.t_gridding_mapping_gcs.csv
+
+      entity-type: GRID_MAPPING
+
+      entity-id-field: client_grid
+
+      candidate-enabled: true
+
+      relationship-only: false
+
+      cross-source-enabled: true
+
+      blocking-fields:
+        - client_grid
+
+      search-fields:
+        - client_grid
+        - client_mrd
+
+      display-fields:
+        - client_grid
+        - client_mrd
+
+      matching-fields:
+        - client_grid
+
+      relation-fields:
+        - client_grid
+        - client_mrd
+        - contracting_grid
+
+      cross-blocks:
+
+        - target-entity-type: PARTY
+
+          left-field: client_mrd
+
+          right-field: mrd_id
+
+          weight: 1.0
+
+        - target-entity-type: MASTERGROUP_MEMBER
+
+          left-field: client_grid
+
+          right-field: child_grid
+
+          weight: 1.0
+
+      entity-match:
+
+        threshold: 1.0
+
+        comparators:
+
+          - field: client_grid
+            algorithm: EXACT
+            weight: 1.0
+
+    - source-name: party
+
+      file-name: 5.pmrd.t_party.csv
+
+      entity-type: PARTY
+
+      entity-id-field: mrd_id
+
+      canonical-name-field: name
+
+      candidate-enabled: true
+
+      relationship-only: false
+
+      cross-source-enabled: true
+
+      blocking-fields:
+        - mrd_id
+
+      search-fields:
+        - mrd_id
+        - name
+        - cntry_of_hq
+
+      display-fields:
+        - name
+        - alternate_name
+        - cntry_of_hq
+
+      matching-fields:
+        - name
+        - alternate_name
+
+      relation-fields:
+        - mrd_id
+
+      cross-blocks:
+
+        - target-entity-type: GRID_MAPPING
+
+          left-field: mrd_id
+
+          right-field: client_mrd
+
+          weight: 1.0
+
+      entity-match:
+
+        threshold: 0.85
+
+        auto-accept: 0.95
+
+        auto-reject: 0.50
+
+        comparators:
+
+          - field: mrd_id
+            algorithm: EXACT
+            weight: 0.70
+
+          - field: name
+            algorithm: JARO_WINKLER
+            weight: 0.20
+
+          - field: name
+            algorithm: SEMANTIC
+            weight: 0.10
+
+    - source-name: alternate_identifier
+
+      file-name: 9.pmrd.t_alternate_identifier.csv
+
+      entity-type: ALTERNATE_IDENTIFIER
+
+      entity-id-field: alternate_tp_value
+
+      candidate-enabled: true
+
+      relationship-only: false
+
+      cross-source-enabled: true
+
+      blocking-fields:
+        - alternate_tp_value
+
+      search-fields:
+        - alternate_tp_value
+        - alternate_id_tp
+        - mrd_id
+
+      display-fields:
+        - alternate_tp_value
+        - alternate_id_tp
+
+      matching-fields:
+        - alternate_tp_value
+
+      relation-fields:
+        - mrd_id
+
+      entity-match:
+
+        threshold: 1.0
+
+        comparators:
+
+          - field: alternate_tp_value
+            algorithm: EXACT
+            weight: 1.0
+
+    - source-name: role
+
+      file-name: 7.pmrd.t_role.csv
+
+      entity-type: ROLE
+
+      candidate-enabled: false
+
+      relationship-only: true
+
+      cross-source-enabled: false
+
+      search-fields:
+        - role_value
+        - role_tp
+        - mrd_id
+
+      relation-fields:
+        - mrd_id
+        - role_value
+        - role_tp
+
+    - source-name: arrangement_role
+
+      file-name: 6.pmrd.t_arrangement_role.csv
+
+      entity-type: ARRANGEMENT_ROLE
+
+      candidate-enabled: false
+
+      relationship-only: true
+
+      cross-source-enabled: false
+
+      relation-fields:
+        - role_id
+        - arrange_id
+
+    - source-name: linkage_account
+
+      file-name: 8.pmrd.t_linkage_account.csv
+
+      entity-type: ACCOUNT_LINK
+
+      candidate-enabled: false
+
+      relationship-only: true
+
+      cross-source-enabled: false
+
+      relation-fields:
+        - cash_mrd_account
+        - sec_mrd_account
+
+    - source-name: mastergroup_membership
+
+      file-name: 10.pmrd.t_mastergroup_membership.csv
+
+      entity-type: MASTERGROUP_MEMBER
+
+      entity-id-field: child_grid
+
+      candidate-enabled: true
+
+      relationship-only: false
+
+      cross-source-enabled: true
+
+      blocking-fields:
+        - child_grid
+
+      search-fields:
+        - mg_id
+        - mg_name
+        - child_grid
+        - parent_grid
+
+      display-fields:
+        - mg_id
+        - mg_name
+
+      matching-fields:
+        - mg_id
+        - mg_name
+
+      relation-fields:
+        - child_grid
+        - parent_grid
+
+      entity-match:
+
+        threshold: 0.90
+
+        comparators:
+
+          - field: mg_id
+            algorithm: EXACT
+            weight: 0.80
+
+          - field: mg_name
+            algorithm: JARO_WINKLER
+            weight: 0.20
