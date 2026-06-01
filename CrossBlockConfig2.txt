@@ -1,0 +1,17 @@
+package com.mas.sap.prak.client360.config;
+
+public class CrossBlockConfig {
+
+    private String targetEntityType;
+
+    private String leftField;
+
+    private String rightField;
+
+    /*
+     * weight for relationship evidence
+     */
+    private double weight = 1.0;
+
+    // getters setters
+}
