@@ -1,0 +1,82 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class SourceConfig {
+
+    private String sourceName;
+
+    private String fileName;
+
+    private String entityType;
+
+    private String entityIdField;
+
+    private String canonicalNameField;
+
+    /*
+     * Blocking
+     */
+    private List<String> blockingFields =
+            new ArrayList<>();
+
+    /*
+     * Search UI
+     */
+    private List<String> searchFields =
+            new ArrayList<>();
+
+    /*
+     * Candidate / Cluster / Fusion UI
+     */
+    private List<String> displayFields =
+            new ArrayList<>();
+
+    /*
+     * Matching Engine
+     */
+    private List<String> matchingFields =
+            new ArrayList<>();
+
+    /*
+     * Relationship expansion
+     */
+    private List<String> relationFields =
+            new ArrayList<>();
+
+    /*
+     * Candidate generation
+     */
+    private boolean candidateEnabled =
+            true;
+
+    /*
+     * Relationship source only
+     */
+    private boolean relationshipOnly =
+            false;
+
+    /*
+     * Cross source candidate generation
+     */
+    private boolean crossSourceEnabled =
+            false;
+
+    /*
+     * PARTY -> GRID_MAPPING
+     * GRID_MAPPING -> MASTERGROUP_MEMBER
+     * ACCOUNT -> ALTERNATE_IDENTIFIER
+     */
+    private List<CrossBlockConfig> crossBlocks =
+            new ArrayList<>();
+
+    /*
+     * Matching rules
+     */
+    private List<MatchingRuleConfig>
+            matchingRules =
+            new ArrayList<>();
+
+    // getters setters
+}
