@@ -1,0 +1,85 @@
+public class EntityMatchEngine {
+
+    private final ComparatorRegistry
+            registry;
+
+    public EntityMatchEngine(
+            ComparatorRegistry registry) {
+
+        this.registry =
+                registry;
+    }
+
+    public EntityMatch match(
+
+            CandidatePair pair,
+
+            SourceConfig config) {
+
+        double totalScore = 0;
+
+        List<MatchedField>
+                matchedFields =
+                new ArrayList<>();
+
+        for(MatchingRuleConfig rule :
+
+                config.getEntityMatch()
+                        .getComparators()) {
+
+            Object left =
+                    pair.getLeftMatchingFields()
+                            .get(rule.getField());
+
+            Object right =
+                    pair.getRightMatchingFields()
+                            .get(rule.getField());
+
+            SimilarityAlgorithm
+                    algorithm =
+                    registry.get(
+
+                            ComparatorType
+                                    .valueOf(
+                                            rule.getAlgorithm()));
+
+            double score =
+                    algorithm.compare(
+                            left,
+                            right);
+
+            totalScore +=
+                    score *
+                    rule.getWeight();
+
+            matchedFields.add(
+
+                    new MatchedField(
+
+                            rule.getField(),
+
+                            left,
+
+                            right,
+
+                            score));
+        }
+
+        EntityMatch result =
+                new EntityMatch();
+
+        result.setLeftEntityId(
+                pair.getLeftEntityId());
+
+        result.setRightEntityId(
+                pair.getRightEntityId());
+
+        result.setProbability(
+                totalScore);
+
+        result.setMatchedFields(
+                matchedFields);
+
+        return result;
+    }
+}
