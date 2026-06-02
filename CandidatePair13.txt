@@ -1,0 +1,64 @@
+package com.mas.sap.prak.client360.candidate;
+
+import com.mas.sap.prak.client360.model.ImportedRecord;
+
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.Map;
+import java.util.Set;
+
+public class CandidatePair {
+
+    private String pairKey;
+
+    private String leftEntityId;
+    private String rightEntityId;
+
+    private String leftEntityType;
+    private String rightEntityType;
+
+    private String leftSourceName;
+    private String rightSourceName;
+
+    private String blockKey;
+    private String sourceField;
+
+    private boolean crossSource;
+    private String candidateType;   // ENTITY_MATCH or RELATIONSHIP
+    private String candidateReason;
+
+    private Set<String> matchedBlockingFields =
+            new LinkedHashSet<>();
+
+    private Map<String,String> blockingEvidence =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> leftSearchFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> rightSearchFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> leftDisplayFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> rightDisplayFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> leftMatchingFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> rightMatchingFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> leftRelationFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> rightRelationFields =
+            new LinkedHashMap<>();
+
+    private ImportedRecord leftRecord;
+    private ImportedRecord rightRecord;
+
+    // getters and setters for all fields
+}
