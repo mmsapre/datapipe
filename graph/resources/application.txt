@@ -1,0 +1,409 @@
+mrd:
+
+  client360:
+
+    datasource:
+
+      jdbc-url: jdbc:postgresql://localhost:5432/client360
+      username: postgres
+      password: postgres
+
+    calcite:
+
+      case-sensitive: false
+      lexical-policy: MYSQL
+
+    sources:
+
+      #---------------------------------------------------
+      # 1. ST ACCOUNT
+      #---------------------------------------------------
+      - source-name: st_account
+
+        entity-type: ST_ACCOUNT
+
+        source-type: JDBC
+
+        table-name: pmrd.t_st_account_gcs
+
+        entity-id-field: account_id
+
+        incremental-field: src_add_ts
+
+        search-fields:
+          - account_id
+          - le_id
+
+        display-fields:
+          - account_id
+          - region_nm
+
+        relation-fields:
+          - le_id
+
+        fusion-fields:
+
+          - source-field: account_id
+            target-field: stAccountId
+            aggregation: FIRST
+
+          - source-field: le_id
+            target-field: leId
+            aggregation: FIRST
+
+      #---------------------------------------------------
+      # 2. SECURITIES ACCOUNT
+      #---------------------------------------------------
+      - source-name: account
+
+        entity-type: SEC_ACCOUNT
+
+        source-type: JDBC
+
+        table-name: pmrd.t_account
+
+        entity-id-field: account_mrd_id
+
+        incremental-field: src_add_ts
+
+        search-fields:
+          - account_mrd_id
+          - account_nm
+          - account_tp
+
+        display-fields:
+          - account_nm
+          - account_tp
+
+        relation-fields:
+          - account_mrd_id
+
+        fusion-fields:
+
+          - source-field: account_mrd_id
+            target-field: securityAccount
+            aggregation: FIRST
+
+          - source-field: account_nm
+            target-field: securityAccountName
+            aggregation: FIRST
+
+        relationships:
+
+          - target-entity-type: ACCOUNT_ARRANGEMENT
+            relation-name: HAS_ARRANGEMENT
+            left-field: account_mrd_id
+            right-field: account_mrd_id
+            required: false
+
+          - target-entity-type: ACCOUNT_LINK
+            relation-name: HAS_CASH_ACCOUNT
+            left-field: account_mrd_id
+            right-field: sec_mrd_account
+            required: false
+
+      #---------------------------------------------------
+      # 3. ACCOUNT ARRANGEMENT
+      #---------------------------------------------------
+      - source-name: account_arrangement
+
+        entity-type: ACCOUNT_ARRANGEMENT
+
+        source-type: JDBC
+
+        table-name: pmrd.t_account_arrange_mapping
+
+        entity-id-field: account_mrd_id
+
+        search-fields:
+          - account_mrd_id
+          - arrange_id
+
+        display-fields:
+          - arrange_id
+
+        relation-fields:
+          - arrange_id
+
+        fusion-fields:
+
+          - source-field: arrange_id
+            target-field: arrangeId
+            aggregation: LIST
+
+        relationships:
+
+          - target-entity-type: ARRANGEMENT_ROLE
+            relation-name: HAS_ROLE
+            left-field: arrange_id
+            right-field: arrange_id
+            required: false
+
+      #---------------------------------------------------
+      # 4. GRID MAPPING
+      #---------------------------------------------------
+      - source-name: gridding_mapping
+
+        entity-type: GRID_MAPPING
+
+        source-type: JDBC
+
+        table-name: pmrd.t_gridding_mapping_gcs
+
+        entity-id-field: client_grid
+
+        incremental-field: src_add_ts
+
+        search-fields:
+          - client_grid
+          - mrd_id
+
+        display-fields:
+          - client_grid
+          - contracting_grid
+
+        relation-fields:
+          - client_grid
+          - mrd_id
+
+        fusion-fields:
+
+          - source-field: client_grid
+            target-field: clientGrid
+            aggregation: FIRST
+
+          - source-field: contracting_grid
+            target-field: contractingGrid
+            aggregation: FIRST
+
+        relationships:
+
+          - target-entity-type: MASTERGROUP_MEMBER
+            relation-name: MEMBER_OF
+            left-field: client_grid
+            right-field: child_grid
+            required: true
+
+      #---------------------------------------------------
+      # 5. PARTY
+      #---------------------------------------------------
+      - source-name: party
+
+        entity-type: PARTY
+
+        source-type: JDBC
+
+        table-name: pmrd.t_party
+
+        entity-id-field: mrd_id
+
+        canonical-name-field: name
+
+        incremental-field: src_add_ts
+
+        search-fields:
+          - mrd_id
+          - name
+          - cntry_of_hq
+
+        display-fields:
+          - name
+          - cntry_of_hq
+
+        relation-fields:
+          - mrd_id
+
+        fusion-fields:
+
+          - source-field: name
+            target-field: partyName
+            aggregation: FIRST
+
+          - source-field: mrd_id
+            target-field: mrdId
+            aggregation: FIRST
+
+        relationships:
+
+          - target-entity-type: GRID_MAPPING
+            relation-name: HAS_GRID
+            left-field: mrd_id
+            right-field: mrd_id
+            required: true
+
+          - target-entity-type: ROLE
+            relation-name: HAS_ROLE
+            left-field: mrd_id
+            right-field: mrd_id
+            required: false
+
+          - target-entity-type: ALTERNATE_IDENTIFIER
+            relation-name: HAS_IDENTIFIER
+            left-field: mrd_id
+            right-field: mrd_id
+            required: false
+
+      #---------------------------------------------------
+      # 6. ARRANGEMENT ROLE
+      #---------------------------------------------------
+      - source-name: arrangement_role
+
+        entity-type: ARRANGEMENT_ROLE
+
+        source-type: JDBC
+
+        table-name: pmrd.t_arrangement_role
+
+        entity-id-field: arrange_role_id
+
+        search-fields:
+          - arrange_role_id
+          - arrange_id
+          - role_id
+
+        display-fields:
+          - arrange_role_id
+
+        relation-fields:
+          - arrange_id
+          - role_id
+
+        relationships:
+
+          - target-entity-type: ROLE
+            relation-name: REFERENCES_ROLE
+            left-field: role_id
+            right-field: role_id
+            required: false
+
+      #---------------------------------------------------
+      # 7. ROLE
+      #---------------------------------------------------
+      - source-name: role
+
+        entity-type: ROLE
+
+        source-type: JDBC
+
+        table-name: pmrd.t_role
+
+        entity-id-field: role_id
+
+        search-fields:
+          - role_id
+          - role_tp
+          - role_value
+          - mrd_id
+
+        display-fields:
+          - role_tp
+          - role_value
+
+        relation-fields:
+          - mrd_id
+
+        fusion-fields:
+
+          - source-field: role_tp
+            target-field: roleType
+            aggregation: LIST
+
+          - source-field: role_value
+            target-field: roleValue
+            aggregation: LIST
+
+      #---------------------------------------------------
+      # 8. ACCOUNT LINK
+      #---------------------------------------------------
+      - source-name: linkage_account
+
+        entity-type: ACCOUNT_LINK
+
+        source-type: JDBC
+
+        table-name: pmrd.t_linkage_account
+
+        entity-id-field: sec_mrd_account
+
+        search-fields:
+          - sec_mrd_account
+          - cash_mrd_account
+
+        display-fields:
+          - cash_mrd_account
+
+        relation-fields:
+          - sec_mrd_account
+          - cash_mrd_account
+
+        fusion-fields:
+
+          - source-field: cash_mrd_account
+            target-field: cashAccount
+            aggregation: LIST
+
+      #---------------------------------------------------
+      # 9. ALTERNATE IDENTIFIER
+      #---------------------------------------------------
+      - source-name: alternate_identifier
+
+        entity-type: ALTERNATE_IDENTIFIER
+
+        source-type: JDBC
+
+        table-name: pmrd.t_alternate_identifier
+
+        entity-id-field: alternate_tp_value
+
+        search-fields:
+          - alternate_tp_value
+          - alternate_id_tp
+          - mrd_id
+
+        display-fields:
+          - alternate_tp_value
+
+        relation-fields:
+          - mrd_id
+
+        fusion-fields:
+
+          - source-field: alternate_tp_value
+            target-field: alternateIdentifier
+            aggregation: LIST
+
+      #---------------------------------------------------
+      # 10. MASTERGROUP
+      #---------------------------------------------------
+      - source-name: mastergroup_membership
+
+        entity-type: MASTERGROUP_MEMBER
+
+        source-type: JDBC
+
+        table-name: pmrd.t_mastergroup_membership
+
+        entity-id-field: child_grid
+
+        search-fields:
+          - mg_id
+          - mg_name
+          - child_grid
+
+        display-fields:
+          - mg_id
+          - mg_name
+
+        relation-fields:
+          - parent_grid
+          - child_grid
+
+        fusion-fields:
+
+          - source-field: mg_id
+            target-field: masterGroupId
+            aggregation: FIRST
+
+          - source-field: mg_name
+            target-field: masterGroupName
+            aggregation: FIRST
