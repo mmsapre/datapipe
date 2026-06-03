@@ -1,0 +1,66 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.model.ImportedRecord;
+import com.mas.sap.prak.client360.planner.QueryStep;
+
+import java.sql.*;
+import java.util.*;
+
+public class CalciteQueryExecutor
+        implements QueryExecutor {
+
+    private final Connection connection;
+
+    public CalciteQueryExecutor(
+            Connection connection) {
+
+        this.connection =
+                connection;
+    }
+
+    @Override
+    public List<ImportedRecord> execute(
+            QueryStep step)
+            throws Exception {
+
+        List<ImportedRecord> result =
+                new ArrayList<>();
+
+        try(
+                PreparedStatement ps =
+                        connection.prepareStatement(
+                                step.getSql());
+
+                ResultSet rs =
+                        ps.executeQuery()) {
+
+            ResultSetMetaData md =
+                    rs.getMetaData();
+
+            while(rs.next()) {
+
+                ImportedRecord record =
+                        new ImportedRecord();
+
+                record.setEntityType(
+                        step.getEntityType());
+
+                for(int i=1;
+                    i<=md.getColumnCount();
+                    i++) {
+
+                    String column =
+                            md.getColumnName(i);
+
+                    record.put(
+                            column,
+                            rs.getObject(i));
+                }
+
+                result.add(record);
+            }
+        }
+
+        return result;
+    }
+}
