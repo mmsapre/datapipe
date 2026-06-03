@@ -1,0 +1,32 @@
+package com.mas.sap.prak.client360.planner;
+
+public class QueryDependency {
+
+    private final String relationName;
+
+    private final String leftField;
+
+    private final String rightField;
+
+    public QueryDependency(
+            String relationName,
+            String leftField,
+            String rightField) {
+
+        this.relationName = relationName;
+        this.leftField = leftField;
+        this.rightField = rightField;
+    }
+
+    public String getRelationName() {
+        return relationName;
+    }
+
+    public String getLeftField() {
+        return leftField;
+    }
+
+    public String getRightField() {
+        return rightField;
+    }
+}
