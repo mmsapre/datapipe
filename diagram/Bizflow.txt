@@ -1,0 +1,62 @@
+flowchart LR
+
+    subgraph CONFIG["Configuration"]
+        YAML["client360.yml"]
+    end
+
+    subgraph SOURCES["Client360 Sources"]
+        PARTY["Party"]
+        ACCOUNT["Account"]
+        STACC["Security Account"]
+        ARR["Arrangement"]
+        GRID["Grid Mapping"]
+        ROLE["Role"]
+        ALT["Alternate Identifier"]
+        MG["Master Group"]
+    end
+
+    subgraph ENGINE["Integrated Client Master Engine"]
+        LOAD["Generic Record Loader"]
+        REL["Relationship Resolver"]
+        GRAPH["Connected Relation Builder"]
+        CLUSTER["Connected Component Builder"]
+        FUSION["Fusion Engine"]
+    end
+
+    subgraph MASTER["Integrated Client Master Layer"]
+        ICM["Integrated Client Master"]
+    end
+
+    subgraph CONSUMERS["Consumer Channels"]
+        SEARCH["Search"]
+        KG["Knowledge Graph"]
+        API["Client360 API"]
+        UI["Client360 UI"]
+    end
+
+    YAML --> ENGINE
+
+    SOURCES --> ENGINE
+
+    ENGINE --> ICM
+
+    ICM --> SEARCH
+    ICM --> KG
+    ICM --> API
+    ICM --> UI
+
+    classDef config fill:#CFE2F3,stroke:#0B5394,color:#000000
+    classDef source fill:#FFFFFF,stroke:#000000,color:#000000
+    classDef engine fill:#FFF2CC,stroke:#BF9000,color:#000000
+    classDef master fill:#D9EAD3,stroke:#38761D,color:#000000
+    classDef consumer fill:#D0E0E3,stroke:#134F5C,color:#000000
+
+    class YAML config
+
+    class PARTY,ACCOUNT,STACC,ARR,GRID,ROLE,ALT,MG source
+
+    class LOAD,REL,GRAPH,CLUSTER,FUSION engine
+
+    class ICM master
+
+    class SEARCH,KG,API,UI consumer
