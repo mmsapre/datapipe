@@ -1,0 +1,29 @@
+package com.mas.sap.prak.client360.graph;
+
+public class GraphEdge {
+
+    private String relationName;
+
+    private String leftEntityType;
+
+    private String rightEntityType;
+
+    public GraphEdge(
+            String relationName,
+            String leftEntityType,
+            String rightEntityType) {
+
+        this.relationName =
+                relationName;
+
+        this.leftEntityType =
+                leftEntityType;
+
+        this.rightEntityType =
+                rightEntityType;
+    }
+
+    public String getRelationName() {
+        return relationName;
+    }
+}
