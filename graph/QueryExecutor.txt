@@ -1,0 +1,13 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.model.ImportedRecord;
+import com.mas.sap.prak.client360.planner.QueryStep;
+
+import java.util.List;
+
+public interface QueryExecutor {
+
+    List<ImportedRecord> execute(
+            QueryStep step)
+            throws Exception;
+}
