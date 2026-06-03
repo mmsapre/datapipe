@@ -1,0 +1,98 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.*;
+
+public class SourceConfig {
+
+    private String sourceName;
+
+    private String entityType;
+
+    private SourceType sourceType;
+
+    private String tableName;
+
+    private String sourceLocation;
+
+    private String entityIdField;
+
+    private String canonicalNameField;
+
+    private String incrementalField;
+
+    private List<String> searchFields =
+            new ArrayList<>();
+
+    private List<String> displayFields =
+            new ArrayList<>();
+
+    private List<String> relationFields =
+            new ArrayList<>();
+
+    private List<RelationshipConfig>
+            relationships =
+            new ArrayList<>();
+
+    private List<FusionFieldConfig>
+            fusionFields =
+            new ArrayList<>();
+
+    public Set<String> requiredColumns(
+            List<SourceConfig> allSources) {
+
+        Set<String> cols =
+                new LinkedHashSet<>();
+
+        add(cols, entityIdField);
+        add(cols, canonicalNameField);
+        add(cols, incrementalField);
+
+        cols.addAll(searchFields);
+        cols.addAll(displayFields);
+        cols.addAll(relationFields);
+
+        for(FusionFieldConfig field :
+                fusionFields) {
+
+            add(cols,
+                    field.getSourceField());
+        }
+
+        for(RelationshipConfig rel :
+                relationships) {
+
+            add(cols,
+                    rel.getLeftField());
+        }
+
+        for(SourceConfig source :
+                allSources) {
+
+            for(RelationshipConfig rel :
+                    source.getRelationships()) {
+
+                if(entityType.equals(
+                        rel.getTargetEntityType())) {
+
+                    add(cols,
+                            rel.getRightField());
+                }
+            }
+        }
+
+        return cols;
+    }
+
+    private void add(
+            Set<String> cols,
+            String value) {
+
+        if(value != null &&
+                !value.isBlank()) {
+
+            cols.add(value);
+        }
+    }
+
+    // generate getters setters
+}
