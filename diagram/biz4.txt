@@ -1,0 +1,35 @@
+%%{init:{
+  "theme":"base",
+  "themeVariables":{
+    "background":"#ffffff",
+    "primaryColor":"#ffffff",
+    "primaryTextColor":"#000000",
+    "lineColor":"#000000",
+    "fontFamily":"Arial"
+  }
+}}%%
+
+flowchart LR
+
+    YAML["client360.yml"]
+    SOURCES["10 Client Sources"]
+    ENGINE["Integrated Client Master Engine"]
+    MASTER["Integrated Client Master Layer"]
+    SEARCH["Search"]
+    GRAPH["Knowledge Graph"]
+    UI["Client360 UI"]
+
+    YAML --> ENGINE
+    SOURCES --> ENGINE
+    ENGINE --> MASTER
+    MASTER --> SEARCH
+    MASTER --> GRAPH
+    MASTER --> UI
+
+    style YAML fill:#D9EAF7,stroke:#4A86E8,stroke-width:2px,color:#000
+    style SOURCES fill:#FFFFFF,stroke:#999999,stroke-width:2px,color:#000
+    style ENGINE fill:#FFF2CC,stroke:#BF9000,stroke-width:2px,color:#000
+    style MASTER fill:#D9EAD3,stroke:#6AA84F,stroke-width:2px,color:#000
+    style SEARCH fill:#EAD1DC,stroke:#A64D79,stroke-width:2px,color:#000
+    style GRAPH fill:#D0E0E3,stroke:#45818E,stroke-width:2px,color:#000
+    style UI fill:#FCE5CD,stroke:#E69138,stroke-width:2px,color:#000
