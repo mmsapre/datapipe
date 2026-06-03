@@ -1,0 +1,33 @@
+package com.mas.sap.prak.client360.planner;
+
+import java.util.*;
+
+public class QueryStep {
+
+    private String entityType;
+
+    private String sql;
+
+    private List<String> columns =
+            new ArrayList<>();
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(String entityType) {
+        this.entityType = entityType;
+    }
+
+    public String getSql() {
+        return sql;
+    }
+
+    public void setSql(String sql) {
+        this.sql = sql;
+    }
+
+    public List<String> getColumns() {
+        return columns;
+    }
+}
