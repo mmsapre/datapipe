@@ -1,0 +1,205 @@
+package com.mas.sap.prak.client360.graph;
+
+import com.mas.sap.prak.client360.config.*;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+
+import org.jgrapht.Graph;
+
+import java.util.*;
+
+public class BusinessGraphBuilder {
+
+    private final SourceRegistry registry;
+
+    private final List<GraphException>
+            exceptions =
+            new ArrayList<>();
+
+    public BusinessGraphBuilder(
+            SourceRegistry registry) {
+
+        this.registry =
+                registry;
+    }
+
+    public BusinessGraph build(
+            Map<String,
+                    List<ImportedRecord>>
+                    importedData) {
+
+        BusinessGraph businessGraph =
+                new BusinessGraph();
+
+        Graph<String,GraphEdge> graph =
+                businessGraph.getGraph();
+
+        for(SourceConfig source :
+                registry.all()) {
+
+            List<ImportedRecord> records =
+                    importedData.get(
+                            source.getEntityType());
+
+            if(records == null) {
+                continue;
+            }
+
+            for(ImportedRecord record :
+                    records) {
+
+                String nodeId =
+                        nodeId(
+                                source.getEntityType(),
+                                record.getLogicalEntityId());
+
+                graph.addVertex(nodeId);
+            }
+        }
+
+        expandRelationships(
+                graph,
+                importedData);
+
+        return businessGraph;
+    }
+
+    private void expandRelationships(
+            Graph<String,GraphEdge> graph,
+            Map<String,
+                    List<ImportedRecord>>
+                    importedData) {
+
+        for(SourceConfig source :
+                registry.all()) {
+
+            List<ImportedRecord> leftRecords =
+                    importedData.get(
+                            source.getEntityType());
+
+            if(leftRecords == null) {
+                continue;
+            }
+
+            for(RelationshipConfig rel :
+                    source.getRelationships()) {
+
+                List<ImportedRecord> rightRecords =
+                        importedData.get(
+                                rel.getTargetEntityType());
+
+                if(rightRecords == null) {
+                    continue;
+                }
+
+                Map<Object,
+                        List<ImportedRecord>>
+                        rightIndex =
+                        buildIndex(
+                                rightRecords,
+                                rel.getRightField());
+
+                for(ImportedRecord left :
+                        leftRecords) {
+
+                    Object value =
+                            left.get(
+                                    rel.getLeftField());
+
+                    List<ImportedRecord> matches =
+                            rightIndex.get(
+                                    value);
+
+                    if(matches == null ||
+                            matches.isEmpty()) {
+
+                        if(rel.isRequired()) {
+
+                            GraphException ex =
+                                    new GraphException();
+
+                            ex.setEntityType(
+                                    source.getEntityType());
+
+                            ex.setEntityId(
+                                    left.getLogicalEntityId());
+
+                            ex.setRelationName(
+                                    rel.getRelationName());
+
+                            ex.setSeverity(
+                                    "ERROR");
+
+                            ex.setMessage(
+                                    "Missing required relation");
+
+                            exceptions.add(ex);
+                        }
+
+                        continue;
+                    }
+
+                    String leftNode =
+                            nodeId(
+                                    source.getEntityType(),
+                                    left.getLogicalEntityId());
+
+                    for(ImportedRecord right :
+                            matches) {
+
+                        String rightNode =
+                                nodeId(
+                                        rel.getTargetEntityType(),
+                                        right.getLogicalEntityId());
+
+                        graph.addEdge(
+                                leftNode,
+                                rightNode,
+                                new GraphEdge(
+                                        rel.getRelationName(),
+                                        source.getEntityType(),
+                                        rel.getTargetEntityType()));
+                    }
+                }
+            }
+        }
+    }
+
+    private Map<Object,
+            List<ImportedRecord>> buildIndex(
+            List<ImportedRecord> records,
+            String field) {
+
+        Map<Object,
+                List<ImportedRecord>> index =
+                new HashMap<>();
+
+        for(ImportedRecord record :
+                records) {
+
+            Object key =
+                    record.get(field);
+
+            index.computeIfAbsent(
+                    key,
+                    k -> new ArrayList<>())
+                    .add(record);
+        }
+
+        return index;
+    }
+
+    private String nodeId(
+            String entityType,
+            String entityId) {
+
+        return entityType +
+                ":" +
+                entityId;
+    }
+
+    public List<GraphException>
+    getExceptions() {
+
+        return exceptions;
+    }
+}
