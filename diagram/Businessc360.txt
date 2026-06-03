@@ -1,0 +1,41 @@
+flowchart LR
+
+    YAML[client360.yml]
+
+    SOURCES[10 Client Sources]
+
+    ENGINE[Integrated Client Master Engine]
+
+    MASTER[Integrated Client Master Layer]
+
+    SEARCH[Search]
+
+    GRAPH[Knowledge Graph]
+
+    UI[Client360 UI]
+
+    YAML --> ENGINE
+
+    SOURCES --> ENGINE
+
+    ENGINE --> MASTER
+
+    MASTER --> SEARCH
+
+    MASTER --> GRAPH
+
+    MASTER --> UI
+
+    style YAML fill:#DDEBF7,stroke:#5B9BD5,color:#000000
+
+    style SOURCES fill:#FFFFFF,stroke:#7F7F7F,color:#000000
+
+    style ENGINE fill:#FFF2CC,stroke:#D6B656,color:#000000
+
+    style MASTER fill:#E2F0D9,stroke:#70AD47,color:#000000
+
+    style SEARCH fill:#D9EAF7,stroke:#5B9BD5,color:#000000
+
+    style GRAPH fill:#D9EAF7,stroke:#5B9BD5,color:#000000
+
+    style UI fill:#D9EAF7,stroke:#5B9BD5,color:#000000
