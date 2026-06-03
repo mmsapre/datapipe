@@ -1,0 +1,46 @@
+package com.mas.sap.prak.client360.config;
+
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
+
+@Component
+public class SourceRegistry {
+
+    private final Client360Config config;
+
+    private final Map<String,SourceConfig>
+            sources =
+            new HashMap<>();
+
+    public SourceRegistry(
+            Client360Config config) {
+
+        this.config = config;
+    }
+
+    @PostConstruct
+    public void init() {
+
+        for(SourceConfig source :
+                config.getSources()) {
+
+            sources.put(
+                    source.getEntityType(),
+                    source);
+        }
+    }
+
+    public SourceConfig get(
+            String entityType) {
+
+        return sources.get(
+                entityType);
+    }
+
+    public Collection<SourceConfig> all() {
+
+        return sources.values();
+    }
+}
