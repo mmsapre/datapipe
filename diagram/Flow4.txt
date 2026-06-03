@@ -1,0 +1,107 @@
+flowchart TD
+
+    YAML[client360.yml]
+
+    PARTY[PARTY]
+    ACCOUNT[ACCOUNT]
+    STACCOUNT[ST_ACCOUNT]
+    ARRMAP[ACCOUNT_ARRANGEMENT]
+    GRIDMAP[GRID_MAPPING]
+    ARRROLE[ARRANGEMENT_ROLE]
+    ROLE[ROLE]
+    ALTID[ALTERNATE_IDENTIFIER]
+    LINKACC[LINKAGE_ACCOUNT]
+    MASTERGROUP[MASTERGROUP]
+
+    GRL[Generic Record Loader]
+
+    subgraph ICM_ENGINE["Integrated Client Master Engine"]
+
+        RR[Relationship Resolver]
+
+        CRB[Connected Relation Builder]
+
+        CCB[Connected Component Builder]
+
+        FE[Fusion Engine]
+
+        RR --> CRB
+
+        CRB --> CCB
+
+        CCB --> FE
+
+    end
+
+    ICM[Integrated Client Master Layer]
+
+    SEARCH[Search Builder]
+
+    GRAPH[Graph Exporter]
+
+    FALKOR[FalkorDB]
+
+    UI[Client360 UI]
+
+    PARTY --> GRL
+    ACCOUNT --> GRL
+    STACCOUNT --> GRL
+    ARRMAP --> GRL
+    GRIDMAP --> GRL
+    ARRROLE --> GRL
+    ROLE --> GRL
+    ALTID --> GRL
+    LINKACC --> GRL
+    MASTERGROUP --> GRL
+
+    YAML --> GRL
+
+    GRL --> RR
+
+    YAML --> RR
+
+    YAML --> FE
+
+    FE --> ICM
+
+    ICM --> SEARCH
+
+    ICM --> GRAPH
+
+    SEARCH --> UI
+
+    GRAPH --> FALKOR
+
+    FALKOR --> UI
+
+    ICM --> UI
+
+    classDef source fill:#ffffff,stroke:#000000,color:#000000
+    classDef engine fill:#FFF2CC,stroke:#BF9000,color:#000000
+    classDef icm fill:#D9EAD3,stroke:#38761D,color:#000000
+    classDef output fill:#D0E0E3,stroke:#134F5C,color:#000000
+
+    class PARTY source
+    class ACCOUNT source
+    class STACCOUNT source
+    class ARRMAP source
+    class GRIDMAP source
+    class ARRROLE source
+    class ROLE source
+    class ALTID source
+    class LINKACC source
+    class MASTERGROUP source
+    class YAML source
+    class GRL source
+
+    class RR engine
+    class CRB engine
+    class CCB engine
+    class FE engine
+
+    class ICM icm
+
+    class SEARCH output
+    class GRAPH output
+    class FALKOR output
+    class UI output
