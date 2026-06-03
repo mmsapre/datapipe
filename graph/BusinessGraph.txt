@@ -1,0 +1,16 @@
+package com.mas.sap.prak.client360.graph;
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+
+public class BusinessGraph {
+
+    private final Graph<String,GraphEdge>
+            graph =
+            new DefaultDirectedGraph<>(
+                    GraphEdge.class);
+
+    public Graph<String,GraphEdge> getGraph() {
+        return graph;
+    }
+}
