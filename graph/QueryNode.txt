@@ -1,0 +1,23 @@
+package com.mas.sap.prak.client360.planner;
+
+import com.mas.sap.prak.client360.config.SourceConfig;
+
+public class QueryNode {
+
+    private final SourceConfig source;
+
+    public QueryNode(
+            SourceConfig source) {
+
+        this.source = source;
+    }
+
+    public SourceConfig getSource() {
+        return source;
+    }
+
+    @Override
+    public String toString() {
+        return source.getEntityType();
+    }
+}
