@@ -1,0 +1,40 @@
+flowchart LR
+
+    KNOWN["Known Relationships"]
+
+    UNKNOWN["Unresolved Entities"]
+
+    CC["Connected Components"]
+
+    SPLINK["Splink Matching"]
+
+    CLUSTER["Cluster Assignment"]
+
+    FUSION["Integrated Client Master"]
+
+    KNOWN --> CC
+
+    UNKNOWN --> SPLINK
+
+    CC --> CLUSTER
+
+    SPLINK --> CLUSTER
+
+    CLUSTER --> FUSION
+
+    classDef source fill:#FFFFFF,stroke:#000000,color:#000000
+    classDef known fill:#CFE2F3,stroke:#0B5394,color:#000000
+    classDef splink fill:#FFF2CC,stroke:#BF9000,color:#000000
+    classDef cluster fill:#D9EAD3,stroke:#38761D,color:#000000
+    classDef master fill:#93C47D,stroke:#274E13,color:#000000
+
+    class KNOWN known
+    class UNKNOWN source
+
+    class CC known
+
+    class SPLINK splink
+
+    class CLUSTER cluster
+
+    class FUSION master
