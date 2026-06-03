@@ -1,0 +1,21 @@
+flowchart LR
+
+    KNOWN["Known Relationships"]
+    CC["Connected Components"]
+    SPLINK["Splink Matching"]
+    CLUSTER["Cluster Assignment"]
+    ICM["Integrated Client Master"]
+
+    KNOWN --> CC
+    CC --> CLUSTER
+    SPLINK --> CLUSTER
+    CLUSTER --> ICM
+
+    style KNOWN fill:#CFE2F3,stroke:#0B5394,color:#000000
+    style CC fill:#CFE2F3,stroke:#0B5394,color:#000000
+
+    style SPLINK fill:#FFF2CC,stroke:#BF9000,color:#000000
+
+    style CLUSTER fill:#D9EAD3,stroke:#38761D,color:#000000
+
+    style ICM fill:#93C47D,stroke:#274E13,color:#000000
