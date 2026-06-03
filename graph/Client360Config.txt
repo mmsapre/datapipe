@@ -1,0 +1,50 @@
+package com.mas.sap.prak.client360.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@ConfigurationProperties(
+        prefix = "mrd.client360")
+public class Client360Config {
+
+    private DatasourceConfig datasource =
+            new DatasourceConfig();
+
+    private CalciteConfig calcite =
+            new CalciteConfig();
+
+    private List<SourceConfig> sources =
+            new ArrayList<>();
+
+    public DatasourceConfig getDatasource() {
+        return datasource;
+    }
+
+    public void setDatasource(
+            DatasourceConfig datasource) {
+
+        this.datasource = datasource;
+    }
+
+    public CalciteConfig getCalcite() {
+        return calcite;
+    }
+
+    public void setCalcite(
+            CalciteConfig calcite) {
+
+        this.calcite = calcite;
+    }
+
+    public List<SourceConfig> getSources() {
+        return sources;
+    }
+
+    public void setSources(
+            List<SourceConfig> sources) {
+
+        this.sources = sources;
+    }
+}
