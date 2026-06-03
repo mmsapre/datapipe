@@ -1,0 +1,97 @@
+flowchart TD
+
+    YAML[client360.yml]
+
+    PARTY[PARTY]
+    ACCOUNT[ACCOUNT]
+    STACCOUNT[ST_ACCOUNT]
+    ARRMAP[ACCOUNT_ARRANGEMENT]
+    GRIDMAP[GRID_MAPPING]
+    ARRROLE[ARRANGEMENT_ROLE]
+    ROLE[ROLE]
+    ALTID[ALTERNATE_IDENTIFIER]
+    LINKACC[LINKAGE_ACCOUNT]
+    MASTERGROUP[MASTERGROUP]
+
+    GRL[Generic Record Loader]
+
+    RR[Relationship Resolver]
+
+    CRB[Connected Relation Builder]
+
+    CCB[Connected Component Builder]
+
+    FE[Fusion Engine]
+
+    ICM[Integrated Client Master Layer]
+
+    SEARCH[Search Builder]
+
+    GRAPH[Graph Exporter]
+
+    FALKOR[FalkorDB]
+
+    UI[Client360 UI]
+
+    PARTY --> GRL
+    ACCOUNT --> GRL
+    STACCOUNT --> GRL
+    ARRMAP --> GRL
+    GRIDMAP --> GRL
+    ARRROLE --> GRL
+    ROLE --> GRL
+    ALTID --> GRL
+    LINKACC --> GRL
+    MASTERGROUP --> GRL
+
+    YAML --> GRL
+
+    GRL --> RR
+
+    YAML --> RR
+
+    RR --> CRB
+
+    CRB --> CCB
+
+    CCB --> FE
+
+    YAML --> FE
+
+    FE --> ICM
+
+    ICM --> SEARCH
+
+    ICM --> GRAPH
+
+    SEARCH --> UI
+
+    GRAPH --> FALKOR
+
+    FALKOR --> UI
+
+    ICM --> UI
+
+    classDef light fill:#ffffff,stroke:#000000,color:#000000
+
+    class YAML light
+    class PARTY light
+    class ACCOUNT light
+    class STACCOUNT light
+    class ARRMAP light
+    class GRIDMAP light
+    class ARRROLE light
+    class ROLE light
+    class ALTID light
+    class LINKACC light
+    class MASTERGROUP light
+    class GRL light
+    class RR light
+    class CRB light
+    class CCB light
+    class FE light
+    class ICM light
+    class SEARCH light
+    class GRAPH light
+    class FALKOR light
+    class UI light
