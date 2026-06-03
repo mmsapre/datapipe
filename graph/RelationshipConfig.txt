@@ -1,0 +1,54 @@
+package com.mas.sap.prak.client360.config;
+
+public class RelationshipConfig {
+
+    private String targetEntityType;
+
+    private String relationName;
+
+    private String leftField;
+
+    private String rightField;
+
+    private boolean required;
+
+    public String getTargetEntityType() {
+        return targetEntityType;
+    }
+
+    public void setTargetEntityType(String targetEntityType) {
+        this.targetEntityType = targetEntityType;
+    }
+
+    public String getRelationName() {
+        return relationName;
+    }
+
+    public void setRelationName(String relationName) {
+        this.relationName = relationName;
+    }
+
+    public String getLeftField() {
+        return leftField;
+    }
+
+    public void setLeftField(String leftField) {
+        this.leftField = leftField;
+    }
+
+    public String getRightField() {
+        return rightField;
+    }
+
+    public void setRightField(String rightField) {
+        this.rightField = rightField;
+    }
+
+    public boolean isRequired() {
+        return required;
+    }
+
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
+}
