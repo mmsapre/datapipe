@@ -1,0 +1,43 @@
+flowchart LR
+
+    PARTY["Party Records"]
+
+    BLOCK["Blocking Key Generator"]
+
+    PAIR["Candidate Pair Generator"]
+
+    SPLINK["Splink Matching"]
+
+    SCORE["Match Probability"]
+
+    DECISION["Auto Match<br/>Review<br/>Reject"]
+
+    CLUSTER["Attach To Cluster"]
+
+    PARTY --> BLOCK
+
+    BLOCK --> PAIR
+
+    PAIR --> SPLINK
+
+    SPLINK --> SCORE
+
+    SCORE --> DECISION
+
+    DECISION --> CLUSTER
+
+    classDef source fill:#FFFFFF,stroke:#000000,color:#000000
+
+    classDef process fill:#FFF2CC,stroke:#BF9000,color:#000000
+
+    classDef result fill:#D9EAD3,stroke:#38761D,color:#000000
+
+    class PARTY source
+
+    class BLOCK process
+    class PAIR process
+    class SPLINK process
+    class SCORE process
+    class DECISION process
+
+    class CLUSTER result
