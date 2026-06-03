@@ -1,0 +1,8 @@
+package com.mas.sap.prak.client360.config;
+
+public enum SourceType {
+
+    JDBC,
+    CSV,
+    XLSX
+}
