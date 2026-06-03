@@ -1,0 +1,63 @@
+package com.mas.sap.prak.client360.planner;
+
+import com.mas.sap.prak.client360.config.*;
+
+import org.jgrapht.*;
+import org.jgrapht.graph.*;
+
+import java.util.*;
+
+public class QueryGraphBuilder {
+
+    public Graph<QueryNode,
+            QueryDependency> build(
+            Client360Config config) {
+
+        Graph<QueryNode,
+                QueryDependency> graph =
+                new DefaultDirectedGraph<>(
+                        QueryDependency.class);
+
+        Map<String,QueryNode> nodes =
+                new HashMap<>();
+
+        for(SourceConfig source :
+                config.getSources()) {
+
+            QueryNode node =
+                    new QueryNode(source);
+
+            graph.addVertex(node);
+
+            nodes.put(
+                    source.getEntityType(),
+                    node);
+        }
+
+        for(SourceConfig source :
+                config.getSources()) {
+
+            QueryNode left =
+                    nodes.get(
+                            source.getEntityType());
+
+            for(RelationshipConfig rel :
+                    source.getRelationships()) {
+
+                QueryNode right =
+                        nodes.get(
+                                rel.getTargetEntityType());
+
+                graph.addEdge(
+                        left,
+                        right,
+                        new QueryDependency(
+                                rel.getRelationName(),
+                                rel.getLeftField(),
+                                rel.getRightField()));
+            }
+        }
+
+        return graph;
+    }
+}
