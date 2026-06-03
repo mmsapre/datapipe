@@ -1,0 +1,24 @@
+package com.mas.sap.prak.client360.config;
+
+public class CalciteConfig {
+
+    private boolean caseSensitive;
+
+    private String lexicalPolicy;
+
+    public boolean isCaseSensitive() {
+        return caseSensitive;
+    }
+
+    public void setCaseSensitive(boolean caseSensitive) {
+        this.caseSensitive = caseSensitive;
+    }
+
+    public String getLexicalPolicy() {
+        return lexicalPolicy;
+    }
+
+    public void setLexicalPolicy(String lexicalPolicy) {
+        this.lexicalPolicy = lexicalPolicy;
+    }
+}
