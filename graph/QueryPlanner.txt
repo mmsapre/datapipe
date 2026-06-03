@@ -1,0 +1,59 @@
+package com.mas.sap.prak.client360.planner;
+
+import com.mas.sap.prak.client360.config.*;
+
+import org.jgrapht.*;
+import org.jgrapht.traverse.*;
+
+public class QueryPlanner {
+
+    public QueryPlan build(
+            Client360Config config) {
+
+        Graph<QueryNode,
+                QueryDependency> graph =
+                new QueryGraphBuilder()
+                        .build(config);
+
+        QueryPlan plan =
+                new QueryPlan();
+
+        SqlQueryBuilder sqlBuilder =
+                new SqlQueryBuilder();
+
+        TopologicalOrderIterator<
+                QueryNode,
+                QueryDependency> iterator =
+                new TopologicalOrderIterator<>(
+                        graph);
+
+        while(iterator.hasNext()) {
+
+            QueryNode node =
+                    iterator.next();
+
+            QueryStep step =
+                    new QueryStep();
+
+            step.setEntityType(
+                    node.getSource()
+                            .getEntityType());
+
+            step.setSql(
+                    sqlBuilder.buildSql(
+                            node.getSource(),
+                            config));
+
+            step.getColumns()
+                    .addAll(
+                            node.getSource()
+                                    .requiredColumns(
+                                            config.getSources()));
+
+            plan.getSteps()
+                    .add(step);
+        }
+
+        return plan;
+    }
+}
