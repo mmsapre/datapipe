@@ -1,0 +1,84 @@
+flowchart TD
+
+    YAML[client360.yml]
+
+    subgraph SOURCES[10 Source Files]
+        P[PARTY]
+        A[ACCOUNT]
+        SA[ST_ACCOUNT]
+        AM[ACCOUNT_ARRANGEMENT]
+        GM[GRID_MAPPING]
+        AR[ARRANGEMENT_ROLE]
+        R[ROLE]
+        AL[ALTERNATE_IDENTIFIER]
+        LA[LINKAGE_ACCOUNT]
+        MG[MASTERGROUP]
+    end
+
+    YAML --> GRL
+
+    P --> GRL
+    A --> GRL
+    SA --> GRL
+    AM --> GRL
+    GM --> GRL
+    AR --> GRL
+    R --> GRL
+    AL --> GRL
+    LA --> GRL
+    MG --> GRL
+
+    GRL[Generic Record Loader]
+
+    GRL --> SR[(source_record)]
+
+    SR --> RR[Relationship Resolver]
+
+    YAML --> RR
+
+    RR --> RE[(relationship_edge)]
+
+    RE --> GB[Graph Builder]
+
+    GB --> GN[(graph_node)]
+
+    GN --> CCS
+    RE --> CCS
+
+    CCS[Connected Component Service<br/>Union Find]
+
+    CCS --> CM[(cluster_member)]
+
+    CM --> FE[Fusion Engine]
+
+    YAML --> FE
+
+    FE --> FUSED[(fused_entity)]
+
+    FUSED --> SEARCH[Search Builder]
+    FUSED --> GRAPH[Graph Exporter]
+    FUSED --> API[Client360 API]
+
+    SEARCH --> IDX[(search_index)]
+
+    GRAPH --> FDB[(FalkorDB)]
+
+    IDX --> UI[Client360 UI]
+    API --> UI
+    FDB --> UI
+
+    subgraph OPTIONAL[Optional Probabilistic Matching]
+        BK[Blocking Generator]
+        CP[Candidate Pair Generator]
+        SPLINK[Splink]
+        REVIEW[Auto Match<br/>Review<br/>Reject]
+    end
+
+    SR --> BK
+    YAML --> BK
+
+    BK --> CP
+    CP --> SPLINK
+    SPLINK --> REVIEW
+
+    REVIEW --> CM
