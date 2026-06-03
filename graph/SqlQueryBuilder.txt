@@ -1,0 +1,23 @@
+package com.mas.sap.prak.client360.planner;
+
+import com.mas.sap.prak.client360.config.*;
+
+public class SqlQueryBuilder {
+
+    public String buildSql(
+            SourceConfig source,
+            Client360Config config) {
+
+        String cols =
+                String.join(
+                        ",",
+                        source.requiredColumns(
+                                config.getSources()));
+
+        return
+                "select "
+                        + cols
+                        + " from "
+                        + source.getTableName();
+    }
+}
