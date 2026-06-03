@@ -1,0 +1,37 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.model.ImportedRecord;
+import com.mas.sap.prak.client360.planner.*;
+
+import java.util.*;
+
+public class ImportCoordinator {
+
+    private final QueryExecutor executor;
+
+    public ImportCoordinator(
+            QueryExecutor executor) {
+
+        this.executor = executor;
+    }
+
+    public Map<String,
+            List<ImportedRecord>> importAll(
+            QueryPlan plan)
+            throws Exception {
+
+        Map<String,
+                List<ImportedRecord>> result =
+                new LinkedHashMap<>();
+
+        for(QueryStep step :
+                plan.getSteps()) {
+
+            result.put(
+                    step.getEntityType(),
+                    executor.execute(step));
+        }
+
+        return result;
+    }
+}
