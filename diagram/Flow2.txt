@@ -1,0 +1,119 @@
+```mermaid
+%%{init: {
+  "theme":"base",
+  "themeVariables":{
+    "background":"#ffffff",
+    "primaryColor":"#f5f5f5",
+    "primaryBorderColor":"#000000",
+    "primaryTextColor":"#000000",
+    "lineColor":"#000000",
+    "secondaryColor":"#ffffff",
+    "tertiaryColor":"#ffffff"
+  }
+}}%%
+
+flowchart TD
+
+    YAML["client360.yml"]
+
+    subgraph SOURCES["Client360 Sources"]
+
+        PARTY["PARTY"]
+        ACCOUNT["ACCOUNT"]
+        STACCOUNT["ST_ACCOUNT"]
+        ARRMAP["ACCOUNT_ARRANGEMENT"]
+        GRIDMAP["GRID_MAPPING"]
+        ARRROLE["ARRANGEMENT_ROLE"]
+        ROLE["ROLE"]
+        ALTID["ALTERNATE_IDENTIFIER"]
+        LINKACC["LINKAGE_ACCOUNT"]
+        MASTERGROUP["MASTERGROUP"]
+
+    end
+
+    subgraph CRS["Client360 Relation Service"]
+
+        GRL["Generic Record Loader"]
+
+        RR["Relationship Resolver"]
+
+        CRB["Connected Relation Builder"]
+
+        CCB["Connected Component Builder"]
+
+    end
+
+    subgraph DB["PostgreSQL"]
+
+        SR["source_record"]
+
+        GN["graph_node"]
+
+        RE["relationship_edge"]
+
+        CM["cluster_member"]
+
+        ICM["integrated_client_master"]
+
+        SI["search_index"]
+
+    end
+
+    subgraph ICM_LAYER["Integrated Client Master Layer"]
+
+        FE["Fusion Engine"]
+
+        SEARCH["Search Builder"]
+
+        GRAPH["Graph Exporter"]
+
+    end
+
+    FALKOR["FalkorDB"]
+
+    UI["Client360 UI"]
+
+    YAML --> GRL
+    YAML --> RR
+    YAML --> FE
+
+    PARTY --> GRL
+    ACCOUNT --> GRL
+    STACCOUNT --> GRL
+    ARRMAP --> GRL
+    GRIDMAP --> GRL
+    ARRROLE --> GRL
+    ROLE --> GRL
+    ALTID --> GRL
+    LINKACC --> GRL
+    MASTERGROUP --> GRL
+
+    GRL --> SR
+
+    SR --> RR
+
+    RR --> RE
+
+    RE --> CRB
+
+    CRB --> GN
+
+    GN --> CCB
+    RE --> CCB
+
+    CCB --> CM
+
+    CM --> FE
+
+    FE --> ICM
+
+    ICM --> SEARCH
+    SEARCH --> SI
+
+    ICM --> GRAPH
+    GRAPH --> FALKOR
+
+    SI --> UI
+    ICM --> UI
+    FALKOR --> UI
+```
