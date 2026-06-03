@@ -1,0 +1,72 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.config.*;
+
+import org.apache.calcite.jdbc.CalciteConnection;
+import org.apache.calcite.schema.SchemaPlus;
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.Properties;
+
+public class CalciteManager {
+
+    private final Client360Config config;
+
+    private final DataSource dataSource;
+
+    public CalciteManager(
+            Client360Config config,
+            DataSource dataSource) {
+
+        this.config = config;
+        this.dataSource = dataSource;
+    }
+
+    public Connection createConnection()
+            throws Exception {
+
+        Connection conn =
+                DriverManager.getConnection(
+                        "jdbc:calcite:",
+                        new Properties());
+
+        CalciteConnection calcite =
+                conn.unwrap(
+                        CalciteConnection.class);
+
+        SchemaPlus root =
+                calcite.getRootSchema();
+
+        registerSources(root);
+
+        return conn;
+    }
+
+    private void registerSources(
+            SchemaPlus root)
+            throws Exception {
+
+        for(SourceConfig source :
+                config.getSources()) {
+
+            if(source.getSourceType() ==
+                    SourceType.JDBC) {
+
+                JdbcSchemaRegistrar.register(
+                        root,
+                        source,
+                        dataSource);
+            }
+
+            if(source.getSourceType() ==
+                    SourceType.CSV) {
+
+                CsvSchemaRegistrar.register(
+                        root,
+                        source);
+            }
+        }
+    }
+}
