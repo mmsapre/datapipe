@@ -1,0 +1,55 @@
+package com.mas.sap.prak.client360.importer;
+
+import com.mas.sap.prak.client360.config.SourceConfig;
+
+import org.apache.calcite.adapter.jdbc.JdbcSchema;
+import org.apache.calcite.schema.SchemaPlus;
+
+import javax.sql.DataSource;
+
+public final class JdbcSchemaRegistrar {
+
+    private JdbcSchemaRegistrar() {
+    }
+
+    public static void register(
+            SchemaPlus root,
+            SourceConfig source,
+            DataSource dataSource) {
+
+        String schemaName =
+                source.getEntityType();
+
+        JdbcSchema jdbcSchema =
+                JdbcSchema.create(
+                        root,
+                        schemaName,
+                        dataSource,
+                        null,
+                        extractSchema(
+                                source.getTableName()));
+
+        root.add(
+                schemaName,
+                jdbcSchema);
+    }
+
+    private static String extractSchema(
+            String tableName) {
+
+        if(tableName == null) {
+            return "public";
+        }
+
+        int idx =
+                tableName.indexOf('.');
+
+        if(idx < 0) {
+            return "public";
+        }
+
+        return tableName.substring(
+                0,
+                idx);
+    }
+}
