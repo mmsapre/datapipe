@@ -1,0 +1,24 @@
+package com.mas.sap.prak.client360.importer;
+
+import org.apache.calcite.adapter.csv.CsvSchema;
+import org.apache.calcite.schema.SchemaPlus;
+
+import java.io.File;
+
+public class CsvSchemaRegistrar {
+
+    public static void register(
+            SchemaPlus root,
+            String schemaName,
+            String directory) {
+
+        CsvSchema csvSchema =
+                new CsvSchema(
+                        new File(directory),
+                        CsvSchema.Flavor.SCANNABLE);
+
+        root.add(
+                schemaName,
+                csvSchema);
+    }
+}
