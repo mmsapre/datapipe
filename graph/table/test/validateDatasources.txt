@@ -1,0 +1,20 @@
+private void validateDatasources(
+        DagRegistry dagRegistry,
+        DatasourceRegistry registry) {
+
+    for(RuntimeNode node :
+            dagRegistry.all()) {
+
+        String alias =
+                node.getNode()
+                    .getConnector()
+                    .getDatasource();
+
+        if(registry.get(alias) == null) {
+
+            throw new IllegalStateException(
+                    "Datasource not found: "
+                    + alias);
+        }
+    }
+}
