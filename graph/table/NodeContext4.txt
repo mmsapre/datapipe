@@ -1,0 +1,31 @@
+package com.hsbc.gbm.hss.mrd.client360.runtime;
+
+import com.hsbc.gbm.hss.mrd.client360.model.ImportedRecord;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class NodeContext {
+
+    private String nodeName;
+
+    private List<ImportedRecord>
+            records =
+            new ArrayList<>();
+
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(
+            String nodeName) {
+
+        this.nodeName = nodeName;
+    }
+
+    public List<ImportedRecord>
+    getRecords() {
+
+        return records;
+    }
+}
