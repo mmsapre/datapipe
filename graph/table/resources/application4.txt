@@ -1,0 +1,381 @@
+mrd:
+
+  client360:
+
+    datasources:
+
+      PMRD:
+        alias: PMRD
+        type: JDBC
+        driver-class-name: org.postgresql.Driver
+        jdbc-url: jdbc:postgresql://localhost:5432/client360
+        username: postgres
+        password: postgres
+        schema-name: public
+        calcite-schema: PMRD
+
+      FILES:
+        alias: FILES
+        type: CSV
+        location: data/
+        calcite-schema: FILES
+
+    dag:
+
+      nodes:
+
+      # =====================================================
+      # PARTY ROOT
+      # =====================================================
+
+      - entity-type: PARTY
+
+        root: true
+
+        data-key-field: mrd_id
+
+        search-fields:
+          - mrd_id
+          - name
+          - country
+
+        display-fields:
+          - name
+          - country
+
+        output-fields:
+          - mrd_id
+          - name
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_party
+              alias: p
+
+          columns:
+            - name: mrd_id
+            - name: name
+            - name: country
+
+        joins:
+
+          - join-name: HAS_GRID
+            target-entity-type: GRID_MAPPING
+            source-field: mrd_id
+            target-field: mrd_id
+            required: true
+
+      # =====================================================
+      # GRID
+      # =====================================================
+
+      - entity-type: GRID_MAPPING
+
+        depends-on:
+          - PARTY
+
+        inputs:
+
+          - source-node: PARTY
+            source-field: mrd_id
+            target-field: mrd_id
+
+        output-fields:
+          - client_grid
+          - contracting_grid
+
+        search-fields:
+          - client_grid
+          - mrd_id
+
+        display-fields:
+          - client_grid
+          - contracting_grid
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_gridding_mapping_gcs
+              alias: gm
+
+          columns:
+            - name: client_grid
+            - name: contracting_grid
+            - name: mrd_id
+
+        joins:
+
+          - join-name: MEMBER_OF
+            target-entity-type: MASTERGROUP_MEMBER
+            source-field: client_grid
+            target-field: child_grid
+            required: true
+
+      # =====================================================
+      # MASTER GROUP
+      # =====================================================
+
+      - entity-type: MASTERGROUP_MEMBER
+
+        depends-on:
+          - GRID_MAPPING
+
+        inputs:
+
+          - source-node: GRID_MAPPING
+            source-field: client_grid
+            target-field: child_grid
+
+        output-fields:
+          - mg_id
+          - mg_name
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_mastergroup_membership
+              alias: mg
+
+          columns:
+            - name: mg_id
+            - name: mg_name
+            - name: child_grid
+
+      # =====================================================
+      # ROLE
+      # =====================================================
+
+      - entity-type: ROLE
+
+        depends-on:
+          - PARTY
+
+        inputs:
+
+          - source-node: PARTY
+            source-field: mrd_id
+            target-field: mrd_id
+
+        output-fields:
+          - role_id
+          - role_type
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_role
+              alias: r
+
+          columns:
+            - name: role_id
+            - name: role_type
+            - name: role_value
+            - name: mrd_id
+
+      # =====================================================
+      # ALTERNATE IDENTIFIER
+      # =====================================================
+
+      - entity-type: ALTERNATE_IDENTIFIER
+
+        depends-on:
+          - PARTY
+
+        inputs:
+
+          - source-node: PARTY
+            source-field: mrd_id
+            target-field: mrd_id
+
+        output-fields:
+          - identifier_value
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_alternate_identifier
+              alias: ai
+
+          columns:
+            - name: identifier_type
+            - name: identifier_value
+            - name: mrd_id
+
+      # =====================================================
+      # SEC ACCOUNT ROOT
+      # =====================================================
+
+      - entity-type: SEC_ACCOUNT
+
+        root: true
+
+        data-key-field: account_mrd_id
+
+        search-fields:
+          - account_mrd_id
+          - account_name
+          - client_grid
+
+        display-fields:
+          - account_name
+          - account_type
+
+        output-fields:
+          - account_mrd_id
+          - client_grid
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_account
+              alias: sa
+
+          columns:
+            - name: account_mrd_id
+            - name: account_name
+            - name: account_type
+            - name: client_grid
+
+        joins:
+
+          - join-name: HAS_GRID
+            target-entity-type: GRID_MAPPING
+            source-field: client_grid
+            target-field: client_grid
+            required: true
+
+          - join-name: HAS_CASH_ACCOUNT
+            target-entity-type: ACCOUNT_LINK
+            source-field: account_mrd_id
+            target-field: sec_mrd_account
+
+      # =====================================================
+      # ACCOUNT LINK
+      # =====================================================
+
+      - entity-type: ACCOUNT_LINK
+
+        depends-on:
+          - SEC_ACCOUNT
+
+        inputs:
+
+          - source-node: SEC_ACCOUNT
+            source-field: account_mrd_id
+            target-field: sec_mrd_account
+
+        output-fields:
+          - cash_mrd_account
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_linkage_account
+              alias: al
+
+          columns:
+            - name: sec_mrd_account
+            - name: cash_mrd_account
+
+      # =====================================================
+      # ACCOUNT ARRANGEMENT
+      # =====================================================
+
+      - entity-type: ACCOUNT_ARRANGEMENT
+
+        depends-on:
+          - SEC_ACCOUNT
+
+        inputs:
+
+          - source-node: SEC_ACCOUNT
+            source-field: account_mrd_id
+            target-field: account_mrd_id
+
+        output-fields:
+          - arrange_id
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_account_arrange_mapping
+              alias: aa
+
+          columns:
+            - name: arrange_id
+            - name: account_mrd_id
+
+      # =====================================================
+      # ARRANGEMENT ROLE
+      # =====================================================
+
+      - entity-type: ARRANGEMENT_ROLE
+
+        depends-on:
+          - ACCOUNT_ARRANGEMENT
+
+        inputs:
+
+          - source-node: ACCOUNT_ARRANGEMENT
+            source-field: arrange_id
+            target-field: arrange_id
+
+        output-fields:
+          - role_id
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_arrangement_role
+              alias: ar
+
+          columns:
+            - name: arrange_role_id
+            - name: arrange_id
+            - name: role_id
+
+      # =====================================================
+      # ST ACCOUNT CSV ROOT
+      # =====================================================
+
+      - entity-type: ST_ACCOUNT
+
+        root: true
+
+        data-key-field: account_id
+
+        output-fields:
+          - account_id
+          - le_id
+
+        connector:
+
+          datasource: FILES
+
+          tables:
+            - name: st_account
+              alias: st
+
+          columns:
+            - name: account_id
+            - name: le_id
+            - name: region_nm
