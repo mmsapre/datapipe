@@ -1,0 +1,21 @@
+package com.mas.sap.prak.client360.controller;
+
+import com.mas.sap.prak.client360.model.RootRequest;
+import com.mas.sap.prak.client360.service.*;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+
+@RestController
+@RequestMapping("/client360")
+public class Client360Controller {
+    private final ExpansionEngine expansionEngine;
+
+    public Client360Controller(ExpansionEngine expansionEngine) {
+        this.expansionEngine = expansionEngine;
+    }
+
+    @PostMapping("/expand")
+    public ExpansionResult expand(@RequestBody List<RootRequest> roots) throws Exception {
+        return expansionEngine.expand(roots);
+    }
+}
