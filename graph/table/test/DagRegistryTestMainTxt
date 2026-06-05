@@ -1,0 +1,161 @@
+package com.hsbc.gbm.hss.mrd.client360.test;
+
+import com.hsbc.gbm.hss.mrd.client360.config.*;
+import com.hsbc.gbm.hss.mrd.client360.dag.*;
+import com.hsbc.gbm.hss.mrd.client360.datasource.*;
+
+public class DagRegistryTestMain {
+
+    public static void main(String[] args)
+            throws Exception {
+
+        System.out.println();
+        System.out.println(
+                "====================================");
+
+        System.out.println(
+                "CLIENT360 DAG REGISTRY TEST");
+
+        System.out.println(
+                "====================================");
+
+        MrdClient360Config config =
+                Client360YamlLoader.load(
+                        "client360.yml");
+
+        System.out.println();
+        System.out.println(
+                "Loaded YAML");
+
+        DatasourceRegistry datasourceRegistry =
+                new DatasourceRegistry(
+                        config);
+
+        datasourceRegistry.initialize();
+
+        System.out.println(
+                "Datasource Registry Initialized");
+
+        DagRegistry dagRegistry =
+                new DagRegistry(
+                        config,
+                        datasourceRegistry);
+
+        dagRegistry.initialize();
+
+        System.out.println(
+                "DAG Registry Initialized");
+
+        System.out.println();
+        System.out.println(
+                "=========== NODES ===========");
+
+        for(RuntimeNode node :
+                dagRegistry.all()) {
+
+            printNode(node);
+        }
+
+        System.out.println();
+        System.out.println(
+                "=========== VALIDATE ===========");
+
+        DagValidator validator =
+                new DagValidator(
+                        dagRegistry);
+
+        validator.validate();
+
+        System.out.println(
+                "DAG Validation Passed");
+
+        System.out.println();
+        System.out.println(
+                "=========== ROOTS ===========");
+
+        dagRegistry.roots()
+                .forEach(root ->
+                        System.out.println(
+                                root.getNode()
+                                        .getEntityType()));
+
+        System.out.println();
+        System.out.println(
+                "=========== EDGES ===========");
+
+        dagRegistry.all()
+                .forEach(thisNode -> {
+
+                    thisNode.getNode()
+                            .getJoins()
+                            .forEach(join -> {
+
+                                System.out.println(
+                                        thisNode
+                                                .getNode()
+                                                .getEntityType()
+                                        + " --> "
+                                        + join.getTargetEntityType()
+                                        + " ["
+                                        + join.getJoinName()
+                                        + "]");
+                            });
+                });
+
+        System.out.println();
+        System.out.println(
+                "=========== SUCCESS ===========");
+    }
+
+    private static void printNode(
+            RuntimeNode node) {
+
+        MrdClient360NodeConfig cfg =
+                node.getNode();
+
+        System.out.println();
+
+        System.out.println(
+                "Entity Type     : "
+                + cfg.getEntityType());
+
+        System.out.println(
+                "Root            : "
+                + cfg.isRoot());
+
+        System.out.println(
+                "Datasource      : "
+                + node.getDatasource()
+                      .getAlias());
+
+        System.out.println(
+                "Datasource Type : "
+                + node.getDatasource()
+                      .getType());
+
+        System.out.println(
+                "Search Fields   : "
+                + cfg.getSearchFields());
+
+        System.out.println(
+                "Display Fields  : "
+                + cfg.getDisplayFields());
+
+        System.out.println(
+                "Tables          : "
+                + cfg.getConnector()
+                     .getTables()
+                     .size());
+
+        System.out.println(
+                "Columns         : "
+                + cfg.getConnector()
+                     .getColumns()
+                     .size());
+
+        System.out.println(
+                "Joins           : "
+                + cfg.getJoins()
+                     .size());
+    }
+}
