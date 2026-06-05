@@ -1,0 +1,33 @@
+package com.hsbc.gbm.hss.mrd.client360;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.hsbc.gbm.hss.mrd.client360.config.MrdClient360Config;
+
+import java.util.Map;
+
+public final class Client360YamlBinder {
+
+    private Client360YamlBinder() {
+    }
+
+    public static MrdClient360Config bind(
+            Map<String,Object> client360Map) {
+
+        try {
+            ObjectMapper mapper =
+                    new ObjectMapper(
+                            new YAMLFactory());
+
+            return mapper.convertValue(
+                    client360Map,
+                    MrdClient360Config.class);
+
+        } catch (Exception e) {
+
+            throw new IllegalStateException(
+                    "Unable to bind client360 YAML",
+                    e);
+        }
+    }
+}
