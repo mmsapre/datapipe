@@ -1,0 +1,66 @@
+private void validateInputMappings(
+        DagRegistry registry) {
+
+    for(RuntimeNode node :
+            registry.all()) {
+
+        if(node.getNode()
+               .getInputs() == null) {
+            continue;
+        }
+
+        node.getNode()
+            .getInputs()
+            .forEach(input -> {
+
+                if(registry.get(
+                        input.getSourceNode())
+                        == null) {
+
+                    throw new IllegalStateException(
+                            "Missing source node "
+                            + input.getSourceNode());
+                }
+            });
+    }
+}
+
+
+private void validateJoinTargets(
+        DagRegistry registry) {
+
+    for(RuntimeNode node :
+            registry.all()) {
+
+        node.getNode()
+            .getJoins()
+            .forEach(join -> {
+
+                if(registry.get(
+                        join.getTargetEntityType())
+                        == null) {
+
+                    throw new IllegalStateException(
+                            "Unknown join target "
+                            + join.getTargetEntityType());
+                }
+            });
+    }
+}
+
+
+
+private void validateCycles(
+        DagRegistry registry) {
+
+    GraphBuilder builder =
+            new GraphBuilder();
+
+    var graph =
+            builder.build(registry);
+
+    DagValidator validator =
+            new DagValidator();
+
+    validator.validate(graph);
+}
