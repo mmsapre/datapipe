@@ -1,0 +1,16 @@
+package com.mas.sap.prak.client360.fusion;
+
+public class FusionSource {
+
+    private String sourceName;
+
+    private String entityType;
+
+    private String sourceObject;
+
+    private String sourceRecordId;
+
+    private String clusterId;
+
+    // getters setters
+}
