@@ -1,0 +1,26 @@
+package com.mas.sap.prak.client360.graph;
+
+import java.util.*;
+
+public class GraphJoinException {
+    private String entityType;
+    private String entityId;
+    private String joinName;
+    private String targetEntityType;
+    private String message;
+    private Map<String,Object> searchFields = new LinkedHashMap<>();
+    private Map<String,Object> displayFields = new LinkedHashMap<>();
+
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
+    public String getEntityId() { return entityId; }
+    public void setEntityId(String entityId) { this.entityId = entityId; }
+    public String getJoinName() { return joinName; }
+    public void setJoinName(String joinName) { this.joinName = joinName; }
+    public String getTargetEntityType() { return targetEntityType; }
+    public void setTargetEntityType(String targetEntityType) { this.targetEntityType = targetEntityType; }
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+    public Map<String, Object> getSearchFields() { return searchFields; }
+    public Map<String, Object> getDisplayFields() { return displayFields; }
+}
