@@ -1,0 +1,22 @@
+package com.hsbc.gbm.hss.mrd.client360.config;
+
+import java.util.*;
+
+public class MrdDagConfig {
+
+    private List<MrdClient360NodeConfig>
+            nodes =
+            new ArrayList<>();
+
+    public List<MrdClient360NodeConfig>
+    getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(
+            List<MrdClient360NodeConfig>
+                    nodes) {
+
+        this.nodes = nodes;
+    }
+}
