@@ -1,0 +1,53 @@
+package com.hsbc.gbm.hss.mrd.client360.test;
+
+import com.hsbc.gbm.hss.mrd.client360.config.*;
+import com.hsbc.gbm.hss.mrd.client360.registry.*;
+
+public class DagRegistryTestMain {
+
+    public static void main(String[] args)
+            throws Exception {
+
+        MrdClient360Config config =
+                Client360YamlLoader.load(
+                        "client360.yml");
+
+        DatasourceRegistry dsRegistry =
+                new DatasourceRegistry(
+                        config);
+
+        DagRegistry dagRegistry =
+                new DagRegistry(
+                        config,
+                        dsRegistry);
+
+        System.out.println(
+                "========== DAG ==========");
+
+        for(RuntimeNode node :
+                dagRegistry.all()) {
+
+            System.out.println();
+
+            System.out.println(
+                    "Entity="
+                    + node.getNode()
+                          .getEntityType());
+
+            System.out.println(
+                    "Datasource="
+                    + node.getDatasource()
+                          .getAlias());
+
+            System.out.println(
+                    "Search="
+                    + node.getNode()
+                          .getSearchFields());
+
+            System.out.println(
+                    "DependsOn="
+                    + node.getNode()
+                          .getDependsOn());
+        }
+    }
+}
