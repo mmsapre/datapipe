@@ -1,0 +1,37 @@
+package com.hsbc.gbm.hss.mrd.client360.test;
+
+import com.hsbc.gbm.hss.mrd.client360.config.*;
+import com.hsbc.gbm.hss.mrd.client360.registry.*;
+
+public class DatasourceRegistryTestMain {
+
+    public static void main(String[] args)
+            throws Exception {
+
+        MrdClient360Config config =
+                Client360YamlLoader.load(
+                        "client360.yml");
+
+        DatasourceRegistry registry =
+                new DatasourceRegistry(
+                        config);
+
+        System.out.println(
+                "========== DATASOURCES ==========");
+
+        registry.aliases()
+                .forEach(alias -> {
+
+                    MrdDatasourceConfig ds =
+                            registry.get(alias);
+
+                    System.out.println(
+                            alias
+                            + " -> "
+                            + ds.getType());
+                });
+
+        System.out.println(
+                "Validation SUCCESS");
+    }
+}
