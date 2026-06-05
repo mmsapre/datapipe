@@ -1,0 +1,19 @@
+
+import java.util.*;
+
+public class GraphModel {
+
+    private List<GraphNode> nodes =
+            new ArrayList<>();
+
+    private List<GraphEdge> edges =
+            new ArrayList<>();
+
+    public List<GraphNode> getNodes() {
+        return nodes;
+    }
+
+    public List<GraphEdge> getEdges() {
+        return edges;
+    }
+}
