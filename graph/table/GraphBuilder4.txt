@@ -1,0 +1,49 @@
+package com.hsbc.gbm.hss.mrd.client360.dag;
+
+import com.hsbc.gbm.hss.mrd.client360.registry.*;
+
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedAcyclicGraph;
+
+public class GraphBuilder {
+
+    public DirectedAcyclicGraph<
+            String,
+            DefaultEdge>
+    build(
+            DagRegistry registry) {
+
+        DirectedAcyclicGraph<
+                String,
+                DefaultEdge>
+                graph =
+                new DirectedAcyclicGraph<>(
+                        DefaultEdge.class);
+
+        registry.all()
+                .forEach(node ->
+                        graph.addVertex(
+                                node.getNode()
+                                    .getEntityType()));
+
+        registry.all()
+                .forEach(node -> {
+
+                    if(node.getNode()
+                           .getDependsOn() == null) {
+                        return;
+                    }
+
+                    node.getNode()
+                        .getDependsOn()
+                        .forEach(dep ->
+
+                                graph.addEdge(
+                                        dep,
+                                        node.getNode()
+                                            .getEntityType()));
+                });
+
+        return graph;
+    }
+}
