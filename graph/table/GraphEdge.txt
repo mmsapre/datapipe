@@ -1,0 +1,14 @@
+package com.mas.sap.prak.client360.graph;
+
+public class GraphEdge {
+    private final String joinName;
+
+    public GraphEdge(String joinName) {
+        this.joinName = joinName;
+    }
+
+    public String getJoinName() { return joinName; }
+
+    @Override
+    public String toString() { return joinName; }
+}
