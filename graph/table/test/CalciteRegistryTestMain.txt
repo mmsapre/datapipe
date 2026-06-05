@@ -1,0 +1,40 @@
+package com.hsbc.gbm.hss.mrd.client360.test;
+
+import com.hsbc.gbm.hss.mrd.client360.calcite.*;
+import com.hsbc.gbm.hss.mrd.client360.config.*;
+import com.hsbc.gbm.hss.mrd.client360.datasource.*;
+import com.hsbc.gbm.hss.mrd.client360.registry.*;
+
+public class CalciteRegistryTestMain {
+
+    public static void main(String[] args)
+            throws Exception {
+
+        MrdClient360Config config =
+                Client360YamlLoader.load(
+                        "client360.yml");
+
+        DatasourceRegistry registry =
+                new DatasourceRegistry(
+                        config);
+
+        JdbcDatasourceProvider provider =
+                new JdbcDatasourceProvider(
+                        registry);
+
+        DefaultCalciteManager calcite =
+                new DefaultCalciteManager(
+                        registry,
+                        provider);
+
+        calcite.initialize();
+
+        System.out.println(
+                "Calcite Initialized");
+
+        calcite.getConnection()
+               .getRootSchema()
+               .getSubSchemaNames()
+               .forEach(System.out::println);
+    }
+}
