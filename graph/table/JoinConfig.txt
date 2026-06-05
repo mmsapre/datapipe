@@ -1,0 +1,20 @@
+package com.mas.sap.prak.client360.config;
+
+public class JoinConfig {
+    private String joinName;
+    private String targetEntityType;
+    private String sourceField;
+    private String targetField;
+    private boolean required;
+
+    public String getJoinName() { return joinName; }
+    public void setJoinName(String joinName) { this.joinName = joinName; }
+    public String getTargetEntityType() { return targetEntityType; }
+    public void setTargetEntityType(String targetEntityType) { this.targetEntityType = targetEntityType; }
+    public String getSourceField() { return sourceField; }
+    public void setSourceField(String sourceField) { this.sourceField = sourceField; }
+    public String getTargetField() { return targetField; }
+    public void setTargetField(String targetField) { this.targetField = targetField; }
+    public boolean isRequired() { return required; }
+    public void setRequired(boolean required) { this.required = required; }
+}
