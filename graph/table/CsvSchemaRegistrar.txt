@@ -1,0 +1,12 @@
+package com.hsbc.gbm.hss.mrd.client360.calcite;
+
+public class CsvSchemaRegistrar {
+
+    public static void register(
+            CalciteConnection calcite) {
+
+        /*
+         FILES schema registration
+         */
+    }
+}
