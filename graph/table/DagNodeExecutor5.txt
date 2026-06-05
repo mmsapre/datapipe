@@ -1,0 +1,42 @@
+package execution;
+
+public class DagNodeExecutor {
+
+    private final InputFilterBuilder
+            filterBuilder;
+
+    private final CalciteQueryExecutor
+            queryExecutor;
+
+    public NodeContext execute(
+            RuntimeNode node,
+            DagExecutionContext context)
+            throws Exception {
+
+        MrdConnectorConfig connector =
+                ConnectorCloner.clone(
+                        node.getNode()
+                            .getConnector());
+
+        filterBuilder.applyFilters(
+                node,
+                context,
+                connector);
+
+        List<ImportedRecord> records =
+                queryExecutor.execute(
+                        connector);
+
+        NodeContext output =
+                new NodeContext();
+
+        output.setNodeName(
+                node.getNode()
+                    .getEntityType());
+
+        output.getRecords()
+              .addAll(records);
+
+        return output;
+    }
+}
