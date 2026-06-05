@@ -1,0 +1,40 @@
+package com.hsbc.gbm.hss.mrd.client360.execution;
+
+import com.hsbc.gbm.hss.mrd.integ.config.*;
+
+import java.util.ArrayList;
+
+public final class ConnectorCloner {
+
+    public static MrdConnectorConfig clone(
+            MrdConnectorConfig source) {
+
+        MrdConnectorConfig c =
+                new MrdConnectorConfig();
+
+        c.setDatasource(
+                source.getDatasource());
+
+        c.setTables(
+                new ArrayList<>(
+                        source.getTables()));
+
+        c.setColumns(
+                new ArrayList<>(
+                        source.getColumns()));
+
+        c.setJoins(
+                new ArrayList<>(
+                        source.getJoins()));
+
+        c.setWhere(
+                new ArrayList<>(
+                        source.getWhere()));
+
+        c.setOrderBy(
+                new ArrayList<>(
+                        source.getOrderBy()));
+
+        return c;
+    }
+}
