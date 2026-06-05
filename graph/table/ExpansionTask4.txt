@@ -1,0 +1,32 @@
+package com.hsbc.gbm.hss.mrd.client360.runtime;
+
+public class ExpansionTask {
+
+    private String entityType;
+
+    private String field;
+
+    private Object value;
+
+    public ExpansionTask(
+            String entityType,
+            String field,
+            Object value) {
+
+        this.entityType = entityType;
+        this.field = field;
+        this.value = value;
+    }
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public String getField() {
+        return field;
+    }
+
+    public Object getValue() {
+        return value;
+    }
+}
