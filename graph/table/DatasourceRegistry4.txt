@@ -1,0 +1,43 @@
+package com.hsbc.gbm.hss.mrd.client360.registry;
+
+import com.hsbc.gbm.hss.mrd.client360.config.MrdClient360Config;
+import com.hsbc.gbm.hss.mrd.client360.config.MrdDatasourceConfig;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class DatasourceRegistry {
+
+    private final Map<String,MrdDatasourceConfig>
+            datasources =
+            new LinkedHashMap<>();
+
+    public DatasourceRegistry(
+            MrdClient360Config config) {
+
+        config.getDatasources()
+              .values()
+              .forEach(ds ->
+                      datasources.put(
+                              ds.getAlias(),
+                              ds));
+    }
+
+    public MrdDatasourceConfig get(
+            String alias) {
+
+        return datasources.get(alias);
+    }
+
+    public Set<String> aliases() {
+
+        return datasources.keySet();
+    }
+
+    public Map<String,MrdDatasourceConfig>
+    all() {
+
+        return datasources;
+    }
+}
