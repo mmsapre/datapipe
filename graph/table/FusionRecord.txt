@@ -1,0 +1,44 @@
+package com.mas.sap.prak.client360.fusion;
+
+import java.util.*;
+
+public class FusionRecord {
+
+    private String clusterId;
+
+    private String entityType;
+
+    private String logicalEntityId;
+
+    private String canonicalName;
+
+    /*
+     * Search fields from YAML
+     */
+    private Map<String,Object>
+            searchAttributes =
+            new LinkedHashMap<>();
+
+    /*
+     * Display fields from YAML
+     */
+    private Map<String,Object>
+            displayAttributes =
+            new LinkedHashMap<>();
+
+    /*
+     * All fused attributes
+     */
+    private Map<String,Object>
+            fusedAttributes =
+            new LinkedHashMap<>();
+
+    /*
+     * Source lineage
+     */
+    private List<FusionSource>
+            sources =
+            new ArrayList<>();
+
+    // getters setters
+}
