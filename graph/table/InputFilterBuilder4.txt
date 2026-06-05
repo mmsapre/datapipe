@@ -1,0 +1,62 @@
+package com.
+
+import com.hsbc.gbm.hss.mrd.client360.config.*;
+import com.hsbc.gbm.hss.mrd.client360.runtime.*;
+import com.hsbc.gbm.hss.mrd.integ.config.*;
+
+import java.util.List;
+
+public class InputFilterBuilder {
+
+    public void applyFilters(
+            RuntimeNode node,
+            DagExecutionContext context,
+            MrdConnectorConfig connector) {
+
+        if(node.getNode()
+               .getInputs() == null) {
+
+            return;
+        }
+
+        for(InputMapping input :
+                node.getNode()
+                    .getInputs()) {
+
+            NodeContext source =
+                    context.get(
+                            input.getSourceNode());
+
+            List<Object> values =
+                    source.getRecords()
+                          .stream()
+                          .map(r ->
+                               r.get(
+                                  input.getSourceField()))
+                          .distinct()
+                          .toList();
+
+            connector.getWhere()
+                     .add(
+                         createInCondition(
+                             input.getTargetField(),
+                             values));
+        }
+    }
+
+    private MrdWhereConfig createInCondition(
+            String field,
+            List<Object> values) {
+
+        MrdWhereConfig where =
+                new MrdWhereConfig();
+
+        where.setField(field);
+
+        where.setOperator("IN");
+
+        where.setValues(values);
+
+        return where;
+    }
+}
