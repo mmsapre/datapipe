@@ -1,0 +1,26 @@
+package com.hsbc.gbm.hss.mrd.client360.expansion;
+
+public class ExpansionEngine {
+
+    public void expand(
+            RootRequest root)
+            throws Exception {
+
+        Queue<ExpansionTask>
+                queue =
+                new ConcurrentLinkedQueue<>();
+
+        queue.add(
+                createRootTask(root));
+
+        while(!queue.isEmpty()) {
+
+            ExpansionTask task =
+                    queue.poll();
+
+            processTask(
+                    task,
+                    queue);
+        }
+    }
+}
