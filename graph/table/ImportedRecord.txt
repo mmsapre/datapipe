@@ -1,0 +1,22 @@
+package com.mas.sap.prak.client360.model;
+
+import java.util.*;
+
+public class ImportedRecord {
+    private String entityType;
+    private String logicalEntityId;
+    private Map<String,Object> fields = new LinkedHashMap<>();
+    private Map<String,Object> searchFields = new LinkedHashMap<>();
+    private Map<String,Object> displayFields = new LinkedHashMap<>();
+
+    public Object get(String key) { return fields.get(key); }
+    public void put(String key, Object value) { fields.put(key, value); }
+
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
+    public String getLogicalEntityId() { return logicalEntityId; }
+    public void setLogicalEntityId(String logicalEntityId) { this.logicalEntityId = logicalEntityId; }
+    public Map<String, Object> getFields() { return fields; }
+    public Map<String, Object> getSearchFields() { return searchFields; }
+    public Map<String, Object> getDisplayFields() { return displayFields; }
+}
