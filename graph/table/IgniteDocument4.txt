@@ -1,0 +1,16 @@
+package .ignite;
+
+import java.util.*;
+
+public class IgniteDocument {
+
+    private String id;
+
+    private String entityType;
+
+    private String searchText;
+
+    private Map<String,Object>
+            fields =
+            new LinkedHashMap<>();
+}
