@@ -1,0 +1,13 @@
+package com.mas.sap.prak.client360.fusion;
+
+public class FusionAttribute {
+
+    private String attributeName;
+
+    private Object value;
+
+    private String sourceName;
+
+    private String aggregation;
+
+}
