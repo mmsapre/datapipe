@@ -1,0 +1,40 @@
+;
+
+import client360.runtime.*;
+
+public class KnowledgeGraphBuilder {
+
+    public GraphModel build(
+            DagExecutionContext context) {
+
+        GraphModel graph =
+                new GraphModel();
+
+        context.getOutputs()
+               .forEach((entity, nodeCtx) -> {
+
+                   nodeCtx.getRecords()
+                          .forEach(record -> {
+
+                              String id =
+                                      String.valueOf(
+                                              record.get(
+                                                      "mrd_id"));
+
+                              GraphNode node =
+                                      new GraphNode(
+                                              id,
+                                              entity);
+
+                              node.getProperties()
+                                  .putAll(
+                                          record.getValues());
+
+                              graph.getNodes()
+                                   .add(node);
+                          });
+               });
+
+        return graph;
+    }
+}
