@@ -1,0 +1,44 @@
+@Service
+public class FusionBuilder {
+
+    public FusionRecord build(
+            Cluster cluster,
+            List<ImportedRecord> records,
+            NodeConfig node) {
+
+        FusionRecord fusion =
+                new FusionRecord();
+
+        fusion.setClusterId(
+                cluster.getClusterId());
+
+        fusion.setEntityType(
+                node.getEntityType());
+
+        for(FusionFieldConfig field :
+                node.getFusionFields()) {
+
+            Object value =
+                    resolve(
+                            field,
+                            records);
+
+            fusion.getFusedAttributes()
+                    .put(
+                            field.getTargetField(),
+                            value);
+        }
+
+        copySearchFields(
+                node,
+                records,
+                fusion);
+
+        copyDisplayFields(
+                node,
+                records,
+                fusion);
+
+        return fusion;
+    }
+}
