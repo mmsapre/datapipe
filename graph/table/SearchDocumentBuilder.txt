@@ -1,0 +1,73 @@
+@Service
+public class SearchDocumentBuilder {
+
+    public SearchDocument build(
+            NodeConfig node,
+            ImportedRecord record,
+            String clusterId) {
+
+        SearchDocument doc =
+                new SearchDocument();
+
+        doc.setDocumentId(
+                node.getEntityType()
+                + ":"
+                + record.getLogicalEntityId());
+
+        doc.setClusterId(clusterId);
+
+        doc.setEntityType(
+                node.getEntityType());
+
+        Map<String,Object> search =
+                new LinkedHashMap<>();
+
+        Map<String,Object> display =
+                new LinkedHashMap<>();
+
+        StringBuilder text =
+                new StringBuilder();
+
+        for(String field :
+                node.getSearchFields()) {
+
+            Object value =
+                    record.get(field);
+
+            if(value != null) {
+
+                search.put(
+                        field,
+                        value);
+
+                text.append(value)
+                    .append(' ');
+            }
+        }
+
+        for(String field :
+                node.getDisplayFields()) {
+
+            Object value =
+                    record.get(field);
+
+            if(value != null) {
+
+                display.put(
+                        field,
+                        value);
+            }
+        }
+
+        doc.setSearchAttributes(
+                search);
+
+        doc.setDisplayAttributes(
+                display);
+
+        doc.setSearchText(
+                text.toString());
+
+        return doc;
+    }
+}
