@@ -1,0 +1,24 @@
+
+public class FusionRecordBuilder {
+
+    public FusionRecord build(
+            DagExecutionContext context) {
+
+        FusionRecord fusion =
+                new FusionRecord();
+
+        context.getOutputs()
+               .forEach((node,ctx)->{
+
+            ctx.getRecords()
+               .forEach(record -> {
+
+                    record.getValues()
+                          .forEach(
+                             fusion::addAttribute);
+               });
+        });
+
+        return fusion;
+    }
+}
