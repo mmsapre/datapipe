@@ -1,0 +1,30 @@
+package com.mas.sap.prak.client360.executor;
+
+import com.mas.sap.prak.client360.config.*;
+import org.springframework.stereotype.Component;
+
+@Component
+public class QueryExecutorFactory {
+    private final JdbcQueryExecutor jdbc;
+    private final CsvQueryExecutor csv;
+    private final Client360Properties properties;
+
+    public QueryExecutorFactory(
+            JdbcQueryExecutor jdbc,
+            CsvQueryExecutor csv,
+            Client360Properties properties) {
+        this.jdbc = jdbc;
+        this.csv = csv;
+        this.properties = properties;
+    }
+
+    public QueryExecutor get(NodeConfig node) {
+        DataSourceConfig ds = properties.getDatasources().get(node.getConnector().getDatasource());
+        if (ds == null) throw new IllegalArgumentException("Missing datasource: " + node.getConnector().getDatasource());
+
+        if ("JDBC".equalsIgnoreCase(ds.getType())) return jdbc;
+        if ("CSV".equalsIgnoreCase(ds.getType())) return csv;
+
+        throw new IllegalArgumentException("Unsupported datasource type: " + ds.getType());
+    }
+}
