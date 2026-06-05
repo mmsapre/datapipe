@@ -1,0 +1,20 @@
+package com.hsbc.gbm.hss.mrd.client360.dag;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ExecutionPlan {
+
+    private List<String> nodes =
+            new ArrayList<>();
+
+    public List<String> getNodes() {
+        return nodes;
+    }
+
+    public void add(
+            String node) {
+
+        nodes.add(node);
+    }
+}
