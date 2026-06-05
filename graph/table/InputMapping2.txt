@@ -1,0 +1,37 @@
+package com.hsbc.gbm.hss.mrd.client360.config;
+
+public class InputMapping {
+
+    private String sourceNode;
+
+    private String sourceField;
+
+    private String targetField;
+
+    public String getSourceNode() {
+        return sourceNode;
+    }
+
+    public void setSourceNode(
+            String sourceNode) {
+        this.sourceNode = sourceNode;
+    }
+
+    public String getSourceField() {
+        return sourceField;
+    }
+
+    public void setSourceField(
+            String sourceField) {
+        this.sourceField = sourceField;
+    }
+
+    public String getTargetField() {
+        return targetField;
+    }
+
+    public void setTargetField(
+            String targetField) {
+        this.targetField = targetField;
+    }
+}
