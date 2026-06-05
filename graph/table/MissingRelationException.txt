@@ -1,0 +1,11 @@
+package com.hsbc.gbm.hss.mrd.client360.exception;
+
+public class MissingRelationException
+        extends RuntimeException {
+
+    public MissingRelationException(
+            String message) {
+
+        super(message);
+    }
+}
