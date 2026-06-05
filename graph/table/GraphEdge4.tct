@@ -1,0 +1,40 @@
+
+
+import java.util.*;
+
+public class GraphEdge {
+
+    private String from;
+
+    private String to;
+
+    private String relation;
+
+    private Map<String,Object> properties =
+            new LinkedHashMap<>();
+
+    public GraphEdge() {
+    }
+
+    public GraphEdge(
+            String from,
+            String to,
+            String relation) {
+
+        this.from = from;
+        this.to = to;
+        this.relation = relation;
+    }
+
+    public String getFrom() {
+        return from;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public String getRelation() {
+        return relation;
+    }
+}
