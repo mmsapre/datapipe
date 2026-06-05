@@ -1,0 +1,29 @@
+@Service
+public class SearchService {
+
+    private final Ignite ignite;
+
+    public List<Client360SearchDocument>
+    search(
+            String text) {
+
+        IgniteCache<String,
+                Client360SearchDocument>
+                cache =
+                ignite.cache(
+                        "client360-search");
+
+        SqlFieldsQuery query =
+                new SqlFieldsQuery(
+                        """
+                        select *
+                        from Client360SearchDocument
+                        where searchText like ?
+                        """);
+
+        query.setArgs(
+                "%" + text + "%");
+
+        ...
+    }
+}
