@@ -1,0 +1,178 @@
+package com.hsbc.gbm.hss.mrd.client360;
+
+import com.hsbc.gbm.hss.mrd.client360.config.MrdClient360Config;
+import com.hsbc.gbm.hss.mrd.client360.config.MrdClient360NodeConfig;
+import com.hsbc.gbm.hss.mrd.client360.config.MrdDatasourceConfig;
+import com.hsbc.gbm.hss.mrd.client360.dag.DagRegistry;
+import com.hsbc.gbm.hss.mrd.client360.dag.DagValidator;
+import com.hsbc.gbm.hss.mrd.client360.dag.RuntimeNode;
+import com.hsbc.gbm.hss.mrd.client360.datasource.DatasourceRegistry;
+import org.yaml.snakeyaml.Yaml;
+
+import java.io.InputStream;
+import java.util.Map;
+
+public class Client360ConfigTestMain {
+
+    public static void main(String[] args) {
+
+        try {
+            MrdClient360Config config =
+                    loadConfig("client360.yml");
+
+            DatasourceRegistry datasourceRegistry =
+                    new DatasourceRegistry(config);
+
+            datasourceRegistry.initialize();
+
+            DagRegistry dagRegistry =
+                    new DagRegistry(
+                            config,
+                            datasourceRegistry);
+
+            dagRegistry.initialize();
+
+            DagValidator validator =
+                    new DagValidator(
+                            dagRegistry);
+
+            validator.validate();
+
+            printDatasources(
+                    config,
+                    datasourceRegistry);
+
+            printDag(
+                    dagRegistry);
+
+            System.out.println();
+            System.out.println(
+                    "Client360 config validation SUCCESS");
+
+        } catch (Exception e) {
+
+            System.err.println(
+                    "Client360 config validation FAILED");
+
+            e.printStackTrace();
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static MrdClient360Config loadConfig(
+            String fileName) {
+
+        InputStream inputStream =
+                Thread.currentThread()
+                        .getContextClassLoader()
+                        .getResourceAsStream(fileName);
+
+        if (inputStream == null) {
+            throw new IllegalArgumentException(
+                    "YAML file not found in test resources: "
+                            + fileName);
+        }
+
+        Yaml yaml =
+                new Yaml();
+
+        Map<String,Object> root =
+                yaml.load(inputStream);
+
+        Map<String,Object> mrd =
+                (Map<String,Object>) root.get("mrd");
+
+        Map<String,Object> client360 =
+                (Map<String,Object>) mrd.get("client360");
+
+        /*
+         * In production use Spring @ConfigurationProperties.
+         * For test-main, bind manually or use ObjectMapper YAML module.
+         *
+         * Recommended test binding:
+         * Jackson YAML ObjectMapper.
+         */
+        return Client360YamlBinder.bind(client360);
+    }
+
+    private static void printDatasources(
+            MrdClient360Config config,
+            DatasourceRegistry registry) {
+
+        System.out.println();
+        System.out.println("=== DATASOURCES ===");
+
+        for (Map.Entry<String, MrdDatasourceConfig> entry :
+                config.getDatasources().entrySet()) {
+
+            MrdDatasourceConfig ds =
+                    registry.get(entry.getKey());
+
+            System.out.println(
+                    entry.getKey()
+                            + " -> alias="
+                            + ds.getAlias()
+                            + ", type="
+                            + ds.getType()
+                            + ", calciteSchema="
+                            + ds.getCalciteSchema());
+        }
+    }
+
+    private static void printDag(
+            DagRegistry dagRegistry) {
+
+        System.out.println();
+        System.out.println("=== DAG NODES ===");
+
+        for (RuntimeNode runtimeNode :
+                dagRegistry.all()) {
+
+            MrdClient360NodeConfig node =
+                    runtimeNode.getNode();
+
+            System.out.println();
+            System.out.println(
+                    "Entity       : "
+                            + node.getEntityType());
+
+            System.out.println(
+                    "Root         : "
+                            + node.isRoot());
+
+            System.out.println(
+                    "Datasource   : "
+                            + runtimeNode
+                                    .getDatasource()
+                                    .getAlias());
+
+            System.out.println(
+                    "Source Type  : "
+                            + runtimeNode
+                                    .getDatasource()
+                                    .getType());
+
+            System.out.println(
+                    "Tables       : "
+                            + node.getConnector()
+                                    .getTables());
+
+            System.out.println(
+                    "Columns      : "
+                            + node.getConnector()
+                                    .getColumns());
+
+            System.out.println(
+                    "Search Fields: "
+                            + node.getSearchFields());
+
+            System.out.println(
+                    "Display Fields: "
+                            + node.getDisplayFields());
+
+            System.out.println(
+                    "Joins        : "
+                            + node.getJoins());
+        }
+    }
+}
