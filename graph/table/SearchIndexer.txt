@@ -1,0 +1,43 @@
+@Service
+public class SearchIndexer {
+
+    private final Ignite ignite;
+
+    public void index(
+            FusionRecord fusion) {
+
+        IgniteCache<String,
+                Client360SearchDocument>
+                cache =
+                ignite.cache(
+                        "client360-search");
+
+        Client360SearchDocument doc =
+                new Client360SearchDocument();
+
+        doc.setClusterId(
+                fusion.getClusterId());
+
+        doc.setEntityId(
+                fusion.getEntityId());
+
+        doc.setPartyName(
+                fusion.getPartyName());
+
+        doc.setClientGrid(
+                fusion.getGridId());
+
+        doc.setMrdId(
+                fusion.getMrdId());
+
+        doc.setSearchText(
+                buildSearchText(
+                        fusion));
+
+        cache.put(
+                fusion.getClusterId()
+                        + ":"
+                        + fusion.getEntityId(),
+                doc);
+    }
+}
