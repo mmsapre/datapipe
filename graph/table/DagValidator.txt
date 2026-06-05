@@ -1,0 +1,38 @@
+package com.mas.sap.prak.client360.dag;
+
+import com.mas.sap.prak.client360.config.*;
+import org.jgrapht.Graph;
+import org.jgrapht.alg.cycle.CycleDetector;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+import org.springframework.stereotype.Component;
+
+@Component
+public class DagValidator {
+    private final DagRegistry registry;
+
+    public DagValidator(DagRegistry registry) {
+        this.registry = registry;
+    }
+
+    public void validate() {
+        Graph<String, DefaultEdge> dag = new DefaultDirectedGraph<>(DefaultEdge.class);
+
+        for (NodeConfig node : registry.all()) {
+            dag.addVertex(node.getEntityType());
+        }
+
+        for (NodeConfig node : registry.all()) {
+            for (JoinConfig join : node.getJoins()) {
+                dag.addVertex(join.getTargetEntityType());
+                dag.addEdge(node.getEntityType(), join.getTargetEntityType());
+            }
+        }
+
+        CycleDetector<String, DefaultEdge> detector = new CycleDetector<>(dag);
+
+        if (detector.detectCycles()) {
+            throw new IllegalStateException("Client360 DAG has cycle: " + detector.findCycles());
+        }
+    }
+}
