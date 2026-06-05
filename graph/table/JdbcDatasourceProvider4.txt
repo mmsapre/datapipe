@@ -1,0 +1,79 @@
+package com.hsbc.gbm.hss.mrd.client360.datasource;
+
+import com.hsbc.gbm.hss.mrd.client360.config.MrdDatasourceConfig;
+import com.hsbc.gbm.hss.mrd.client360.registry.DatasourceRegistry;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+
+import javax.sql.DataSource;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class JdbcDatasourceProvider {
+
+    private final DatasourceRegistry registry;
+
+    private final Map<String,DataSource>
+            pools =
+            new ConcurrentHashMap<>();
+
+    public JdbcDatasourceProvider(
+            DatasourceRegistry registry) {
+
+        this.registry = registry;
+    }
+
+    public void initialize() {
+
+        registry.aliases()
+                .forEach(this::get);
+    }
+
+    public DataSource get(
+            String alias) {
+
+        return pools.computeIfAbsent(
+                alias,
+                this::createPool);
+    }
+
+    private DataSource createPool(
+            String alias) {
+
+        MrdDatasourceConfig ds =
+                registry.get(alias);
+
+        if(!"JDBC".equalsIgnoreCase(
+                ds.getType())) {
+
+            return null;
+        }
+
+        HikariConfig cfg =
+                new HikariConfig();
+
+        cfg.setDriverClassName(
+                ds.getDriverClassName());
+
+        cfg.setJdbcUrl(
+                ds.getJdbcUrl());
+
+        cfg.setUsername(
+                ds.getUsername());
+
+        cfg.setPassword(
+                ds.getPassword());
+
+        cfg.setMinimumIdle(
+                ds.getMinimumIdle());
+
+        cfg.setMaximumPoolSize(
+                ds.getMaximumPoolSize());
+
+        cfg.setConnectionTestQuery(
+                ds.getValidationQuery());
+
+        return new HikariDataSource(
+                cfg);
+    }
+}
