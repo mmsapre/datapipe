@@ -1,0 +1,33 @@
+package com.hsbc.gbm.hss.mrd.client360.runtime;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class DagExecutionContext {
+
+    private final Map<String,
+            NodeContext>
+            outputs =
+            new LinkedHashMap<>();
+
+    public void put(
+            String node,
+            NodeContext context) {
+
+        outputs.put(
+                node,
+                context);
+    }
+
+    public NodeContext get(
+            String node) {
+
+        return outputs.get(node);
+    }
+
+    public boolean contains(
+            String node) {
+
+        return outputs.containsKey(node);
+    }
+}
