@@ -1,0 +1,8 @@
+public interface SearchRepository {
+
+    void save(
+            SearchDocument document);
+
+    List<SearchDocument> search(
+            String text);
+}
