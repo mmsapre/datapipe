@@ -1,0 +1,55 @@
+package com.hsbc.gbm.hss.mrd.client360.calcite;
+
+import com.hsbc.gbm.hss.mrd.client360.config.MrdDatasourceConfig;
+import com.hsbc.gbm.hss.mrd.client360.datasource.JdbcDatasourceProvider;
+import com.hsbc.gbm.hss.mrd.client360.registry.DatasourceRegistry;
+import org.apache.calcite.adapter.jdbc.JdbcSchema;
+import org.apache.calcite.jdbc.CalciteConnection;
+
+import javax.sql.DataSource;
+
+public final class JdbcSchemaRegistrar {
+
+    private JdbcSchemaRegistrar() {
+    }
+
+    public static void register(
+            CalciteConnection calcite,
+            DatasourceRegistry registry,
+            JdbcDatasourceProvider provider)
+            throws Exception {
+
+        for(String alias :
+                registry.aliases()) {
+
+            MrdDatasourceConfig ds =
+                    registry.get(alias);
+
+            if(!"JDBC".equalsIgnoreCase(
+                    ds.getType())) {
+
+                continue;
+            }
+
+            DataSource dataSource =
+                    provider.get(alias);
+
+            JdbcSchema schema =
+                    JdbcSchema.create(
+                            calcite.getRootSchema(),
+                            ds.getCalciteSchema(),
+                            dataSource,
+                            null,
+                            ds.getSchemaName());
+
+            calcite.getRootSchema()
+                   .add(
+                       ds.getCalciteSchema(),
+                       schema);
+
+            System.out.println(
+                    "Registered JDBC Schema : "
+                    + ds.getCalciteSchema());
+        }
+    }
+}
