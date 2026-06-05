@@ -1,0 +1,33 @@
+package com.hsbc.gbm.hss.mrd.client360.executor;
+
+public class CalciteQueryExecutor {
+
+    private final CalciteManager
+            calcite;
+
+    private final MrdSelectQueryBuilder
+            queryBuilder;
+
+    public List<ImportedRecord>
+    execute(
+            MrdConnectorConfig connector)
+            throws Exception {
+
+        String sql =
+                queryBuilder.build(
+                        connector);
+
+        try(
+            PreparedStatement ps =
+                calcite
+                  .getConnection()
+                  .prepareStatement(sql)
+        ) {
+
+            ResultSet rs =
+                    ps.executeQuery();
+
+            return mapper.map(rs);
+        }
+    }
+}
