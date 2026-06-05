@@ -1,0 +1,69 @@
+p
+
+import .calcite.CalciteManager;
+import ImportedRecord;
+import .config.MrdConnectorConfig;
+import query.MrdSelectQueryBuilder;
+
+import java.sql.*;
+import java.util.*;
+
+public class CalciteQueryExecutor {
+
+    private final CalciteManager calcite;
+
+    private final MrdSelectQueryBuilder
+            queryBuilder;
+
+    public CalciteQueryExecutor(
+            CalciteManager calcite,
+            MrdSelectQueryBuilder queryBuilder) {
+
+        this.calcite = calcite;
+        this.queryBuilder = queryBuilder;
+    }
+
+    public List<ImportedRecord> execute(
+            MrdConnectorConfig connector)
+            throws Exception {
+
+        String sql =
+                queryBuilder.build(
+                        connector);
+
+        List<ImportedRecord> records =
+                new ArrayList<>();
+
+        try(Connection con =
+                    calcite.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql);
+
+            ResultSet rs =
+                    ps.executeQuery()) {
+
+            ResultSetMetaData md =
+                    rs.getMetaData();
+
+            while(rs.next()) {
+
+                ImportedRecord r =
+                        new ImportedRecord();
+
+                for(int i=1;
+                    i<=md.getColumnCount();
+                    i++) {
+
+                    r.put(
+                       md.getColumnName(i),
+                       rs.getObject(i));
+                }
+
+                records.add(r);
+            }
+        }
+
+        return records;
+    }
+}
