@@ -1,0 +1,21 @@
+package com.mas.sap.prak.client360.model;
+
+public class ExpansionTask {
+    private final String entityType;
+    private final String field;
+    private final Object value;
+
+    public ExpansionTask(String entityType, String field, Object value) {
+        this.entityType = entityType;
+        this.field = field;
+        this.value = value;
+    }
+
+    public String key() {
+        return entityType + "|" + field + "|" + value;
+    }
+
+    public String getEntityType() { return entityType; }
+    public String getField() { return field; }
+    public Object getValue() { return value; }
+}
