@@ -1,0 +1,49 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.*;
+
+public class NodeConfig {
+    private String entityType;
+    private boolean root;
+    private String dataKeyField;
+    private String loadRowIdField;
+    private List<String> searchFields = new ArrayList<>();
+    private List<String> displayFields = new ArrayList<>();
+    private ConnectorConfig connector = new ConnectorConfig();
+    private List<JoinConfig> joins = new ArrayList<>();
+
+    public Set<String> requiredColumns() {
+        Set<String> cols = new LinkedHashSet<>();
+        add(cols, connector.getEntityIdField());
+        add(cols, dataKeyField);
+        add(cols, loadRowIdField);
+        cols.addAll(searchFields);
+        cols.addAll(displayFields);
+        cols.addAll(connector.getColumns());
+        for (JoinConfig join : joins) add(cols, join.getSourceField());
+        cols.remove(null);
+        cols.remove("");
+        return cols;
+    }
+
+    private void add(Set<String> cols, String value) {
+        if (value != null && !value.isBlank()) cols.add(value);
+    }
+
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
+    public boolean isRoot() { return root; }
+    public void setRoot(boolean root) { this.root = root; }
+    public String getDataKeyField() { return dataKeyField; }
+    public void setDataKeyField(String dataKeyField) { this.dataKeyField = dataKeyField; }
+    public String getLoadRowIdField() { return loadRowIdField; }
+    public void setLoadRowIdField(String loadRowIdField) { this.loadRowIdField = loadRowIdField; }
+    public List<String> getSearchFields() { return searchFields; }
+    public void setSearchFields(List<String> searchFields) { this.searchFields = searchFields; }
+    public List<String> getDisplayFields() { return displayFields; }
+    public void setDisplayFields(List<String> displayFields) { this.displayFields = displayFields; }
+    public ConnectorConfig getConnector() { return connector; }
+    public void setConnector(ConnectorConfig connector) { this.connector = connector; }
+    public List<JoinConfig> getJoins() { return joins; }
+    public void setJoins(List<JoinConfig> joins) { this.joins = joins; }
+}
