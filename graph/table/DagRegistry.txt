@@ -1,0 +1,33 @@
+package com.mas.sap.prak.client360.dag;
+
+import com.mas.sap.prak.client360.config.*;
+import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
+import java.util.*;
+
+@Component
+public class DagRegistry {
+    private final Client360Properties properties;
+    private final Map<String, NodeConfig> nodes = new HashMap<>();
+
+    public DagRegistry(Client360Properties properties) {
+        this.properties = properties;
+    }
+
+    @PostConstruct
+    public void init() {
+        for (NodeConfig node : properties.getDag().getNodes()) {
+            nodes.put(node.getEntityType(), node);
+        }
+    }
+
+    public NodeConfig get(String entityType) {
+        NodeConfig node = nodes.get(entityType);
+        if (node == null) throw new IllegalArgumentException("Missing DAG node: " + entityType);
+        return node;
+    }
+
+    public Collection<NodeConfig> all() {
+        return nodes.values();
+    }
+}
