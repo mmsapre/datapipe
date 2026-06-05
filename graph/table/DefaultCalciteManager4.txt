@@ -1,0 +1,67 @@
+package com.hsbc.gbm.hss.mrd.client360.calcite;
+
+import com.hsbc.gbm.hss.mrd.client360.datasource.JdbcDatasourceProvider;
+import com.hsbc.gbm.hss.mrd.client360.registry.DatasourceRegistry;
+import org.apache.calcite.jdbc.CalciteConnection;
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+
+public class DefaultCalciteManager
+        implements CalciteManager {
+
+    private final DatasourceRegistry
+            datasourceRegistry;
+
+    private final JdbcDatasourceProvider
+            datasourceProvider;
+
+    private CalciteConnection
+            calciteConnection;
+
+    public DefaultCalciteManager(
+            DatasourceRegistry datasourceRegistry,
+            JdbcDatasourceProvider datasourceProvider) {
+
+        this.datasourceRegistry =
+                datasourceRegistry;
+
+        this.datasourceProvider =
+                datasourceProvider;
+    }
+
+    @Override
+    public void initialize()
+            throws Exception {
+
+        datasourceProvider.initialize();
+
+        Connection connection =
+                DriverManager.getConnection(
+                        "jdbc:calcite:");
+
+        calciteConnection =
+                connection.unwrap(
+                        CalciteConnection.class);
+
+        JdbcSchemaRegistrar.register(
+                calciteConnection,
+                datasourceRegistry,
+                datasourceProvider);
+
+        CsvSchemaRegistrar.register(
+                calciteConnection,
+                datasourceRegistry);
+
+        ExcelSchemaRegistrar.register(
+                calciteConnection,
+                datasourceRegistry);
+    }
+
+    @Override
+    public CalciteConnection
+    getConnection() {
+
+        return calciteConnection;
+    }
+}
