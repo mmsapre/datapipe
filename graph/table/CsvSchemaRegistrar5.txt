@@ -1,0 +1,39 @@
+package com.hsbc.gbm.hss.mrd.client360.calcite;
+
+import com.hsbc.gbm.hss.mrd.client360.config.MrdDatasourceConfig;
+import com.hsbc.gbm.hss.mrd.client360.registry.DatasourceRegistry;
+import org.apache.calcite.jdbc.CalciteConnection;
+
+public final class CsvSchemaRegistrar {
+
+    private CsvSchemaRegistrar() {
+    }
+
+    public static void register(
+            CalciteConnection calcite,
+            DatasourceRegistry registry) {
+
+        for(String alias :
+                registry.aliases()) {
+
+            MrdDatasourceConfig ds =
+                    registry.get(alias);
+
+            if(!"CSV".equalsIgnoreCase(
+                    ds.getType())) {
+
+                continue;
+            }
+
+            System.out.println(
+                    "Register CSV Schema : "
+                    + ds.getCalciteSchema()
+                    + " location="
+                    + ds.getLocation());
+
+            /*
+             * Add Calcite CSV schema here
+             */
+        }
+    }
+}
