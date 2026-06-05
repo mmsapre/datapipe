@@ -1,0 +1,53 @@
+package com.hsbc.gbm.hss.mrd.client360.datasource;
+
+import com.zaxxer.hikari.*;
+
+import javax.sql.DataSource;
+import java.util.concurrent.*;
+
+public class JdbcDatasourceProvider {
+
+    private final DatasourceRegistry
+            registry;
+
+    private final ConcurrentMap<String,
+            DataSource>
+            pools =
+            new ConcurrentHashMap<>();
+
+    public JdbcDatasourceProvider(
+            DatasourceRegistry registry) {
+
+        this.registry = registry;
+    }
+
+    public DataSource get(
+            String alias) {
+
+        return pools.computeIfAbsent(
+                alias,
+                this::createPool);
+    }
+
+    private DataSource createPool(
+            String alias) {
+
+        MrdDatasourceConfig ds =
+                registry.get(alias);
+
+        HikariConfig cfg =
+                new HikariConfig();
+
+        cfg.setJdbcUrl(
+                ds.getJdbcUrl());
+
+        cfg.setUsername(
+                ds.getUsername());
+
+        cfg.setPassword(
+                ds.getPassword());
+
+        return new HikariDataSource(
+                cfg);
+    }
+}
