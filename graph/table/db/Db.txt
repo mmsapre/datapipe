@@ -1,0 +1,32 @@
+create table client360_fused_entity
+(
+    cluster_id varchar(100),
+
+    entity_type varchar(100),
+
+    logical_entity_id varchar(200),
+
+    canonical_name varchar(500)
+);
+
+create table client360_fused_attribute
+(
+    cluster_id varchar(100),
+
+    entity_type varchar(100),
+
+    attribute_name varchar(200),
+
+    attribute_value text
+);
+
+create table client360_cluster_member
+(
+    cluster_id varchar(100),
+
+    entity_type varchar(100),
+
+    logical_entity_id varchar(200),
+
+    source_name varchar(100)
+);
