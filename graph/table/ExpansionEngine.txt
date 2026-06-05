@@ -1,0 +1,120 @@
+package com.mas.sap.prak.client360.service;
+
+import com.mas.sap.prak.client360.config.*;
+import com.mas.sap.prak.client360.dag.*;
+import com.mas.sap.prak.client360.executor.*;
+import com.mas.sap.prak.client360.graph.*;
+import com.mas.sap.prak.client360.model.*;
+import org.springframework.stereotype.Service;
+
+import java.util.*;
+import java.util.concurrent.*;
+
+@Service
+public class ExpansionEngine {
+    private final DagRegistry registry;
+    private final QueryExecutorFactory executorFactory;
+    private final BusinessGraph businessGraph;
+
+    private final Set<String> visited = ConcurrentHashMap.newKeySet();
+    private final List<GraphJoinException> exceptions = new CopyOnWriteArrayList<>();
+
+    public ExpansionEngine(
+            DagRegistry registry,
+            QueryExecutorFactory executorFactory,
+            BusinessGraph businessGraph) {
+        this.registry = registry;
+        this.executorFactory = executorFactory;
+        this.businessGraph = businessGraph;
+    }
+
+    public ExpansionResult expand(List<RootRequest> roots) throws Exception {
+        Queue<ExpansionTask> queue = new ConcurrentLinkedQueue<>();
+
+        for (RootRequest root : roots) {
+            NodeConfig node = registry.get(root.getEntityType());
+
+            if (root.getLoadRowId() != null && node.getLoadRowIdField() != null) {
+                queue.add(new ExpansionTask(root.getEntityType(), node.getLoadRowIdField(), root.getLoadRowId()));
+            } else {
+                queue.add(new ExpansionTask(root.getEntityType(), node.getDataKeyField(), root.getDataKey()));
+            }
+        }
+
+        while (!queue.isEmpty()) {
+            ExpansionTask task = queue.poll();
+            if (task == null) continue;
+            process(task, queue);
+        }
+
+        return new ExpansionResult(businessGraph.getGraph(), exceptions);
+    }
+
+    private void process(ExpansionTask task, Queue<ExpansionTask> queue) throws Exception {
+        if (!visited.add(task.key())) {
+            return;
+        }
+
+        NodeConfig node = registry.get(task.getEntityType());
+        QueryExecutor executor = executorFactory.get(node);
+        List<ImportedRecord> records = executor.fetch(node, task.getField(), task.getValue());
+
+        for (ImportedRecord record : records) {
+            String sourceNodeId = nodeId(node, record);
+            businessGraph.addNode(sourceNodeId);
+
+            for (JoinConfig join : node.getJoins()) {
+                Object joinValue = record.get(join.getSourceField());
+                if (joinValue == null) {
+                    raise(node, record, join, "Join source field is null");
+                    continue;
+                }
+
+                NodeConfig targetNode = registry.get(join.getTargetEntityType());
+                QueryExecutor targetExecutor = executorFactory.get(targetNode);
+
+                List<ImportedRecord> targets =
+                        targetExecutor.fetch(targetNode, join.getTargetField(), joinValue);
+
+                if (targets.isEmpty()) {
+                    if (join.isRequired()) {
+                        raise(node, record, join, "Required join target not found");
+                    }
+                    continue;
+                }
+
+                for (ImportedRecord target : targets) {
+                    String targetNodeId = nodeId(targetNode, target);
+
+                    businessGraph.addEdge(sourceNodeId, targetNodeId, join.getJoinName());
+
+                    queue.add(new ExpansionTask(
+                            targetNode.getEntityType(),
+                            targetNode.getConnector().getEntityIdField(),
+                            target.getLogicalEntityId()));
+                }
+            }
+        }
+    }
+
+    private void raise(
+            NodeConfig node,
+            ImportedRecord record,
+            JoinConfig join,
+            String message) {
+
+        GraphJoinException ex = new GraphJoinException();
+        ex.setEntityType(node.getEntityType());
+        ex.setEntityId(record.getLogicalEntityId());
+        ex.setJoinName(join.getJoinName());
+        ex.setTargetEntityType(join.getTargetEntityType());
+        ex.setMessage(message);
+        ex.getSearchFields().putAll(record.getSearchFields());
+        ex.getDisplayFields().putAll(record.getDisplayFields());
+        exceptions.add(ex);
+    }
+
+    private String nodeId(NodeConfig node, ImportedRecord record) {
+        return node.getEntityType() + ":" + record.getLogicalEntityId();
+    }
+}
