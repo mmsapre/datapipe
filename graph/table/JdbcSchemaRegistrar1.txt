@@ -1,0 +1,35 @@
+package com.hsbc.gbm.hss.mrd.client360.calcite;
+
+import org.apache.calcite.adapter.jdbc.*;
+import org.apache.calcite.jdbc.*;
+
+import javax.sql.DataSource;
+
+public class JdbcSchemaRegistrar {
+
+    public static void register(
+            CalciteConnection calcite)
+            throws Exception {
+
+        for(String alias :
+                datasourceRegistry.aliases()) {
+
+            DataSource ds =
+                    hikariProvider.get(
+                            alias);
+
+            JdbcSchema schema =
+                    JdbcSchema.create(
+                            calcite.getRootSchema(),
+                            alias,
+                            ds,
+                            null,
+                            "public");
+
+            calcite.getRootSchema()
+                    .add(
+                        alias,
+                        schema);
+        }
+    }
+}
