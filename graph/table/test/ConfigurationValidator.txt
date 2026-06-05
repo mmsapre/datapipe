@@ -1,0 +1,26 @@
+package com.hsbc.gbm.hss.mrd.client360.validation;
+
+import com.hsbc.gbm.hss.mrd.client360.config.*;
+import com.hsbc.gbm.hss.mrd.client360.registry.*;
+
+public class ConfigurationValidator {
+
+    public void validate(
+            MrdClient360Config config,
+            DatasourceRegistry dsRegistry,
+            DagRegistry dagRegistry) {
+
+        validateDatasources(
+                dagRegistry,
+                dsRegistry);
+
+        validateInputMappings(
+                dagRegistry);
+
+        validateJoinTargets(
+                dagRegistry);
+
+        validateCycles(
+                dagRegistry);
+    }
+}
