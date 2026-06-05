@@ -1,0 +1,13 @@
+@Service
+public class SearchRebuildService {
+
+    public void rebuild() {
+
+        List<FusionRecord> records =
+                fusionRepository
+                        .findAll();
+
+        records.forEach(
+                indexer::index);
+    }
+}
