@@ -1,0 +1,34 @@
+;
+
+public class IgniteIndexer {
+
+    public IgniteDocument createDocument(
+            RuntimeNode node,
+            ImportedRecord record) {
+
+        IgniteDocument doc =
+                new IgniteDocument();
+
+        StringBuilder text =
+                new StringBuilder();
+
+        node.getNode()
+            .getSearchFields()
+            .forEach(field -> {
+
+                Object value =
+                        record.get(field);
+
+                if(value != null) {
+
+                    text.append(value)
+                        .append(' ');
+                }
+            });
+
+        doc.setSearchText(
+                text.toString());
+
+        return doc;
+    }
+}
