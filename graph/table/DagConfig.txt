@@ -1,0 +1,9 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.*;
+
+public class DagConfig {
+    private List<NodeConfig> nodes = new ArrayList<>();
+    public List<NodeConfig> getNodes() { return nodes; }
+    public void setNodes(List<NodeConfig> nodes) { this.nodes = nodes; }
+}
