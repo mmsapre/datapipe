@@ -1,0 +1,9 @@
+package com.mas.sap.prak.client360.executor;
+
+import com.mas.sap.prak.client360.config.NodeConfig;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+import java.util.*;
+
+public interface QueryExecutor {
+    List<ImportedRecord> fetch(NodeConfig node, String field, Object value) throws Exception;
+}
