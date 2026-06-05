@@ -1,0 +1,41 @@
+;
+
+public class ExpansionEngine {
+
+    private final DagRegistry registry;
+
+    private final DagPlanner planner;
+
+    private final DagNodeExecutor executor;
+
+    public DagExecutionContext execute(
+            RootRequest request)
+            throws Exception {
+
+        DagExecutionContext ctx =
+                new DagExecutionContext();
+
+        List<String> order =
+                planner.createPlan()
+                       .getNodes();
+
+        for(String nodeName :
+                order) {
+
+            RuntimeNode node =
+                    registry.get(
+                            nodeName);
+
+            NodeContext output =
+                    executor.execute(
+                            node,
+                            ctx);
+
+            ctx.put(
+                    nodeName,
+                    output);
+        }
+
+        return ctx;
+    }
+}
