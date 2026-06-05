@@ -1,0 +1,33 @@
+package com.mas.sap.prak.client360.ignite;
+
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
+
+public class Client360SearchDocument {
+
+    @QuerySqlField(index = true)
+    private String clusterId;
+
+    @QuerySqlField(index = true)
+    private String entityType;
+
+    @QuerySqlField(index = true)
+    private String entityId;
+
+    @QuerySqlField(index = true)
+    private String searchText;
+
+    @QuerySqlField(index = true)
+    private String partyName;
+
+    @QuerySqlField(index = true)
+    private String clientGrid;
+
+    @QuerySqlField(index = true)
+    private String mrdId;
+
+    @QuerySqlField(index = true)
+    private String accountId;
+
+    @QuerySqlField(index = true)
+    private String country;
+}
