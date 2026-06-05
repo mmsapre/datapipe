@@ -1,0 +1,19 @@
+package com.mas.sap.prak.client360.config;
+
+import java.util.*;
+
+public class ConnectorConfig {
+    private String datasource;
+    private String sourceObject;
+    private String entityIdField;
+    private List<String> columns = new ArrayList<>();
+
+    public String getDatasource() { return datasource; }
+    public void setDatasource(String datasource) { this.datasource = datasource; }
+    public String getSourceObject() { return sourceObject; }
+    public void setSourceObject(String sourceObject) { this.sourceObject = sourceObject; }
+    public String getEntityIdField() { return entityIdField; }
+    public void setEntityIdField(String entityIdField) { this.entityIdField = entityIdField; }
+    public List<String> getColumns() { return columns; }
+    public void setColumns(List<String> columns) { this.columns = columns; }
+}
