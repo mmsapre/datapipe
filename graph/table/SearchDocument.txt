@@ -1,0 +1,26 @@
+package com.mas.sap.prak.client360.search;
+
+import org.apache.ignite.cache.query.annotations.QuerySqlField;
+
+import java.util.Map;
+
+public class SearchDocument {
+
+    @QuerySqlField(index = true)
+    private String documentId;
+
+    @QuerySqlField(index = true)
+    private String clusterId;
+
+    @QuerySqlField(index = true)
+    private String entityType;
+
+    @QuerySqlField(index = true)
+    private String searchText;
+
+    private Map<String,Object> searchAttributes;
+
+    private Map<String,Object> displayAttributes;
+
+    // getters setters
+}
