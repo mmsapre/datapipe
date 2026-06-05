@@ -1,0 +1,16 @@
+package com.hsbc.gbm.hss.mrd.client360.config;
+
+public class MrdGraphJoinConfig {
+
+    private String joinName;
+
+    private String targetEntityType;
+
+    private String sourceField;
+
+    private String targetField;
+
+    private boolean required;
+
+    // getters setters
+}
