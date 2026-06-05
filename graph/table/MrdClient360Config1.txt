@@ -1,0 +1,36 @@
+package com.hsbc.gbm.hss.mrd.client360.config;
+
+import java.util.*;
+
+public class MrdClient360Config {
+
+    private Map<String,MrdDatasourceConfig>
+            datasources =
+            new LinkedHashMap<>();
+
+    private MrdDagConfig dag =
+            new MrdDagConfig();
+
+    public Map<String, MrdDatasourceConfig>
+    getDatasources() {
+        return datasources;
+    }
+
+    public void setDatasources(
+            Map<String,
+                    MrdDatasourceConfig>
+                    datasources) {
+
+        this.datasources = datasources;
+    }
+
+    public MrdDagConfig getDag() {
+        return dag;
+    }
+
+    public void setDag(
+            MrdDagConfig dag) {
+
+        this.dag = dag;
+    }
+}
