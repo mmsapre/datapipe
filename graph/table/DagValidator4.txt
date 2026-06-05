@@ -1,0 +1,26 @@
+package com.hsbc.gbm.hss.mrd.client360.dag;
+
+import org.jgrapht.Graph;
+import org.jgrapht.alg.cycle.CycleDetector;
+import org.jgrapht.graph.DefaultEdge;
+
+public class DagValidator {
+
+    public void validate(
+            Graph<String,
+            DefaultEdge> graph) {
+
+        CycleDetector<String,
+                DefaultEdge>
+                detector =
+                new CycleDetector<>(
+                        graph);
+
+        if(detector.detectCycles()) {
+
+            throw new IllegalStateException(
+                    "Cycle detected "
+                    + detector.findCycles());
+        }
+    }
+}
