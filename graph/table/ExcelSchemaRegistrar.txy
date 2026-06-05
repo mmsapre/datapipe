@@ -1,0 +1,12 @@
+package com.hsbc.gbm.hss.mrd.client360.calcite;
+
+public class ExcelSchemaRegistrar {
+
+    public static void register(
+            CalciteConnection calcite) {
+
+        /*
+         EXCEL schema registration
+         */
+    }
+}
