@@ -1,0 +1,27 @@
+@Configuration
+public class IgniteConfig {
+
+    @Bean
+    public Ignite ignite() {
+
+        IgniteConfiguration cfg =
+                new IgniteConfiguration();
+
+        CacheConfiguration<String,
+                Client360SearchDocument>
+                cacheCfg =
+                new CacheConfiguration<>();
+
+        cacheCfg.setName(
+                "client360-search");
+
+        cacheCfg.setIndexedTypes(
+                String.class,
+                Client360SearchDocument.class);
+
+        cfg.setCacheConfiguration(
+                cacheCfg);
+
+        return Ignition.start(cfg);
+    }
+}
