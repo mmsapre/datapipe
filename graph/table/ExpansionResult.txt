@@ -1,0 +1,18 @@
+package com.mas.sap.prak.client360.service;
+
+import com.mas.sap.prak.client360.graph.*;
+import org.jgrapht.Graph;
+import java.util.*;
+
+public class ExpansionResult {
+    private final Graph<String, GraphEdge> graph;
+    private final List<GraphJoinException> exceptions;
+
+    public ExpansionResult(Graph<String, GraphEdge> graph, List<GraphJoinException> exceptions) {
+        this.graph = graph;
+        this.exceptions = exceptions;
+    }
+
+    public Graph<String, GraphEdge> getGraph() { return graph; }
+    public List<GraphJoinException> getExceptions() { return exceptions; }
+}
