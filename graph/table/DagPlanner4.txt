@@ -1,0 +1,31 @@
+package com.hsbc.gbm.hss.mrd.client360.dag;
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.traverse.TopologicalOrderIterator;
+
+public class DagPlanner {
+
+    public ExecutionPlan createPlan(
+            Graph<String,
+            DefaultEdge> graph) {
+
+        ExecutionPlan plan =
+                new ExecutionPlan();
+
+        TopologicalOrderIterator<
+                String,
+                DefaultEdge>
+                iterator =
+                new TopologicalOrderIterator<>(
+                        graph);
+
+        while(iterator.hasNext()) {
+
+            plan.add(
+                    iterator.next());
+        }
+
+        return plan;
+    }
+}
