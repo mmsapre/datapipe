@@ -1,0 +1,80 @@
+package com.mas.sap.prak.client360.executor;
+
+import com.mas.sap.prak.client360.config.*;
+import com.mas.sap.prak.client360.model.ImportedRecord;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
+import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.*;
+
+@Component
+public class JdbcQueryExecutor implements QueryExecutor {
+    private final Client360Properties properties;
+    private final Map<String, DataSource> pools = new HashMap<>();
+
+    public JdbcQueryExecutor(Client360Properties properties) {
+        this.properties = properties;
+    }
+
+    @Override
+    public List<ImportedRecord> fetch(NodeConfig node, String field, Object value) throws Exception {
+        DataSource ds = getDataSource(node);
+        String sql = buildSql(node, field);
+
+        try (Connection con = ds.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setObject(1, value);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return map(rs, node);
+            }
+        }
+    }
+
+    private String buildSql(NodeConfig node, String field) {
+        return "select "
+                + String.join(",", node.requiredColumns())
+                + " from "
+                + node.getConnector().getSourceObject()
+                + " where "
+                + field
+                + " = ?";
+    }
+
+    private List<ImportedRecord> map(ResultSet rs, NodeConfig node) throws Exception {
+        List<ImportedRecord> list = new ArrayList<>();
+
+        while (rs.next()) {
+            ImportedRecord r = new ImportedRecord();
+            r.setEntityType(node.getEntityType());
+            r.setLogicalEntityId(String.valueOf(rs.getObject(node.getConnector().getEntityIdField())));
+
+            for (String c : node.requiredColumns()) {
+                Object v = rs.getObject(c);
+                r.put(c, v);
+                if (node.getSearchFields().contains(c)) r.getSearchFields().put(c, v);
+                if (node.getDisplayFields().contains(c)) r.getDisplayFields().put(c, v);
+            }
+
+            list.add(r);
+        }
+
+        return list;
+    }
+
+    private DataSource getDataSource(NodeConfig node) {
+        String name = node.getConnector().getDatasource();
+        return pools.computeIfAbsent(name, n -> {
+            DataSourceConfig cfg = properties.getDatasources().get(n);
+            HikariConfig hc = new HikariConfig();
+            hc.setJdbcUrl(cfg.getJdbcUrl());
+            hc.setUsername(cfg.getUsername());
+            hc.setPassword(cfg.getPassword());
+            return new HikariDataSource(hc);
+        });
+    }
+}
