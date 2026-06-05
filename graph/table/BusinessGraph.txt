@@ -1,0 +1,25 @@
+package com.mas.sap.prak.client360.graph;
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.springframework.stereotype.Component;
+
+@Component
+public class BusinessGraph {
+    private final Graph<String, GraphEdge> graph =
+            new DefaultDirectedGraph<>(GraphEdge.class);
+
+    public Graph<String, GraphEdge> getGraph() {
+        return graph;
+    }
+
+    public void addNode(String nodeId) {
+        graph.addVertex(nodeId);
+    }
+
+    public void addEdge(String source, String target, String joinName) {
+        graph.addVertex(source);
+        graph.addVertex(target);
+        graph.addEdge(source, target, new GraphEdge(joinName));
+    }
+}
