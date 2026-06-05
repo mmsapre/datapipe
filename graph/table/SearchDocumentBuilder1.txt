@@ -1,0 +1,36 @@
+@Service
+public class SearchDocumentBuilder {
+
+    public SearchDocument build(
+            FusionRecord fusion) {
+
+        SearchDocument doc =
+                new SearchDocument();
+
+        doc.setClusterId(
+                fusion.getClusterId());
+
+        doc.setEntityType(
+                fusion.getEntityType());
+
+        doc.setSearchAttributes(
+                fusion.getSearchAttributes());
+
+        doc.setDisplayAttributes(
+                fusion.getDisplayAttributes());
+
+        StringBuilder searchText =
+                new StringBuilder();
+
+        fusion.getSearchAttributes()
+              .values()
+              .forEach(v ->
+                  searchText.append(v)
+                            .append(' '));
+
+        doc.setSearchText(
+                searchText.toString());
+
+        return doc;
+    }
+}
