@@ -1,0 +1,33 @@
+package com.hsbc.gbm.hss.mrd.client360.test;
+
+import com.hsbc.gbm.hss.mrd.client360.dag.*;
+import com.hsbc.gbm.hss.mrd.client360.registry.*;
+
+public class DagPlannerTestMain {
+
+    public static void main(String[] args)
+            throws Exception {
+
+        DagRegistry registry =
+                TestRegistryFactory.create();
+
+        GraphBuilder builder =
+                new GraphBuilder();
+
+        var graph =
+                builder.build(registry);
+
+        new DagValidator()
+                .validate(graph);
+
+        ExecutionPlan plan =
+                new DagPlanner()
+                        .createPlan(graph);
+
+        System.out.println(
+                "Execution Order");
+
+        plan.getNodes()
+            .forEach(System.out::println);
+    }
+}
