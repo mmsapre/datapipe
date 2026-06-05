@@ -1,0 +1,27 @@
+package com.hsbc.gbm.hss.mrd.client360.registry;
+
+import com.hsbc.gbm.hss.mrd.client360.config.MrdClient360NodeConfig;
+import com.hsbc.gbm.hss.mrd.client360.config.MrdDatasourceConfig;
+
+public class RuntimeNode {
+
+    private final MrdClient360NodeConfig node;
+
+    private final MrdDatasourceConfig datasource;
+
+    public RuntimeNode(
+            MrdClient360NodeConfig node,
+            MrdDatasourceConfig datasource) {
+
+        this.node = node;
+        this.datasource = datasource;
+    }
+
+    public MrdClient360NodeConfig getNode() {
+        return node;
+    }
+
+    public MrdDatasourceConfig getDatasource() {
+        return datasource;
+    }
+}
