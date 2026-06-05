@@ -1,0 +1,14 @@
+package com.hsbc.gbm.hss.mrd.client360.calcite;
+
+import org.apache.calcite.jdbc.*;
+
+import java.sql.*;
+
+public interface CalciteManager {
+
+    void initialize()
+            throws Exception;
+
+    CalciteConnection
+    getConnection();
+}
