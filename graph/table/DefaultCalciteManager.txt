@@ -1,0 +1,42 @@
+package com.hsbc.gbm.hss.mrd.client360.calcite;
+
+import org.apache.calcite.jdbc.*;
+
+import java.sql.*;
+
+public class DefaultCalciteManager
+        implements CalciteManager {
+
+    private CalciteConnection
+            connection;
+
+    @Override
+    public void initialize()
+            throws Exception {
+
+        Connection jdbc =
+                DriverManager
+                        .getConnection(
+                                "jdbc:calcite:");
+
+        connection =
+                jdbc.unwrap(
+                        CalciteConnection.class);
+
+        JdbcSchemaRegistrar
+                .register(connection);
+
+        CsvSchemaRegistrar
+                .register(connection);
+
+        ExcelSchemaRegistrar
+                .register(connection);
+    }
+
+    @Override
+    public CalciteConnection
+    getConnection() {
+
+        return connection;
+    }
+}
