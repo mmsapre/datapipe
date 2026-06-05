@@ -1,0 +1,15 @@
+package com.mas.sap.prak.client360.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import java.util.*;
+
+@ConfigurationProperties(prefix = "mrd.client360")
+public class Client360Properties {
+    private Map<String, DataSourceConfig> datasources = new HashMap<>();
+    private DagConfig dag = new DagConfig();
+
+    public Map<String, DataSourceConfig> getDatasources() { return datasources; }
+    public void setDatasources(Map<String, DataSourceConfig> datasources) { this.datasources = datasources; }
+    public DagConfig getDag() { return dag; }
+    public void setDag(DagConfig dag) { this.dag = dag; }
+}
