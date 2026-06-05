@@ -1,0 +1,14 @@
+package com.mas.sap.prak.client360.model;
+
+public class RootRequest {
+    private String entityType;
+    private String dataKey;
+    private Long loadRowId;
+
+    public String getEntityType() { return entityType; }
+    public void setEntityType(String entityType) { this.entityType = entityType; }
+    public String getDataKey() { return dataKey; }
+    public void setDataKey(String dataKey) { this.dataKey = dataKey; }
+    public Long getLoadRowId() { return loadRowId; }
+    public void setLoadRowId(Long loadRowId) { this.loadRowId = loadRowId; }
+}
