@@ -1,0 +1,42 @@
+package com.hsbc.gbm.hss.mrd.client360.datasource;
+
+import com.hsbc.gbm.hss.mrd.client360.config.*;
+
+import jakarta.annotation.PostConstruct;
+
+import java.util.*;
+import java.util.concurrent.*;
+
+public class DatasourceRegistry {
+
+    private final MrdClient360Config
+            config;
+
+    private final Map<String,
+            MrdDatasourceConfig>
+            registry =
+            new ConcurrentHashMap<>();
+
+    public DatasourceRegistry(
+            MrdClient360Config config) {
+
+        this.config = config;
+    }
+
+    @PostConstruct
+    public void initialize() {
+
+        config.getDatasources()
+                .values()
+                .forEach(ds ->
+                    registry.put(
+                            ds.getAlias(),
+                            ds));
+    }
+
+    public MrdDatasourceConfig get(
+            String alias) {
+
+        return registry.get(alias);
+    }
+}
