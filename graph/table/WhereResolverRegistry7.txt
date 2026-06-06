@@ -1,0 +1,29 @@
+public class WhereResolverRegistry {
+
+    private final Map<String,
+            WhereValueResolver>
+            resolvers =
+            new HashMap<>();
+
+    public WhereResolverRegistry() {
+
+        resolvers.put(
+                "ctx",
+                new ContextWhereResolver());
+
+        resolvers.put(
+                "constant",
+                new ConstantWhereResolver());
+    }
+
+    public Object resolve(
+            MrdWhereConfig where,
+            DagExecutionContext context) {
+
+        return resolvers.get(
+                where.getSource())
+                .resolve(
+                        where,
+                        context);
+    }
+}
