@@ -1,0 +1,38 @@
+
+
+import com.hsbc.gbm.hss.mrd.client360.config.*;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class EventTypeRegistry {
+
+    private final Map<String,String>
+            mappings =
+            new ConcurrentHashMap<>();
+
+    public EventTypeRegistry(
+            MrdClient360Config config) {
+
+        for(EventMappingConfig mapping :
+                config.getEventMappings()) {
+
+            mappings.put(
+                    mapping.getEventType(),
+                    mapping.getRootNode());
+        }
+    }
+
+    public String resolve(
+            String eventType) {
+
+        return mappings.get(eventType);
+    }
+
+    public boolean contains(
+            String eventType) {
+
+        return mappings.containsKey(
+                eventType);
+    }
+}
