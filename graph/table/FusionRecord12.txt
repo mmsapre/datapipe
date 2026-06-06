@@ -1,0 +1,110 @@
+
+import java.time.LocalDateTime;
+import java.util.*;
+
+public class FusionRecord {
+
+    private String fusionId;
+
+    private String rootEntityType;
+
+    private String rootBusinessKey;
+
+    private boolean active = true;
+
+    private Map<String,Object> searchFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> displayFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object> attributes =
+            new LinkedHashMap<>();
+
+    private Map<String,List<Map<String,Object>>>
+            sourceRecords =
+            new LinkedHashMap<>();
+
+    private List<FusionRelationship>
+            relationships =
+            new ArrayList<>();
+
+    private LocalDateTime createdTs;
+
+    private LocalDateTime updatedTs;
+
+    public String getFusionId() {
+        return fusionId;
+    }
+
+    public void setFusionId(String fusionId) {
+        this.fusionId = fusionId;
+    }
+
+    public String getRootEntityType() {
+        return rootEntityType;
+    }
+
+    public void setRootEntityType(
+            String rootEntityType) {
+        this.rootEntityType = rootEntityType;
+    }
+
+    public String getRootBusinessKey() {
+        return rootBusinessKey;
+    }
+
+    public void setRootBusinessKey(
+            String rootBusinessKey) {
+        this.rootBusinessKey = rootBusinessKey;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(
+            boolean active) {
+        this.active = active;
+    }
+
+    public Map<String,Object> getSearchFields() {
+        return searchFields;
+    }
+
+    public Map<String,Object> getDisplayFields() {
+        return displayFields;
+    }
+
+    public Map<String,Object> getAttributes() {
+        return attributes;
+    }
+
+    public Map<String,List<Map<String,Object>>>
+    getSourceRecords() {
+        return sourceRecords;
+    }
+
+    public List<FusionRelationship>
+    getRelationships() {
+        return relationships;
+    }
+
+    public LocalDateTime getCreatedTs() {
+        return createdTs;
+    }
+
+    public void setCreatedTs(
+            LocalDateTime createdTs) {
+        this.createdTs = createdTs;
+    }
+
+    public LocalDateTime getUpdatedTs() {
+        return updatedTs;
+    }
+
+    public void setUpdatedTs(
+            LocalDateTime updatedTs) {
+        this.updatedTs = updatedTs;
+    }
+}
