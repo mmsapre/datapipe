@@ -1,0 +1,111 @@
+;
+
+import org.apache.ignite.IgniteCache;
+
+import java.time.LocalDateTime;
+
+public class IgniteIndexer {
+
+    private final IgniteCache<String, IgniteSearchDocument> cache;
+
+    public IgniteIndexer(
+            IgniteCache<String, IgniteSearchDocument> cache) {
+
+        this.cache = cache;
+    }
+
+    public IgniteSearchDocument index(
+            FusionRecord fusion) {
+
+        IgniteSearchDocument document =
+                buildDocument(fusion);
+
+        if (!fusion.isActive()) {
+            cache.remove(fusion.getFusionId());
+            return document;
+        }
+
+        cache.put(
+                fusion.getFusionId(),
+                document);
+
+        return document;
+    }
+
+    private IgniteSearchDocument buildDocument(
+            FusionRecord fusion) {
+
+        IgniteSearchDocument doc =
+                new IgniteSearchDocument();
+
+        doc.setFusionId(
+                fusion.getFusionId());
+
+        doc.setRootEntityType(
+                fusion.getRootEntityType());
+
+        doc.setRootBusinessKey(
+                fusion.getRootBusinessKey());
+
+        doc.setActiveFlg(
+                fusion.isActive() ? "Y" : "N");
+
+        doc.setUpdatedTs(
+                LocalDateTime.now());
+
+        StringBuilder searchText =
+                new StringBuilder();
+
+        StringBuilder displayText =
+                new StringBuilder();
+
+        for (FusionField field :
+                fusion.getFields()) {
+
+            if (field.isSearchable()
+                    && field.getValue() != null) {
+
+                doc.getSearchFields()
+                        .add(
+                                new IgniteSearchField(
+                                        field.getEntityType(),
+                                        field.getFieldName(),
+                                        field.getValue()));
+
+                searchText
+                        .append(field.getValue())
+                        .append(' ');
+            }
+
+            if (field.isDisplayable()
+                    && field.getValue() != null) {
+
+                doc.getDisplayFields()
+                        .add(
+                                new IgniteSearchField(
+                                        field.getEntityType(),
+                                        field.getFieldName(),
+                                        field.getValue()));
+
+                displayText
+                        .append(field.getValue())
+                        .append(' ');
+            }
+        }
+
+        doc.setSearchText(
+                normalize(searchText.toString()));
+
+        doc.setDisplayText(
+                displayText.toString().trim());
+
+        return doc;
+    }
+
+    private String normalize(String value) {
+
+        return value == null
+                ? ""
+                : value.toLowerCase().trim();
+    }
+}
