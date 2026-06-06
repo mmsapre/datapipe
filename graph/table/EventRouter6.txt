@@ -1,0 +1,41 @@
+package com.hsbc.gbm.hss.mrd.client360.routing;
+
+public class EventRouter {
+
+    private final EventTypeRegistry
+            eventRegistry;
+
+    private final SubgraphExecutionEngine
+            executionEngine;
+
+    public EventRouter(
+            EventTypeRegistry eventRegistry,
+            SubgraphExecutionEngine executionEngine) {
+
+        this.eventRegistry =
+                eventRegistry;
+
+        this.executionEngine =
+                executionEngine;
+    }
+
+    public DagExecutionResponse route(
+            DagExecutionRequest request)
+            throws Exception {
+
+        String rootNode =
+                eventRegistry.resolve(
+                        request.getEventType());
+
+        if(rootNode == null) {
+
+            throw new IllegalArgumentException(
+                    "No DAG mapping for event "
+                    + request.getEventType());
+        }
+
+        return executionEngine.execute(
+                rootNode,
+                request);
+    }
+}
