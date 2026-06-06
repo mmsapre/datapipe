@@ -1,0 +1,16 @@
+public class MrdDagExecutionContext {
+
+    private Map<String,MrdNodeContext>
+            outputs =
+            new LinkedHashMap<>();
+
+    private List<MrdDagException>
+            exceptions =
+            new ArrayList<>();
+
+    public void addException(
+            MrdDagException exception) {
+
+        exceptions.add(exception);
+    }
+}
