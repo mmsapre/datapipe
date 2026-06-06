@@ -1,0 +1,17 @@
+private List<EventMappingConfig>
+        eventMappings =
+        new ArrayList<>();
+
+public List<EventMappingConfig>
+getEventMappings() {
+
+    return eventMappings;
+}
+
+public void setEventMappings(
+        List<EventMappingConfig>
+                eventMappings) {
+
+    this.eventMappings =
+            eventMappings;
+}
