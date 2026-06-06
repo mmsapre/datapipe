@@ -1,0 +1,161 @@
+public class FusionPersistenceService {
+
+    private final FusionRecordRepository recordRepo;
+
+    private final FusionFieldRepository fieldRepo;
+
+    private final FusionSourceRepository sourceRepo;
+
+    private final FusionRelationshipRepository relationRepo;
+
+    public void persist(
+            FusionRecord fusion)
+            throws Exception {
+
+        saveRecord(fusion);
+
+        saveFields(fusion);
+
+        saveSources(fusion);
+
+        saveRelationships(fusion);
+    }
+
+private void saveRecord(
+        FusionRecord fusion)
+        throws Exception {
+
+    FusionRecordEntity entity =
+            new FusionRecordEntity();
+
+    entity.setFusionId(
+            fusion.getFusionId());
+
+    entity.setRootEntityType(
+            fusion.getRootEntityType());
+
+    entity.setRootBusinessKey(
+            fusion.getRootBusinessKey());
+
+    entity.setActiveFlg("Y");
+
+    recordRepo.upsert(entity);
+}
+
+
+private void saveFields(
+        FusionRecord fusion)
+        throws Exception {
+
+    fieldRepo.deactivate(
+            fusion.getFusionId());
+
+    for(FusionField field :
+            fusion.getFields()) {
+
+        FusionFieldEntity entity =
+                new FusionFieldEntity();
+
+        entity.setFusionId(
+                fusion.getFusionId());
+
+        entity.setEntityType(
+                field.getEntityType());
+
+        entity.setFieldName(
+                field.getFieldName());
+
+        entity.setFieldValue(
+                String.valueOf(
+                        field.getValue()));
+
+        entity.setSearchableFlg(
+                field.isSearchable()
+                        ? "Y" : "N");
+
+        entity.setDisplayableFlg(
+                field.isDisplayable()
+                        ? "Y" : "N");
+
+        entity.setActiveFlg("Y");
+
+        fieldRepo.insert(entity);
+    }
+}
+
+private void saveSources(
+        FusionRecord fusion)
+        throws Exception {
+
+    sourceRepo.deactivate(
+            fusion.getFusionId());
+
+    ObjectMapper mapper =
+            new ObjectMapper();
+
+    fusion.getSourceRecords()
+            .forEach((entity,records)->{
+
+                records.forEach(record -> {
+
+                    try {
+
+                        FusionSourceRecordEntity row =
+                                new FusionSourceRecordEntity();
+
+                        row.setFusionId(
+                                fusion.getFusionId());
+
+                        row.setEntityType(
+                                entity);
+
+                        row.setPayload(
+                                mapper.writeValueAsString(
+                                        record));
+
+                        row.setActiveFlg("Y");
+
+                        sourceRepo.insert(row);
+
+                    } catch(Exception ex) {
+
+                        throw new RuntimeException(ex);
+                    }
+                });
+            });
+}
+
+
+
+private void saveRelationships(
+        FusionRecord fusion)
+        throws Exception {
+
+    relationRepo.deactivate(
+            fusion.getFusionId());
+
+    for(FusionRelationship relation :
+            fusion.getRelationships()) {
+
+        FusionRelationshipEntity entity =
+                new FusionRelationshipEntity();
+
+        entity.setFusionId(
+                fusion.getFusionId());
+
+        entity.setSourceEntity(
+                relation.getSourceEntity());
+
+        entity.setTargetEntity(
+                relation.getTargetEntity());
+
+        entity.setRelationshipName(
+                relation.getRelationType());
+
+        entity.setActiveFlg("Y");
+
+        relationRepo.insert(entity);
+    }
+}
+
+}
