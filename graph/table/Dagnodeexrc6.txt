@@ -1,0 +1,40 @@
+private void applyRootFilter(
+        RuntimeNode runtimeNode,
+        DagExecutionContext context,
+        MrdConnectorConfig connector) {
+
+    RootFilter rootFilter =
+            context.getRootFilter(
+                    runtimeNode.getNode().getEntityType());
+
+    if (rootFilter == null) {
+        return;
+    }
+
+    MrdWhereConfig where =
+            new MrdWhereConfig();
+
+    if (rootFilter.getLoadRowId() != null
+            && runtimeNode.getNode().getLoadRowIdField() != null) {
+
+        where.setField(
+                runtimeNode.getNode().getLoadRowIdField());
+
+        where.setOperator("=");
+
+        where.setValue(
+                rootFilter.getLoadRowId());
+
+    } else {
+
+        where.setField(
+                runtimeNode.getNode().getDataKeyField());
+
+        where.setOperator("=");
+
+        where.setValue(
+                rootFilter.getDataKey());
+    }
+
+    connector.getWhere().add(where);
+}
