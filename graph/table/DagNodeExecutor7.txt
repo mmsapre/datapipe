@@ -172,6 +172,63 @@ private String detectType(
     return "VARCHAR";
 }
 
+private void applyInputFilters(
+        MrdRuntimeNode runtimeNode,
+        MrdDagExecutionContext context,
+        MrdConnectorConfig connector) {
+
+    if(runtimeNode.getNode()
+            .getInputs() == null
+            || runtimeNode.getNode()
+                    .getInputs()
+                    .isEmpty()) {
+
+        return;
+    }
+
+    for(MrdInputMapping input :
+            runtimeNode.getNode()
+                    .getInputs()) {
+
+        MrdNodeContext sourceContext =
+                context.get(
+                        input.getSourceNode());
+
+        if(sourceContext == null) {
+
+            throw new IllegalStateException(
+                    "Source node not executed : "
+                    + input.getSourceNode()
+                    + " required by "
+                    + runtimeNode.getNode()
+                            .getEntityType());
+        }
+
+        MrdWhereConfig where =
+                new MrdWhereConfig();
+
+        where.setColumn(
+                input.getTargetField());
+
+        where.setOperator("IN");
+
+        where.setSource("ctx");
+
+        where.setKey(
+                input.getSourceNode()
+                + "."
+                + input.getSourceField());
+
+        where.setType(
+                detectType(
+                        sourceContext,
+                        input.getSourceField()));
+
+        connector.getWhere()
+                .add(where);
+    }
+}
+
 private void applyRootFilter(
         MrdRuntimeNode runtimeNode,
         MrdDagExecutionContext context,
