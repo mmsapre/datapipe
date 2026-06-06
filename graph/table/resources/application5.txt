@@ -1,0 +1,405 @@
+mrd:
+
+  client360:
+
+    dag:
+
+      nodes:
+
+      # =====================================================
+      # ROOT
+      # =====================================================
+
+      - entity-type: ST_ACCOUNT
+
+        root: true
+
+        data-key-field: account_id
+
+        search-fields:
+          - account_id
+
+        display-fields:
+          - account_id
+          - load_rowid
+
+        output-fields:
+          - account_id
+          - load_rowid
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_st_account_gcs
+              alias: st
+
+          columns:
+            - name: account_id
+            - name: load_rowid
+
+        joins:
+
+          - join-name: HAS_ACCOUNT
+            target-entity-type: ACCOUNT
+            source-field: load_rowid
+            target-field: load_rowid
+            required: true
+
+      # =====================================================
+      # ACCOUNT
+      # =====================================================
+
+      - entity-type: ACCOUNT
+
+        depends-on:
+          - ST_ACCOUNT
+
+        inputs:
+
+          - source-node: ST_ACCOUNT
+            source-field: load_rowid
+            target-field: load_rowid
+
+        output-fields:
+          - account_mrd_id
+          - account_name
+
+        search-fields:
+          - account_mrd_id
+          - account_name
+
+        display-fields:
+          - account_name
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_account
+              alias: acc
+
+          columns:
+            - name: account_mrd_id
+            - name: account_name
+            - name: load_rowid
+
+        joins:
+
+          - join-name: HAS_ARRANGEMENT
+            target-entity-type: ACCOUNT_ARRANGEMENT
+            source-field: account_mrd_id
+            target-field: account_mrd_id
+            required: true
+
+      # =====================================================
+      # ACCOUNT ARRANGEMENT
+      # =====================================================
+
+      - entity-type: ACCOUNT_ARRANGEMENT
+
+        depends-on:
+          - ACCOUNT
+
+        inputs:
+
+          - source-node: ACCOUNT
+            source-field: account_mrd_id
+            target-field: account_mrd_id
+
+        output-fields:
+          - arrange_id
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_account_arrange_mapping
+              alias: aam
+
+          columns:
+            - name: arrange_id
+            - name: account_mrd_id
+
+        joins:
+
+          - join-name: HAS_GRID
+            target-entity-type: GRID_MAPPING
+            source-field: arrange_id
+            target-field: arrange_id
+            required: true
+
+      # =====================================================
+      # GRID
+      # =====================================================
+
+      - entity-type: GRID_MAPPING
+
+        depends-on:
+          - ACCOUNT_ARRANGEMENT
+
+        inputs:
+
+          - source-node: ACCOUNT_ARRANGEMENT
+            source-field: arrange_id
+            target-field: arrange_id
+
+        output-fields:
+          - grid
+          - contracting_grid
+
+        search-fields:
+          - grid
+
+        display-fields:
+          - grid
+          - contracting_grid
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_gridding_mapping_gcs
+              alias: gm
+
+          columns:
+            - name: grid
+            - name: contracting_grid
+            - name: arrange_id
+
+        joins:
+
+          - join-name: HAS_PARTY
+            target-entity-type: PARTY
+            source-field: grid
+            target-field: grid
+            required: true
+
+          - join-name: MEMBER_OF
+            target-entity-type: MASTERGROUP
+            source-field: grid
+            target-field: child_grid
+
+      # =====================================================
+      # PARTY
+      # =====================================================
+
+      - entity-type: PARTY
+
+        depends-on:
+          - GRID_MAPPING
+
+        inputs:
+
+          - source-node: GRID_MAPPING
+            source-field: grid
+            target-field: grid
+
+        output-fields:
+          - mrd_id
+          - party_name
+
+        search-fields:
+          - mrd_id
+          - party_name
+
+        display-fields:
+          - party_name
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_party
+              alias: p
+
+          columns:
+            - name: mrd_id
+            - name: party_name
+            - name: grid
+
+        joins:
+
+          - join-name: HAS_ROLE
+            target-entity-type: ARRANGEMENT_ROLE
+            source-field: arrange_id
+            target-field: arrange_id
+
+      # =====================================================
+      # ARRANGEMENT ROLE
+      # =====================================================
+
+      - entity-type: ARRANGEMENT_ROLE
+
+        depends-on:
+          - PARTY
+
+        inputs:
+
+          - source-node: PARTY
+            source-field: arrange_id
+            target-field: arrange_id
+
+        output-fields:
+          - role_id
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_arrangement_role
+              alias: ar
+
+          columns:
+            - name: role_id
+            - name: arrange_id
+
+        joins:
+
+          - join-name: HAS_ROLE_DETAIL
+            target-entity-type: ROLE
+            source-field: role_id
+            target-field: role_id
+
+      # =====================================================
+      # ROLE
+      # =====================================================
+
+      - entity-type: ROLE
+
+        depends-on:
+          - ARRANGEMENT_ROLE
+
+        inputs:
+
+          - source-node: ARRANGEMENT_ROLE
+            source-field: role_id
+            target-field: role_id
+
+        output-fields:
+          - sec_mrd_account_id
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_role
+              alias: r
+
+          columns:
+            - name: role_id
+            - name: sec_mrd_account_id
+
+        joins:
+
+          - join-name: HAS_CASH_ACCOUNT
+            target-entity-type: LINKAGE_ACCOUNT
+            source-field: sec_mrd_account_id
+            target-field: sec_mrd_account_id
+
+      # =====================================================
+      # LINKAGE ACCOUNT
+      # =====================================================
+
+      - entity-type: LINKAGE_ACCOUNT
+
+        depends-on:
+          - ROLE
+
+        inputs:
+
+          - source-node: ROLE
+            source-field: sec_mrd_account_id
+            target-field: sec_mrd_account_id
+
+        output-fields:
+          - cash_mrd_account_id
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_linkage_account
+              alias: la
+
+          columns:
+            - name: sec_mrd_account_id
+            - name: cash_mrd_account_id
+
+        joins:
+
+          - join-name: CASH_IDENTIFIER
+            target-entity-type: ALT_IDENTIFIER
+            source-field: cash_mrd_account_id
+            target-field: account_mrd_id
+
+      # =====================================================
+      # ALT IDENTIFIER
+      # =====================================================
+
+      - entity-type: ALT_IDENTIFIER
+
+        depends-on:
+          - LINKAGE_ACCOUNT
+
+        inputs:
+
+          - source-node: LINKAGE_ACCOUNT
+            source-field: cash_mrd_account_id
+            target-field: account_mrd_id
+
+        output-fields:
+          - account_mrd_id
+          - identifier_value
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_alternate_identifier_account
+              alias: ai
+
+          columns:
+            - name: account_mrd_id
+            - name: identifier_value
+
+      # =====================================================
+      # MASTERGROUP
+      # =====================================================
+
+      - entity-type: MASTERGROUP
+
+        depends-on:
+          - GRID_MAPPING
+
+        inputs:
+
+          - source-node: GRID_MAPPING
+            source-field: grid
+            target-field: child_grid
+
+        output-fields:
+          - mg_id
+          - mg_name
+
+        connector:
+
+          datasource: PMRD
+
+          tables:
+            - name: t_mastergroup_membership
+              alias: mg
+
+          columns:
+            - name: mg_id
+            - name: mg_name
+            - name: child_grid
