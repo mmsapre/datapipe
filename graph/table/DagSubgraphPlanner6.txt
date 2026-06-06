@@ -1,0 +1,73 @@
+
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.traverse.TopologicalOrderIterator;
+
+import java.util.*;
+
+public class DagSubgraphPlanner {
+
+    private final DagPlanner dagPlanner;
+
+    public DagSubgraphPlanner(DagPlanner dagPlanner) {
+        this.dagPlanner = dagPlanner;
+    }
+
+    public List<String> planFrom(String rootNode) {
+
+        Graph<String, DefaultEdge> graph =
+                dagPlanner.getGraph();
+
+        if (!graph.containsVertex(rootNode)) {
+            throw new IllegalArgumentException(
+                    "Unknown DAG root node: " + rootNode);
+        }
+
+        Set<String> reachable =
+                new LinkedHashSet<>();
+
+        collectReachable(
+                graph,
+                rootNode,
+                reachable);
+
+        List<String> ordered =
+                new ArrayList<>();
+
+        TopologicalOrderIterator<String, DefaultEdge> iterator =
+                new TopologicalOrderIterator<>(graph);
+
+        while (iterator.hasNext()) {
+            String node = iterator.next();
+
+            if (reachable.contains(node)) {
+                ordered.add(node);
+            }
+        }
+
+        return ordered;
+    }
+
+    private void collectReachable(
+            Graph<String, DefaultEdge> graph,
+            String node,
+            Set<String> reachable) {
+
+        if (!reachable.add(node)) {
+            return;
+        }
+
+        for (DefaultEdge edge :
+                graph.outgoingEdgesOf(node)) {
+
+            String target =
+                    graph.getEdgeTarget(edge);
+
+            collectReachable(
+                    graph,
+                    target,
+                    reachable);
+        }
+    }
+}
