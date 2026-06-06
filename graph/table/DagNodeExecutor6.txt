@@ -1,0 +1,81 @@
+
+
+import java.util.List;
+import java.util.Objects;
+
+public class DagNodeExecutor {
+
+    private final CalciteQueryExecutor queryExecutor;
+
+    public DagNodeExecutor(
+            CalciteQueryExecutor queryExecutor) {
+
+        this.queryExecutor = queryExecutor;
+    }
+
+    public NodeContext execute(
+            RuntimeNode runtimeNode,
+            DagExecutionContext context)
+            throws Exception {
+
+        MrdConnectorConfig connector =
+                ConnectorCloner.clone(
+                        runtimeNode.getNode().getConnector());
+
+        applyInputFilters(
+                runtimeNode,
+                context,
+                connector);
+
+        List<ImportedRecord> records =
+                queryExecutor.execute(connector);
+
+        NodeContext nodeContext =
+                new NodeContext();
+
+        nodeContext.setNodeName(
+                runtimeNode.getNode().getEntityType());
+
+        nodeContext.getRecords().addAll(records);
+
+        return nodeContext;
+    }
+
+    private void applyInputFilters(
+            RuntimeNode runtimeNode,
+            DagExecutionContext context,
+            MrdConnectorConfig connector) {
+
+        for (InputMapping input :
+                runtimeNode.getNode().getInputs()) {
+
+            NodeContext sourceContext =
+                    context.get(input.getSourceNode());
+
+            if (sourceContext == null) {
+                continue;
+            }
+
+            List<Object> values =
+                    sourceContext.getRecords()
+                            .stream()
+                            .map(r -> r.get(input.getSourceField()))
+                            .filter(Objects::nonNull)
+                            .distinct()
+                            .toList();
+
+            if (values.isEmpty()) {
+                continue;
+            }
+
+            MrdWhereConfig where =
+                    new MrdWhereConfig();
+
+            where.setField(input.getTargetField());
+            where.setOperator("IN");
+            where.setValues(values);
+
+            connector.getWhere().add(where);
+        }
+    }
+}
