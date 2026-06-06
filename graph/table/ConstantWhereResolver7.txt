@@ -1,0 +1,11 @@
+public class ConstantWhereResolver
+        implements WhereValueResolver {
+
+    @Override
+    public Object resolve(
+            MrdWhereConfig where,
+            DagExecutionContext context) {
+
+        return where.getValue();
+    }
+}
