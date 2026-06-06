@@ -1,0 +1,22 @@
+
+public class EventMappingValidator {
+
+    public void validate(
+            EventTypeRegistry registry,
+            DagRegistry dagRegistry) {
+
+        registry.getMappings()
+                .forEach((event,node)->{
+
+                    if(!dagRegistry.contains(
+                            node)) {
+
+                        throw new IllegalStateException(
+                                "Event "
+                                + event
+                                + " mapped to unknown DAG node "
+                                + node);
+                    }
+                });
+    }
+}
