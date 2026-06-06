@@ -1,0 +1,60 @@
+t_st_account_gcs
+        |
+        | account_id
+        v
+t_account
+        |
+        | account_mrd_id
+        v
+t_account_arrange_mapping
+        |
+        | arrange_id
+        v
+t_gridding_mapping_gcs
+        |
+        | grid
+        v
+t_party
+        |
+        | arrange_id
+        v
+t_arrangement_role
+        |
+        | role_id
+        v
+t_role
+        |
+        | sec_mrd_account_id
+        v
+t_linkage_account
+        |
+        | cash_mrd_account_id
+        v
+t_alternate_identifier_account
+        |
+        | grid
+        v
+t_mastergroup_membership
+
+-----–
+
+ST_ACCOUNT
+    ↓
+ACCOUNT
+    ↓
+ACCOUNT_ARRANGEMENT
+    ↓
+GRID_MAPPING
+   / \
+  /   \
+PARTY  MASTERGROUP
+  |
+ARRANGEMENT_ROLE
+  |
+ROLE
+  |
+LINKAGE_ACCOUNT
+  |
+ALT_IDENTIFIER
+
+
