@@ -1,0 +1,220 @@
+
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+public class MrdSubgraphExecutionEngine {
+
+    private final MrdDagRegistry dagRegistry;
+
+    private final MrdDagSubgraphPlanner subgraphPlanner;
+
+    private final MrdDagNodeExecutor nodeExecutor;
+
+    private final FusionRecordBuilder fusionBuilder;
+
+    private final IgniteIndexer igniteIndexer;
+
+    private final KnowledgeGraphBuilder graphBuilder;
+
+    private final GraphExporter graphExporter;
+
+    public MrdSubgraphExecutionEngine(
+            MrdDagRegistry dagRegistry,
+            MrdDagSubgraphPlanner subgraphPlanner,
+            MrdDagNodeExecutor nodeExecutor,
+            FusionRecordBuilder fusionBuilder,
+            IgniteIndexer igniteIndexer,
+            KnowledgeGraphBuilder graphBuilder,
+            GraphExporter graphExporter) {
+
+        this.dagRegistry = dagRegistry;
+        this.subgraphPlanner = subgraphPlanner;
+        this.nodeExecutor = nodeExecutor;
+        this.fusionBuilder = fusionBuilder;
+        this.igniteIndexer = igniteIndexer;
+        this.graphBuilder = graphBuilder;
+        this.graphExporter = graphExporter;
+    }
+
+    public MrdDagExecutionResponse execute(
+            String rootNode,
+            MrdDagExecutionRequest request)
+            throws Exception {
+
+        LocalDateTime start =
+                LocalDateTime.now();
+
+        MrdDagExecutionContext context =
+                new MrdDagExecutionContext();
+
+        initializeRootFilter(
+                context,
+                rootNode,
+                request);
+
+        List<String> executionPlan =
+                subgraphPlanner.planFrom(
+                        rootNode);
+
+        int totalRecords = 0;
+
+        for(String nodeName :
+                executionPlan) {
+
+            MrdRuntimeNode runtimeNode =
+                    dagRegistry.get(nodeName);
+
+            long nodeStart =
+                    System.currentTimeMillis();
+
+            MrdNodeContext nodeOutput =
+                    nodeExecutor.execute(
+                            runtimeNode,
+                            context);
+
+            context.put(
+                    nodeName,
+                    nodeOutput);
+
+            long nodeEnd =
+                    System.currentTimeMillis();
+
+            totalRecords +=
+                    nodeOutput.getRecords().size();
+
+            MrdNodeExecutionResult result =
+                    new MrdNodeExecutionResult();
+
+            result.setNodeName(
+                    nodeName);
+
+            result.setDatasource(
+                    runtimeNode
+                            .getDatasource()
+                            .getAlias());
+
+            result.setRecordCount(
+                    nodeOutput
+                            .getRecords()
+                            .size());
+
+            result.setExecutionTimeMs(
+                    nodeEnd - nodeStart);
+
+            result.setSuccess(true);
+
+            context.getNodeResults()
+                    .add(result);
+        }
+
+        FusionRecord fusionRecord =
+                fusionBuilder.build(
+                        context);
+
+        IgniteDocument document =
+                igniteIndexer.index(
+                        fusionRecord);
+
+        GraphModel graph =
+                graphBuilder.build(
+                        fusionRecord,
+                        context);
+
+        graphExporter.export(
+                graph);
+
+        return buildResponse(
+                request,
+                rootNode,
+                executionPlan,
+                context,
+                fusionRecord,
+                graph,
+                document,
+                totalRecords,
+                start);
+    }
+
+private void initializeRootFilter(
+        MrdDagExecutionContext context,
+        String rootNode,
+        MrdDagExecutionRequest request) {
+
+    MrdRootFilter rootFilter =
+            new MrdRootFilter();
+
+    rootFilter.setDataKey(
+            request.getDataKey());
+
+    rootFilter.setLoadRowId(
+            request.getLoadRowId());
+
+    context.putRootFilter(
+            rootNode,
+            rootFilter);
+}
+
+private MrdDagExecutionResponse buildResponse(
+        MrdDagExecutionRequest request,
+        String rootNode,
+        List<String> executionPlan,
+        MrdDagExecutionContext context,
+        FusionRecord fusionRecord,
+        GraphModel graph,
+        IgniteDocument document,
+        int totalRecords,
+        LocalDateTime startTime) {
+
+    MrdDagExecutionResponse response =
+            new MrdDagExecutionResponse();
+
+    response.setExecutionId(
+            UUID.randomUUID().toString());
+
+    response.setEventType(
+            request.getEventType());
+
+    response.setRootNode(
+            rootNode);
+
+    response.setDataKey(
+            request.getDataKey());
+
+    response.setLoadRowId(
+            request.getLoadRowId());
+
+    response.setExecutionOrder(
+            executionPlan);
+
+    response.setExecutedNodeCount(
+            executionPlan.size());
+
+    response.setTotalRecordsRead(
+            totalRecords);
+
+    response.setFusionId(
+            fusionRecord.getFusionId());
+
+    response.setNodeResults(
+            context.getNodeResults());
+
+    response.setExceptions(
+            context.getExceptions());
+
+    response.setSuccess(true);
+
+    response.setStartTime(
+            startTime);
+
+    response.setEndTime(
+            LocalDateTime.now());
+
+    return response;
+}
+
+
+
+
+}
