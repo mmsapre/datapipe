@@ -1,0 +1,131 @@
+
+
+public class KnowledgeGraphBuilder {
+
+    public GraphModel build(
+            FusionRecord fusionRecord,
+            MrdDagExecutionContext context) {
+
+        GraphModel graph =
+                new GraphModel();
+
+        createFusionNode(
+                fusionRecord,
+                graph);
+
+        createEntityNodes(
+                context,
+                graph);
+
+        createEdges(
+                fusionRecord,
+                context,
+                graph);
+
+        return graph;
+    }
+
+private void createFusionNode(
+        FusionRecord fusion,
+        GraphModel graph) {
+
+    GraphNode node =
+            new GraphNode(
+                    fusion.getFusionId(),
+                    "CLIENT360");
+
+    node.getProperties()
+            .putAll(
+                    fusion.getAttributes());
+
+    graph.getNodes()
+            .add(node);
+}
+
+
+private void createEntityNodes(
+        MrdDagExecutionContext context,
+        GraphModel graph) {
+
+    context.getOutputs()
+            .forEach((entity,nodeCtx)->{
+
+                nodeCtx.getRecords()
+                        .forEach(record -> {
+
+                            String id =
+                                    buildNodeId(
+                                            entity,
+                                            record);
+
+                            GraphNode node =
+                                    new GraphNode(
+                                            id,
+                                            entity);
+
+                            node.getProperties()
+                                    .putAll(
+                                            record.getValues());
+
+                            graph.getNodes()
+                                    .add(node);
+                        });
+            });
+}
+
+
+
+
+
+
+private void createEdges(
+        FusionRecord fusion,
+        MrdDagExecutionContext context,
+        GraphModel graph) {
+
+    context.getOutputs()
+            .forEach((entity,nodeCtx)->{
+
+                nodeCtx.getRecords()
+                        .forEach(record -> {
+
+                            GraphEdge edge =
+                                    new GraphEdge(
+                                            fusion.getFusionId(),
+                                            buildNodeId(
+                                                    entity,
+                                                    record),
+                                            "CONTAINS");
+
+                            graph.getEdges()
+                                    .add(edge);
+                        });
+            });
+}private void createEdges(
+        FusionRecord fusion,
+        MrdDagExecutionContext context,
+        GraphModel graph) {
+
+    context.getOutputs()
+            .forEach((entity,nodeCtx)->{
+
+                nodeCtx.getRecords()
+                        .forEach(record -> {
+
+                            GraphEdge edge =
+                                    new GraphEdge(
+                                            fusion.getFusionId(),
+                                            buildNodeId(
+                                                    entity,
+                                                    record),
+                                            "CONTAINS");
+
+                            graph.getEdges()
+                                    .add(edge);
+                        });
+            });
+}
+
+
+
+}
