@@ -1,0 +1,37 @@
+
+public class IgniteSearchField {
+
+    private String entityType;
+
+    private String fieldName;
+
+    private String fieldValue;
+
+    public IgniteSearchField() {
+    }
+
+    public IgniteSearchField(
+            String entityType,
+            String fieldName,
+            Object fieldValue) {
+
+        this.entityType = entityType;
+        this.fieldName = fieldName;
+        this.fieldValue =
+                fieldValue == null
+                        ? null
+                        : String.valueOf(fieldValue);
+    }
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public String getFieldValue() {
+        return fieldValue;
+    }
+}
