@@ -1,0 +1,52 @@
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedGraph;
+import org.jgrapht.graph.DefaultEdge;
+
+public class DagPlanner {
+
+    private final DagRegistry dagRegistry;
+
+    private final Graph<String, DefaultEdge> graph =
+            new DefaultDirectedGraph<>(DefaultEdge.class);
+
+    public DagPlanner(DagRegistry dagRegistry) {
+        this.dagRegistry = dagRegistry;
+        buildGraph();
+    }
+
+    private void buildGraph() {
+
+        for (RuntimeNode runtimeNode : dagRegistry.all()) {
+            graph.addVertex(
+                    runtimeNode.getNode().getEntityType());
+        }
+
+        for (RuntimeNode runtimeNode : dagRegistry.all()) {
+
+            String current =
+                    runtimeNode.getNode().getEntityType();
+
+            for (InputMapping input :
+                    runtimeNode.getNode().getInputs()) {
+
+                String parent =
+                        input.getSourceNode();
+
+                if (!dagRegistry.contains(parent)) {
+                    throw new IllegalStateException(
+                            "Input source node not found: "
+                                    + parent
+                                    + " for "
+                                    + current);
+                }
+
+                graph.addEdge(parent, current);
+            }
+        }
+    }
+
+    public Graph<String, DefaultEdge> getGraph() {
+        return graph;
+    }
+}
