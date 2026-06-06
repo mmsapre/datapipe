@@ -1,0 +1,34 @@
+
+
+public class DagExecutionRequest {
+
+    private String eventType;
+
+    private String dataKey;
+
+    private Long loadRowId;
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public String getDataKey() {
+        return dataKey;
+    }
+
+    public Long getLoadRowId() {
+        return loadRowId;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public void setDataKey(String dataKey) {
+        this.dataKey = dataKey;
+    }
+
+    public void setLoadRowId(Long loadRowId) {
+        this.loadRowId = loadRowId;
+    }
+}
