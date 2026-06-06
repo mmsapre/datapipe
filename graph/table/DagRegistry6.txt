@@ -1,0 +1,51 @@
+
+
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class DagRegistry {
+
+    private final Map<String, RuntimeNode> nodes =
+            new LinkedHashMap<>();
+
+    public DagRegistry(
+            MrdClient360Config config,
+            DatasourceRegistry datasourceRegistry) {
+
+        for (MrdClient360NodeConfig node :
+                config.getDag().getNodes()) {
+
+            String datasourceAlias =
+                    node.getConnector().getDatasource();
+
+            RuntimeNode runtimeNode =
+                    new RuntimeNode(
+                            node,
+                            datasourceRegistry.get(datasourceAlias));
+
+            nodes.put(
+                    node.getEntityType(),
+                    runtimeNode);
+        }
+    }
+
+    public RuntimeNode get(String entityType) {
+        RuntimeNode node = nodes.get(entityType);
+
+        if (node == null) {
+            throw new IllegalArgumentException(
+                    "DAG node not found: " + entityType);
+        }
+
+        return node;
+    }
+
+    public boolean contains(String entityType) {
+        return nodes.containsKey(entityType);
+    }
+
+    public Collection<RuntimeNode> all() {
+        return nodes.values();
+    }
+}
