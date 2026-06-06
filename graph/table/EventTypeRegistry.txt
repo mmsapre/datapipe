@@ -1,0 +1,27 @@
+
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+public class EventTypeRegistry {
+
+    private final Map<String,String>
+            mappings =
+            new ConcurrentHashMap<>();
+
+    public void register(
+            String eventType,
+            String rootNode) {
+
+        mappings.put(
+                eventType,
+                rootNode);
+    }
+
+    public String resolve(
+            String eventType) {
+
+        return mappings.get(
+                eventType);
+    }
+}
