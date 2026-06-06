@@ -1,0 +1,38 @@
+
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class DagExecutionContext {
+
+    private final Map<String, NodeContext> outputs =
+            new LinkedHashMap<>();
+
+    private final Map<String, RootFilter> rootFilters =
+            new LinkedHashMap<>();
+
+    public void put(
+            String nodeName,
+            NodeContext context) {
+
+        outputs.put(nodeName, context);
+    }
+
+    public NodeContext get(String nodeName) {
+        return outputs.get(nodeName);
+    }
+
+    public void putRootFilter(
+            String nodeName,
+            String dataKey,
+            Long loadRowId) {
+
+        rootFilters.put(
+                nodeName,
+                new RootFilter(dataKey, loadRowId));
+    }
+
+    public RootFilter getRootFilter(String nodeName) {
+        return rootFilters.get(nodeName);
+    }
+}
