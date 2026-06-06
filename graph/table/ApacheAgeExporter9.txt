@@ -1,0 +1,42 @@
+
+
+import javax.sql.DataSource;
+import java.sql.Connection;
+
+public class ApacheAgeExporter
+        implements GraphExporter {
+
+    private final DataSource dataSource;
+
+    public ApacheAgeExporter(
+            DataSource dataSource) {
+
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public void export(
+            GraphModel graph)
+            throws Exception {
+
+        try(Connection con =
+                    dataSource.getConnection()) {
+
+            for(GraphNode node :
+                    graph.getNodes()) {
+
+                createNode(
+                        con,
+                        node);
+            }
+
+            for(GraphEdge edge :
+                    graph.getEdges()) {
+
+                createEdge(
+                        con,
+                        edge);
+            }
+        }
+    }
+}
