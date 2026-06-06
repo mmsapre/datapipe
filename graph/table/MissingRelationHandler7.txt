@@ -1,0 +1,27 @@
+public class MrdMissingRelationHandler {
+
+    public void validate(
+            MrdRuntimeNode node,
+            List<MrdImportedRecord> records) {
+
+        if(records != null
+                && !records.isEmpty()) {
+
+            return;
+        }
+
+        node.getNode()
+                .getJoins()
+                .stream()
+                .filter(MrdGraphJoinConfig::isRequired)
+                .forEach(join -> {
+
+                    System.err.println(
+                            "Missing relation : "
+                                    + node.getNode()
+                                    .getEntityType()
+                                    + " -> "
+                                    + join.getTargetEntityType());
+                });
+    }
+}
