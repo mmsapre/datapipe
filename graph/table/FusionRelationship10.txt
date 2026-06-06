@@ -1,0 +1,25 @@
+
+
+public class FusionRelationship {
+
+    private String sourceEntity;
+
+    private String targetEntity;
+
+    private String relationship;
+
+    public FusionRelationship() {
+    }
+
+    public FusionRelationship(
+            String sourceEntity,
+            String targetEntity,
+            String relationship) {
+
+        this.sourceEntity = sourceEntity;
+        this.targetEntity = targetEntity;
+        this.relationship = relationship;
+    }
+
+    // getters setters
+}
