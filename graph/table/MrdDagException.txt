@@ -1,0 +1,10 @@
+public class MrdDagException {
+
+    private String node;
+
+    private String relation;
+
+    private String message;
+
+    private LocalDateTime timestamp;
+}
