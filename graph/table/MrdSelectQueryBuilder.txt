@@ -1,0 +1,237 @@
+package com.hsbc.gbm.hss.mrd.client360.query;
+
+import com.hsbc.gbm.hss.mrd.integ.config.*;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class MrdSelectQueryBuilder {
+
+    public String build(
+            MrdConnectorConfig connector) {
+
+        StringBuilder sql =
+                new StringBuilder();
+
+        buildSelect(
+                sql,
+                connector);
+
+        buildFrom(
+                sql,
+                connector);
+
+        buildJoins(
+                sql,
+                connector);
+
+        buildWhere(
+                sql,
+                connector);
+
+        buildOrderBy(
+                sql,
+                connector);
+
+        return sql.toString();
+    }
+
+    private void buildSelect(
+            StringBuilder sql,
+            MrdConnectorConfig connector) {
+
+        sql.append("SELECT ");
+
+        String columns =
+                connector.getColumns()
+                         .stream()
+                         .map(this::columnSql)
+                         .collect(
+                             Collectors.joining(","));
+
+        sql.append(columns);
+    }
+
+
+private String columnSql(
+        MrdColumnConfig column) {
+
+    if(column.getAlias() == null) {
+
+        return column.getTableAlias()
+                + "."
+                + column.getName();
+    }
+
+    return column.getTableAlias()
+            + "."
+            + column.getName()
+            + " AS "
+            + column.getAlias();
+}
+
+
+private void buildFrom(
+        StringBuilder sql,
+        MrdConnectorConfig connector) {
+
+    MrdTableConfig table =
+            connector.getTables()
+                     .get(0);
+
+    sql.append(" FROM ")
+       .append(table.getName())
+       .append(" ")
+       .append(table.getAlias());
+}
+
+
+private void buildJoins(
+        StringBuilder sql,
+        MrdConnectorConfig connector) {
+
+    if(connector.getJoins() == null) {
+        return;
+    }
+
+    for(MrdJoinConfig join :
+            connector.getJoins()) {
+
+        sql.append(" JOIN ")
+           .append(join.getTableName())
+           .append(" ")
+           .append(join.getAlias())
+           .append(" ON ")
+           .append(join.getLeftAlias())
+           .append(".")
+           .append(join.getLeftColumn())
+           .append("=")
+           .append(join.getAlias())
+           .append(".")
+           .append(join.getRightColumn());
+    }
+}
+
+
+
+
+private void buildWhere(
+        StringBuilder sql,
+        MrdConnectorConfig connector) {
+
+    List<MrdWhereConfig> where =
+            connector.getWhere();
+
+    if(where == null
+            || where.isEmpty()) {
+
+        return;
+    }
+
+    sql.append(" WHERE ");
+
+    for(int i=0;
+        i<where.size();
+        i++) {
+
+        if(i > 0) {
+            sql.append(" AND ");
+        }
+
+        buildCondition(
+                sql,
+                where.get(i));
+    }
+}
+
+
+
+
+
+private void buildCondition(
+        StringBuilder sql,
+        MrdWhereConfig where) {
+
+    sql.append(where.getField());
+
+    switch(where.getOperator()) {
+
+        case "=":
+            sql.append("=?");
+            break;
+
+        case "LIKE":
+            sql.append(" LIKE ?");
+            break;
+
+        case "IN":
+            buildInClause(
+                    sql,
+                    where);
+            break;
+
+        default:
+            throw new IllegalArgumentException(
+                    "Unsupported operator "
+                            + where.getOperator());
+    }
+}
+
+
+
+private void buildInClause(
+        StringBuilder sql,
+        MrdWhereConfig where) {
+
+    List<?> values =
+            where.getValues();
+
+    sql.append(" IN (");
+
+    for(int i=0;
+        i<values.size();
+        i++) {
+
+        if(i > 0) {
+            sql.append(",");
+        }
+
+        sql.append("?");
+    }
+
+    sql.append(")");
+}
+
+
+private void buildOrderBy(
+        StringBuilder sql,
+        MrdConnectorConfig connector) {
+
+    if(connector.getOrderBy() == null
+            || connector.getOrderBy().isEmpty()) {
+
+        return;
+    }
+
+    sql.append(" ORDER BY ");
+
+    String orderBy =
+            connector.getOrderBy()
+                     .stream()
+                     .map(o ->
+                          o.getField()
+                          + " "
+                          + o.getDirection())
+                     .collect(
+                         Collectors.joining(","));
+
+    sql.append(orderBy);
+}
+
+
+
+
+
+
+
+
