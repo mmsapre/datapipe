@@ -1,0 +1,18 @@
+
+
+@RestController
+@RequestMapping("/client360")
+public class DagExecutionController {
+
+    private final EventRouter router;
+
+    @PostMapping("/execute")
+    public DagExecutionResponse execute(
+            @RequestBody
+            DagExecutionRequest request)
+            throws Exception {
+
+        return router.route(
+                request);
+    }
+}
