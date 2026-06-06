@@ -1,0 +1,30 @@
+public class ContextWhereResolver
+        implements WhereValueResolver {
+
+    @Override
+    public Object resolve(
+            MrdWhereConfig where,
+            DagExecutionContext context) {
+
+        String key =
+                where.getKey();
+
+        String[] parts =
+                key.split("\\.");
+
+        String node =
+                parts[0];
+
+        String field =
+                parts[1];
+
+        NodeContext nodeContext =
+                context.get(node);
+
+        return nodeContext.getRecords()
+                .stream()
+                .map(r -> r.get(field))
+                .distinct()
+                .toList();
+    }
+}
