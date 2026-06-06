@@ -1,0 +1,47 @@
+
+
+import java.util.*;
+
+public class FusionRecord {
+
+    private String fusionId;
+
+    private String rootEntity;
+
+    private String rootKey;
+
+    /*
+     * Searchable fields
+     */
+    private Map<String,Object> searchFields =
+            new LinkedHashMap<>();
+
+    /*
+     * UI display fields
+     */
+    private Map<String,Object> displayFields =
+            new LinkedHashMap<>();
+
+    /*
+     * Full attributes
+     */
+    private Map<String,Object> attributes =
+            new LinkedHashMap<>();
+
+    /*
+     * Source entity records
+     */
+    private Map<String,
+            List<Map<String,Object>>>
+            sourceRecords =
+            new LinkedHashMap<>();
+
+    /*
+     * Relationships
+     */
+    private List<FusionRelationship>
+            relationships =
+            new ArrayList<>();
+
+    // getters setters
+}
