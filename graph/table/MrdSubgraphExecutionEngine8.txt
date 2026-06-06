@@ -1,0 +1,145 @@
+package com.hsbc.gbm.hss.mrd.client360.runtime;
+
+import com.hsbc.gbm.hss.mrd.client360.dag.*;
+import com.hsbc.gbm.hss.mrd.client360.execution.*;
+import com.hsbc.gbm.hss.mrd.client360.fusion.*;
+import com.hsbc.gbm.hss.mrd.client360.graph.*;
+import com.hsbc.gbm.hss.mrd.client360.ignite.*;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+public class MrdSubgraphExecutionEngine {
+
+    private final MrdDagRegistry dagRegistry;
+
+    private final MrdDagSubgraphPlanner subgraphPlanner;
+
+    private final MrdDagNodeExecutor nodeExecutor;
+
+    private final FusionRecordBuilder fusionBuilder;
+
+    private final IgniteIndexer igniteIndexer;
+
+    private final KnowledgeGraphBuilder graphBuilder;
+
+    private final GraphExporter graphExporter;
+
+    public MrdSubgraphExecutionEngine(
+            MrdDagRegistry dagRegistry,
+            MrdDagSubgraphPlanner subgraphPlanner,
+            MrdDagNodeExecutor nodeExecutor,
+            FusionRecordBuilder fusionBuilder,
+            IgniteIndexer igniteIndexer,
+            KnowledgeGraphBuilder graphBuilder,
+            GraphExporter graphExporter) {
+
+        this.dagRegistry = dagRegistry;
+        this.subgraphPlanner = subgraphPlanner;
+        this.nodeExecutor = nodeExecutor;
+        this.fusionBuilder = fusionBuilder;
+        this.igniteIndexer = igniteIndexer;
+        this.graphBuilder = graphBuilder;
+        this.graphExporter = graphExporter;
+    }
+
+    public MrdDagExecutionResponse execute(
+            String rootNode,
+            MrdDagExecutionRequest request)
+            throws Exception {
+
+        LocalDateTime start =
+                LocalDateTime.now();
+
+        MrdDagExecutionContext context =
+                new MrdDagExecutionContext();
+
+        initializeRootFilter(
+                context,
+                rootNode,
+                request);
+
+        List<String> executionPlan =
+                subgraphPlanner.planFrom(
+                        rootNode);
+
+        int totalRecords = 0;
+
+        for(String nodeName :
+                executionPlan) {
+
+            MrdRuntimeNode runtimeNode =
+                    dagRegistry.get(nodeName);
+
+            long nodeStart =
+                    System.currentTimeMillis();
+
+            MrdNodeContext nodeOutput =
+                    nodeExecutor.execute(
+                            runtimeNode,
+                            context);
+
+            context.put(
+                    nodeName,
+                    nodeOutput);
+
+            long nodeEnd =
+                    System.currentTimeMillis();
+
+            totalRecords +=
+                    nodeOutput.getRecords().size();
+
+            MrdNodeExecutionResult result =
+                    new MrdNodeExecutionResult();
+
+            result.setNodeName(
+                    nodeName);
+
+            result.setDatasource(
+                    runtimeNode
+                            .getDatasource()
+                            .getAlias());
+
+            result.setRecordCount(
+                    nodeOutput
+                            .getRecords()
+                            .size());
+
+            result.setExecutionTimeMs(
+                    nodeEnd - nodeStart);
+
+            result.setSuccess(true);
+
+            context.getNodeResults()
+                    .add(result);
+        }
+
+        FusionRecord fusionRecord =
+                fusionBuilder.build(
+                        context);
+
+        IgniteDocument document =
+                igniteIndexer.index(
+                        fusionRecord);
+
+        GraphModel graph =
+                graphBuilder.build(
+                        fusionRecord,
+                        context);
+
+        graphExporter.export(
+                graph);
+
+        return buildResponse(
+                request,
+                rootNode,
+                executionPlan,
+                context,
+                fusionRecord,
+                graph,
+                document,
+                totalRecords,
+                start);
+    }
+}
