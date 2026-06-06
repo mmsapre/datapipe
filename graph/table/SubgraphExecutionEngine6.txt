@@ -1,0 +1,79 @@
+
+import java.util.List;
+
+public class SubgraphExecutionEngine {
+
+    private final DagRegistry dagRegistry;
+
+    private final DagSubgraphPlanner subgraphPlanner;
+
+    private final DagNodeExecutor nodeExecutor;
+
+    public SubgraphExecutionEngine(
+            DagRegistry dagRegistry,
+            DagSubgraphPlanner subgraphPlanner,
+            DagNodeExecutor nodeExecutor) {
+
+        this.dagRegistry = dagRegistry;
+        this.subgraphPlanner = subgraphPlanner;
+        this.nodeExecutor = nodeExecutor;
+    }
+
+    public DagExecutionResponse execute(
+            String rootNode,
+            DagExecutionRequest request)
+            throws Exception {
+
+        List<String> executionOrder =
+                subgraphPlanner.planFrom(rootNode);
+
+        DagExecutionContext context =
+                new DagExecutionContext();
+
+        seedRoot(
+                context,
+                rootNode,
+                request);
+
+        int recordCount = 0;
+
+        for (String nodeName :
+                executionOrder) {
+
+            RuntimeNode node =
+                    dagRegistry.get(nodeName);
+
+            NodeContext output =
+                    nodeExecutor.execute(
+                            node,
+                            context);
+
+            context.put(
+                    nodeName,
+                    output);
+
+            recordCount +=
+                    output.getRecords().size();
+        }
+
+        DagExecutionResponse response =
+                new DagExecutionResponse();
+
+        response.setRootNode(rootNode);
+        response.setExecutedNodes(executionOrder);
+        response.setRecordCount(recordCount);
+
+        return response;
+    }
+
+    private void seedRoot(
+            DagExecutionContext context,
+            String rootNode,
+            DagExecutionRequest request) {
+
+        context.putRootFilter(
+                rootNode,
+                request.getDataKey(),
+                request.getLoadRowId());
+    }
+}
