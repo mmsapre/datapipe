@@ -1,0 +1,59 @@
+
+
+import java.util.*;
+
+public class IgniteDocument {
+
+    private String id;
+
+    private String entityType;
+
+    private String fusionId;
+
+    private String searchText;
+
+    private Map<String,Object> fields =
+            new LinkedHashMap<>();
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(
+            String entityType) {
+
+        this.entityType = entityType;
+    }
+
+    public String getFusionId() {
+        return fusionId;
+    }
+
+    public void setFusionId(
+            String fusionId) {
+
+        this.fusionId = fusionId;
+    }
+
+    public String getSearchText() {
+        return searchText;
+    }
+
+    public void setSearchText(
+            String searchText) {
+
+        this.searchText = searchText;
+    }
+
+    public Map<String,Object> getFields() {
+        return fields;
+    }
+}
