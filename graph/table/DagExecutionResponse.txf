@@ -1,0 +1,16 @@
+
+
+public class DagExecutionResponse {
+
+    private String executionId;
+
+    private String rootNode;
+
+    private int nodeCount;
+
+    private int recordCount;
+
+    private String fusionId;
+
+    // getters setters
+}
