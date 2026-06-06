@@ -1,0 +1,18 @@
+
+
+import java.time.LocalDateTime;
+
+public class MrdDagException {
+
+    private String node;
+
+    private String relation;
+
+    private String message;
+
+    private String severity;
+
+    private LocalDateTime timestamp;
+
+    // getters setters
+}
