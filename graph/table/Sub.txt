@@ -1,0 +1,39 @@
+private String determineBusinessKey(
+        MrdDagExecutionContext context) {
+
+    String rootNode =
+            context.getRootNode();
+
+    MrdNodeContext nodeContext =
+            context.get(rootNode);
+
+    if(nodeContext == null ||
+       nodeContext.getRecords().isEmpty()) {
+
+        throw new IllegalStateException(
+                "No records found for root node "
+                + rootNode);
+    }
+
+    MrdRuntimeNode runtimeNode =
+            dagRegistry.get(rootNode);
+
+    String dataKeyField =
+            runtimeNode.getNode()
+                    .getDataKeyField();
+
+    Object value =
+            nodeContext.getRecords()
+                    .get(0)
+                    .get(dataKeyField);
+
+    if(value == null) {
+
+        throw new IllegalStateException(
+                "Data key field "
+                + dataKeyField
+                + " is null");
+    }
+
+    return String.valueOf(value);
+}
