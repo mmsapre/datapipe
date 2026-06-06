@@ -1,0 +1,75 @@
+
+
+import java.util.*;
+
+public class IgniteDocument {
+
+    private String id;
+
+    private String fusionId;
+
+    private String searchText;
+
+    private Map<String,Object>
+            searchFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object>
+            displayFields =
+            new LinkedHashMap<>();
+
+    private Map<String,Object>
+            attributes =
+            new LinkedHashMap<>();
+
+    // getters setters
+public IgniteDocument index(
+        FusionRecord fusion) {
+
+    IgniteDocument doc =
+            new IgniteDocument();
+
+    doc.setId(
+            fusion.getFusionId());
+
+    doc.setFusionId(
+            fusion.getFusionId());
+
+    doc.getSearchFields()
+            .putAll(
+                    fusion.getSearchFields());
+
+    doc.getDisplayFields()
+            .putAll(
+                    fusion.getDisplayFields());
+
+    doc.getAttributes()
+            .putAll(
+                    fusion.getAttributes());
+
+    StringBuilder searchText =
+            new StringBuilder();
+
+    fusion.getSearchFields()
+            .values()
+            .forEach(v -> {
+
+                if(v != null) {
+
+                    searchText
+                            .append(v)
+                            .append(' ');
+                }
+            });
+
+    doc.setSearchText(
+            searchText.toString());
+
+    cache.put(
+            doc.getId(),
+            doc);
+
+    return doc;
+}
+
+}
