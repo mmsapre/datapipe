@@ -1,0 +1,7 @@
+
+public interface GraphExporter {
+
+    void export(
+            GraphModel graph)
+            throws Exception;
+}
