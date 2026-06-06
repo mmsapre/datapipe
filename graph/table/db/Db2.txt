@@ -1,0 +1,81 @@
+create table fusion_record
+(
+    fusion_id            varchar(200) primary key,
+
+    root_entity_type     varchar(100),
+
+    root_business_key    varchar(500),
+
+    active_flg           char(1),
+
+    created_ts           timestamp,
+
+    updated_ts           timestamp
+);
+
+
+
+
+create table fusion_field
+(
+    fusion_field_id      bigserial primary key,
+
+    fusion_id            varchar(200),
+
+    entity_type          varchar(100),
+
+    field_name           varchar(200),
+
+    field_value          varchar(4000),
+
+    searchable_flg       char(1),
+
+    displayable_flg      char(1),
+
+    display_order        integer,
+
+    active_flg           char(1),
+
+    created_ts           timestamp,
+
+    updated_ts           timestamp
+);
+
+create table fusion_source_record
+(
+    source_record_id     bigserial primary key,
+
+    fusion_id            varchar(200),
+
+    entity_type          varchar(100),
+
+    source_key           varchar(500),
+
+    payload              text,
+
+    active_flg           char(1),
+
+    created_ts           timestamp,
+
+    updated_ts           timestamp
+);
+
+
+create table fusion_relationship
+(
+    relationship_id      bigserial primary key,
+
+    fusion_id            varchar(200),
+
+    source_entity        varchar(100),
+
+    target_entity        varchar(100),
+
+    relationship_name    varchar(200),
+
+    active_flg           char(1),
+
+    created_ts           timestamp
+);
+
+
