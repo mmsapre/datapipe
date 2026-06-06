@@ -1,0 +1,80 @@
+
+
+import redis.clients.jedis.Jedis;
+
+public class FalkorDbExporter
+        implements GraphExporter {
+
+    private final Jedis jedis;
+
+    private final String graphName;
+
+    public FalkorDbExporter(
+            Jedis jedis,
+            String graphName) {
+
+        this.jedis = jedis;
+        this.graphName = graphName;
+    }
+
+    @Override
+    public void export(
+            GraphModel graph)
+            throws Exception {
+
+        for(GraphNode node :
+                graph.getNodes()) {
+
+            createNode(node);
+        }
+
+        for(GraphEdge edge :
+                graph.getEdges()) {
+
+            createEdge(edge);
+        }
+    }
+
+
+
+private void createNode(
+        GraphNode node) {
+
+    String cypher =
+            "MERGE (n:"
+            + node.getLabel()
+            + " {id:'"
+            + node.getId()
+            + "'})";
+
+    jedis.sendCommand(
+            () -> "GRAPH.QUERY",
+            graphName,
+            cypher);
+}
+
+
+
+private void createEdge(
+        GraphEdge edge) {
+
+    String cypher =
+            "MATCH (a {id:'"
+            + edge.getFrom()
+            + "'}),"
+            + "(b {id:'"
+            + edge.getTo()
+            + "'}) "
+            + "MERGE (a)-[:"
+            + edge.getRelation()
+            + "]->(b)";
+
+    jedis.sendCommand(
+            () -> "GRAPH.QUERY",
+            graphName,
+            cypher);
+}
+
+
+
+}
