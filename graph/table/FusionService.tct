@@ -1,0 +1,43 @@
+;
+
+public class FusionService {
+
+    private final FusionRecordBuilder builder;
+
+    private final FusionRecordMapper mapper;
+
+    private final FusionRepository repository;
+
+    public FusionService(
+            FusionRecordBuilder builder,
+            FusionRecordMapper mapper,
+            FusionRepository repository) {
+
+        this.builder = builder;
+        this.mapper = mapper;
+        this.repository = repository;
+    }
+
+    public FusionRecord saveFusion(
+            MrdDagExecutionContext context)
+            throws Exception {
+
+        FusionRecord fusion =
+                builder.build(context);
+
+        FusionRecordEntity entity =
+                mapper.toEntity(fusion);
+
+        repository.save(entity);
+
+        return fusion;
+    }
+
+    public void deactivate(
+            String fusionId)
+            throws Exception {
+
+        repository.deactivate(
+                fusionId);
+    }
+}
