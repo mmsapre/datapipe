@@ -1,0 +1,129 @@
+;
+
+import javax.sql.DataSource;
+import java.sql.*;
+
+public class JdbcFusionRepository
+        implements FusionRepository {
+
+    private final DataSource dataSource;
+
+    public JdbcFusionRepository(
+            DataSource dataSource) {
+
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public void save(
+            FusionRecordEntity entity)
+            throws Exception {
+
+        String sql =
+                """
+                insert into fusion_record
+                (
+                  fusion_id,
+                  root_entity_type,
+                  root_business_key,
+                  search_fields,
+                  display_fields,
+                  attributes,
+                  source_records,
+                  relationships,
+                  active_flg,
+                  created_ts,
+                  updated_ts
+                )
+                values
+                (
+                  ?,?,?,?,?,?,?,?,
+                  'Y',
+                  now(),
+                  now()
+                )
+                on conflict(fusion_id)
+                do update
+                set
+                  search_fields =
+                      excluded.search_fields,
+                  display_fields =
+                      excluded.display_fields,
+                  attributes =
+                      excluded.attributes,
+                  source_records =
+                      excluded.source_records,
+                  relationships =
+                      excluded.relationships,
+                  active_flg='Y',
+                  updated_ts=now()
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(1,
+                    entity.getFusionId());
+
+            ps.setString(2,
+                    entity.getRootEntityType());
+
+            ps.setString(3,
+                    entity.getRootBusinessKey());
+
+            ps.setString(4,
+                    entity.getSearchFields());
+
+            ps.setString(5,
+                    entity.getDisplayFields());
+
+            ps.setString(6,
+                    entity.getAttributes());
+
+            ps.setString(7,
+                    entity.getSourceRecords());
+
+            ps.setString(8,
+                    entity.getRelationships());
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deactivate(
+            String fusionId)
+            throws Exception {
+
+        String sql =
+                """
+                update fusion_record
+                   set active_flg='N',
+                       updated_ts=now()
+                 where fusion_id=?
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(1,
+                    fusionId);
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public FusionRecordEntity findByFusionId(
+            String fusionId)
+            throws Exception {
+
+        return null; // implementation omitted
+    }
+}
