@@ -1,0 +1,38 @@
+
+
+public class EventRouter {
+
+    private final EventTypeRegistry
+            registry;
+
+    private final DagSubgraphPlanner
+            planner;
+
+    private final ExpansionEngine
+            engine;
+
+    public DagExecutionResponse route(
+            DagExecutionRequest request)
+            throws Exception {
+
+        String rootNode =
+                registry.resolve(
+                        request.getEventType());
+
+        if(rootNode == null) {
+
+            throw new IllegalArgumentException(
+                    "Unknown event type "
+                    + request.getEventType());
+        }
+
+        DagExecutionContext ctx =
+                engine.execute(
+                        rootNode,
+                        request);
+
+        return ResponseMapper.map(
+                ctx,
+                rootNode);
+    }
+}
