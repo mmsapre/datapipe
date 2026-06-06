@@ -1,0 +1,17 @@
+FusionRecord fusion =
+        fusionBuilder.build(context);
+
+fusionPersistenceService.persist(
+        fusion);
+
+IgniteSearchDocument doc =
+        igniteIndexer.index(
+                fusion);
+
+GraphModel graph =
+        graphBuilder.build(
+                fusion,
+                context);
+
+graphExporter.export(
+        graph);
