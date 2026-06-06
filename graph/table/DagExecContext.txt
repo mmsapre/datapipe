@@ -1,0 +1,56 @@
+public class MrdDagExecutionContext {
+
+    private Map<String,MrdNodeContext>
+            outputs =
+            new LinkedHashMap<>();
+
+    private Map<String,MrdRootFilter>
+            rootFilters =
+            new LinkedHashMap<>();
+
+    private List<MrdNodeExecutionResult>
+            nodeResults =
+            new ArrayList<>();
+
+    private List<MrdDagException>
+            exceptions =
+            new ArrayList<>();
+
+    public void put(
+            String node,
+            MrdNodeContext context) {
+
+        outputs.put(node, context);
+    }
+
+    public MrdNodeContext get(
+            String node) {
+
+        return outputs.get(node);
+    }
+
+    public void putRootFilter(
+            String node,
+            MrdRootFilter filter) {
+
+        rootFilters.put(node, filter);
+    }
+
+    public MrdRootFilter getRootFilter(
+            String node) {
+
+        return rootFilters.get(node);
+    }
+
+    public List<MrdNodeExecutionResult>
+    getNodeResults() {
+
+        return nodeResults;
+    }
+
+    public List<MrdDagException>
+    getExceptions() {
+
+        return exceptions;
+    }
+}
