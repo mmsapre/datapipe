@@ -1,0 +1,24 @@
+
+
+public class EventTypeMapping {
+
+    private String eventType;
+
+    private String rootNode;
+
+    public String getEventType() {
+        return eventType;
+    }
+
+    public String getRootNode() {
+        return rootNode;
+    }
+
+    public void setEventType(String eventType) {
+        this.eventType = eventType;
+    }
+
+    public void setRootNode(String rootNode) {
+        this.rootNode = rootNode;
+    }
+}
