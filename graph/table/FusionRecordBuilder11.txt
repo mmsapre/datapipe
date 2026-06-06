@@ -1,0 +1,161 @@
+public class FusionRecordBuilder {
+
+    private final MrdDagRegistry dagRegistry;
+
+    public FusionRecordBuilder(
+            MrdDagRegistry dagRegistry) {
+
+        this.dagRegistry = dagRegistry;
+    }
+
+    public FusionRecord build(
+            MrdDagExecutionContext context) {
+
+        FusionRecord fusion =
+                new FusionRecord();
+
+        context.getOutputs()
+                .forEach((entity,nodeCtx)->{
+
+                    MrdRuntimeNode runtimeNode =
+                            dagRegistry.get(entity);
+
+                    addSearchFields(
+                            fusion,
+                            runtimeNode,
+                            nodeCtx);
+
+                    addDisplayFields(
+                            fusion,
+                            runtimeNode,
+                            nodeCtx);
+
+                    addAttributes(
+                            fusion,
+                            nodeCtx);
+
+                    addSourceRecords(
+                            fusion,
+                            entity,
+                            nodeCtx);
+
+                    addRelationships(
+                            fusion,
+                            runtimeNode);
+                });
+
+        return fusion;
+    }
+
+
+private void addSearchFields(
+        FusionRecord fusion,
+        MrdRuntimeNode node,
+        MrdNodeContext ctx) {
+
+    if(ctx.getRecords().isEmpty()) {
+        return;
+    }
+
+    var record =
+            ctx.getRecords().get(0);
+
+    node.getNode()
+            .getSearchFields()
+            .forEach(field -> {
+
+                Object value =
+                        record.get(field);
+
+                if(value != null) {
+
+                    fusion.getSearchFields()
+                            .put(field,value);
+                }
+            });
+}
+
+
+private void addDisplayFields(
+        FusionRecord fusion,
+        MrdRuntimeNode node,
+        MrdNodeContext ctx) {
+
+    if(ctx.getRecords().isEmpty()) {
+        return;
+    }
+
+    var record =
+            ctx.getRecords().get(0);
+
+    node.getNode()
+            .getDisplayFields()
+            .forEach(field -> {
+
+                Object value =
+                        record.get(field);
+
+                if(value != null) {
+
+                    fusion.getDisplayFields()
+                            .put(field,value);
+                }
+            });
+}
+
+
+private void addAttributes(
+        FusionRecord fusion,
+        MrdNodeContext ctx) {
+
+    ctx.getRecords()
+            .forEach(record -> {
+
+                record.getValues()
+                        .forEach(
+                            fusion.getAttributes()::putIfAbsent);
+            });
+}
+
+private void addSourceRecords(
+        FusionRecord fusion,
+        String entity,
+        MrdNodeContext ctx) {
+
+    List<Map<String,Object>> records =
+            ctx.getRecords()
+                    .stream()
+                    .map(r -> r.getValues())
+                    .toList();
+
+    fusion.getSourceRecords()
+            .put(entity,records);
+}
+
+
+private void addRelationships(
+        FusionRecord fusion,
+        MrdRuntimeNode node) {
+
+    if(node.getNode()
+            .getJoins() == null) {
+
+        return;
+    }
+
+    node.getNode()
+            .getJoins()
+            .forEach(join -> {
+
+                fusion.getRelationships()
+                        .add(
+                            new FusionRelationship(
+                                node.getNode()
+                                        .getEntityType(),
+                                join.getTargetEntityType(),
+                                join.getJoinName()));
+            });
+}
+
+
+}
