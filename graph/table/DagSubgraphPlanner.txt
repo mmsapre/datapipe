@@ -1,0 +1,48 @@
+
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+
+import java.util.*;
+
+public class DagSubgraphPlanner {
+
+    public List<String> plan(
+            Graph<String,DefaultEdge> graph,
+            String rootNode) {
+
+        Set<String> visited =
+                new LinkedHashSet<>();
+
+        walk(
+                graph,
+                rootNode,
+                visited);
+
+        return new ArrayList<>(
+                visited);
+    }
+
+    private void walk(
+            Graph<String,DefaultEdge> graph,
+            String node,
+            Set<String> visited) {
+
+        if(!visited.add(node)) {
+            return;
+        }
+
+        graph.outgoingEdgesOf(node)
+             .forEach(edge -> {
+
+                 String target =
+                         graph.getEdgeTarget(
+                                 edge);
+
+                 walk(
+                         graph,
+                         target,
+                         visited);
+             });
+    }
+}
