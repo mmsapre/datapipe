@@ -1,0 +1,208 @@
+public class MrdDagNodeExecutor {
+
+    private final MrdCalciteQueryExecutor queryExecutor;
+
+    private final MrdWhereResolverRegistry resolverRegistry;
+
+    private final MrdMissingRelationHandler relationHandler;
+
+    public MrdDagNodeExecutor(
+            MrdCalciteQueryExecutor queryExecutor,
+            MrdWhereResolverRegistry resolverRegistry,
+            MrdMissingRelationHandler relationHandler) {
+
+        this.queryExecutor = queryExecutor;
+        this.resolverRegistry = resolverRegistry;
+        this.relationHandler = relationHandler;
+    }
+
+    public MrdNodeContext execute(
+            MrdRuntimeNode runtimeNode,
+            MrdDagExecutionContext context)
+            throws Exception {
+
+        MrdConnectorConfig connector =
+                ConnectorCloner.clone(
+                        runtimeNode.getNode()
+                                .getConnector());
+
+        applyRootFilter(
+                runtimeNode,
+                context,
+                connector);
+
+        applyInputFilters(
+                runtimeNode,
+                context,
+                connector);
+
+        List<Object> parameters =
+                buildParameters(
+                        connector,
+                        context);
+
+        List<MrdImportedRecord> records =
+                queryExecutor.execute(
+                        connector,
+                        parameters);
+
+        relationHandler.validate(
+                runtimeNode,
+                records);
+
+        MrdNodeContext nodeContext =
+                new MrdNodeContext();
+
+        nodeContext.setNodeName(
+                runtimeNode.getNode()
+                        .getEntityType());
+
+        nodeContext.getRecords()
+                .addAll(records);
+
+        return nodeContext;
+    }
+
+
+private void applyRootFilter(
+        MrdRuntimeNode runtimeNode,
+        MrdDagExecutionContext context,
+        MrdConnectorConfig connector) {
+
+    MrdRootFilter rootFilter =
+            context.getRootFilter(
+                    runtimeNode.getNode()
+                            .getEntityType());
+
+    if(rootFilter == null) {
+        return;
+    }
+
+    MrdWhereConfig where =
+            new MrdWhereConfig();
+
+    where.setColumn(
+            runtimeNode.getNode()
+                    .getDataKeyField());
+
+    where.setOperator("=");
+
+    where.setSource("constant");
+
+    where.setValue(
+            rootFilter.getDataKey());
+
+    where.setType("VARCHAR");
+
+    connector.getWhere().add(where);
+}
+
+private List<Object> buildParameters(
+        MrdConnectorConfig connector,
+        MrdDagExecutionContext context) {
+
+    List<Object> params =
+            new ArrayList<>();
+
+    if(connector.getWhere() == null) {
+        return params;
+    }
+
+    for(MrdWhereConfig where :
+            connector.getWhere()) {
+
+        Object value =
+                resolverRegistry.resolve(
+                        where,
+                        context);
+
+        if(value instanceof List<?>) {
+
+            params.addAll(
+                    (List<?>) value);
+        }
+        else {
+
+            params.add(value);
+        }
+    }
+
+    return params;
+}
+private String detectType(
+        MrdNodeContext context,
+        String field) {
+
+    Object value =
+            context.getRecords()
+                    .stream()
+                    .map(r -> r.get(field))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+
+    if(value == null) {
+        return "VARCHAR";
+    }
+
+    if(value instanceof Integer) {
+        return "INTEGER";
+    }
+
+    if(value instanceof Long) {
+        return "LONG";
+    }
+
+    if(value instanceof BigDecimal) {
+        return "DECIMAL";
+    }
+
+    if(value instanceof Boolean) {
+        return "BOOLEAN";
+    }
+
+    if(value instanceof java.sql.Date) {
+        return "DATE";
+    }
+
+    if(value instanceof java.sql.Timestamp) {
+        return "TIMESTAMP";
+    }
+
+    return "VARCHAR";
+}
+
+private void applyRootFilter(
+        MrdRuntimeNode runtimeNode,
+        MrdDagExecutionContext context,
+        MrdConnectorConfig connector) {
+
+    MrdRootFilter rootFilter =
+            context.getRootFilter(
+                    runtimeNode.getNode()
+                            .getEntityType());
+
+    if(rootFilter == null) {
+        return;
+    }
+
+    MrdWhereConfig where =
+            new MrdWhereConfig();
+
+    where.setColumn(
+            runtimeNode.getNode()
+                    .getDataKeyField());
+
+    where.setOperator("=");
+
+    where.setSource("constant");
+
+    where.setValue(
+            rootFilter.getDataKey());
+
+    where.setType("VARCHAR");
+
+    connector.getWhere().add(where);
+}
+
+}
