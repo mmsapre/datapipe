@@ -1,0 +1,24 @@
+;
+
+public class RootFilter {
+
+    private final String dataKey;
+
+    private final Long loadRowId;
+
+    public RootFilter(
+            String dataKey,
+            Long loadRowId) {
+
+        this.dataKey = dataKey;
+        this.loadRowId = loadRowId;
+    }
+
+    public String getDataKey() {
+        return dataKey;
+    }
+
+    public Long getLoadRowId() {
+        return loadRowId;
+    }
+}
