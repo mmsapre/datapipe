@@ -1,0 +1,18 @@
+;
+
+public class MrdNodeExecutionResult {
+
+    private String nodeName;
+
+    private int recordCount;
+
+    private long executionTimeMs;
+
+    private boolean success;
+
+    private String datasource;
+
+    private String generatedSql;
+
+    // getters setters
+}
