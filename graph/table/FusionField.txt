@@ -1,0 +1,35 @@
+
+
+public class FusionField {
+
+    private String entityType;
+
+    private String fieldName;
+
+    private Object value;
+
+    private boolean searchable;
+
+    private boolean displayable;
+
+    private Integer displayOrder;
+
+    public FusionField() {
+    }
+
+    public FusionField(
+            String entityType,
+            String fieldName,
+            Object value,
+            boolean searchable,
+            boolean displayable) {
+
+        this.entityType = entityType;
+        this.fieldName = fieldName;
+        this.value = value;
+        this.searchable = searchable;
+        this.displayable = displayable;
+    }
+
+    // getters setters
+}
