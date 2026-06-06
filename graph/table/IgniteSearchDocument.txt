@@ -1,0 +1,92 @@
+;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+public class IgniteSearchDocument {
+
+    private String fusionId;
+
+    private String rootEntityType;
+
+    private String rootBusinessKey;
+
+    private String searchText;
+
+    private String displayText;
+
+    private String activeFlg;
+
+    private LocalDateTime updatedTs;
+
+    private List<IgniteSearchField> searchFields =
+            new ArrayList<>();
+
+    private List<IgniteSearchField> displayFields =
+            new ArrayList<>();
+
+    public String getFusionId() {
+        return fusionId;
+    }
+
+    public void setFusionId(String fusionId) {
+        this.fusionId = fusionId;
+    }
+
+    public String getRootEntityType() {
+        return rootEntityType;
+    }
+
+    public void setRootEntityType(String rootEntityType) {
+        this.rootEntityType = rootEntityType;
+    }
+
+    public String getRootBusinessKey() {
+        return rootBusinessKey;
+    }
+
+    public void setRootBusinessKey(String rootBusinessKey) {
+        this.rootBusinessKey = rootBusinessKey;
+    }
+
+    public String getSearchText() {
+        return searchText;
+    }
+
+    public void setSearchText(String searchText) {
+        this.searchText = searchText;
+    }
+
+    public String getDisplayText() {
+        return displayText;
+    }
+
+    public void setDisplayText(String displayText) {
+        this.displayText = displayText;
+    }
+
+    public String getActiveFlg() {
+        return activeFlg;
+    }
+
+    public void setActiveFlg(String activeFlg) {
+        this.activeFlg = activeFlg;
+    }
+
+    public LocalDateTime getUpdatedTs() {
+        return updatedTs;
+    }
+
+    public void setUpdatedTs(LocalDateTime updatedTs) {
+        this.updatedTs = updatedTs;
+    }
+
+    public List<IgniteSearchField> getSearchFields() {
+        return searchFields;
+    }
+
+    public List<IgniteSearchField> getDisplayFields() {
+        return displayFields;
+    }
+}
