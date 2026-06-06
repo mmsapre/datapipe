@@ -1,0 +1,8 @@
+;
+
+public interface WhereValueResolver {
+
+    Object resolve(
+            MrdWhereConfig where,
+            DagExecutionContext context);
+}
