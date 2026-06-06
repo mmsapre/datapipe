@@ -1,0 +1,26 @@
+mrd:
+
+  client360:
+
+    event-mappings:
+
+      ACCOUNT_CREATED:
+        root-node: ST_ACCOUNT
+
+      ACCOUNT_UPDATED:
+        root-node: ACCOUNT
+
+      ARRANGEMENT_UPDATED:
+        root-node: ACCOUNT_ARRANGEMENT
+
+      GRID_UPDATED:
+        root-node: GRID_MAPPING
+
+      PARTY_UPDATED:
+        root-node: PARTY
+
+      ROLE_UPDATED:
+        root-node: ROLE
+
+      MASTERGROUP_UPDATED:
+        root-node: MASTERGROUP
