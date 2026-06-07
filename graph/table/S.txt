@@ -1,0 +1,200 @@
+package com.hsbc.gbm.hss.mrd.client360.fusion.repository;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.MrdFusionSearchFieldEntity;
+
+import java.util.List;
+
+public interface MrdFusionSearchFieldRepository {
+
+    void insert(
+            MrdFusionSearchFieldEntity entity)
+            throws Exception;
+
+    void deactivate(
+            String fusionId)
+            throws Exception;
+
+    List<MrdFusionSearchFieldEntity>
+    findByFusionId(
+            String fusionId)
+            throws Exception;
+}
+
+
+package com.hsbc.gbm.hss.mrd.client360.fusion.repository.jdbc;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.MrdFusionSearchFieldEntity;
+import com.hsbc.gbm.hss.mrd.client360.fusion.repository.MrdFusionSearchFieldRepository;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class JdbcFusionSearchFieldRepository
+        implements MrdFusionSearchFieldRepository {
+
+    private final DataSource dataSource;
+
+    public JdbcFusionSearchFieldRepository(
+            DataSource dataSource) {
+
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public void insert(
+            MrdFusionSearchFieldEntity entity)
+            throws Exception {
+
+        String sql =
+                """
+                insert into fusion_search_field
+                (
+                    fusion_id,
+                    field_name,
+                    field_value,
+                    active_flg,
+                    created_ts,
+                    updated_ts
+                )
+                values
+                (
+                    ?,?,?,?,
+                    now(),
+                    now()
+                )
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    entity.getFusionId());
+
+            ps.setString(
+                    2,
+                    entity.getFieldName());
+
+            ps.setString(
+                    3,
+                    entity.getFieldValue());
+
+            ps.setString(
+                    4,
+                    entity.getActiveFlg());
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deactivate(
+            String fusionId)
+            throws Exception {
+
+        String sql =
+                """
+                update fusion_search_field
+                   set active_flg='N',
+                       updated_ts=now()
+                 where fusion_id=?
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    fusionId);
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public List<MrdFusionSearchFieldEntity>
+    findByFusionId(
+            String fusionId)
+            throws Exception {
+
+        String sql =
+                """
+                select
+                    id,
+                    fusion_id,
+                    field_name,
+                    field_value,
+                    active_flg,
+                    created_ts,
+                    updated_ts
+                from fusion_search_field
+                where fusion_id = ?
+                  and active_flg = 'Y'
+                order by field_name
+                """;
+
+        List<MrdFusionSearchFieldEntity>
+                result =
+                new ArrayList<>();
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    fusionId);
+
+            try(ResultSet rs =
+                        ps.executeQuery()) {
+
+                while(rs.next()) {
+
+                    MrdFusionSearchFieldEntity entity =
+                            new MrdFusionSearchFieldEntity();
+
+                    entity.setId(
+                            rs.getLong("id"));
+
+                    entity.setFusionId(
+                            rs.getString(
+                                    "fusion_id"));
+
+                    entity.setFieldName(
+                            rs.getString(
+                                    "field_name"));
+
+                    entity.setFieldValue(
+                            rs.getString(
+                                    "field_value"));
+
+                    entity.setActiveFlg(
+                            rs.getString(
+                                    "active_flg"));
+
+                    entity.setCreatedTs(
+                            rs.getTimestamp(
+                                    "created_ts"));
+
+                    entity.setUpdatedTs(
+                            rs.getTimestamp(
+                                    "updated_ts"));
+
+                    result.add(entity);
+                }
+            }
+        }
+
+        return result;
+    }
+}
