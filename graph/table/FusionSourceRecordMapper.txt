@@ -1,0 +1,55 @@
+
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+
+import java.util.*;
+
+public class FusionSourceRecordMapper {
+
+    private final ObjectMapper mapper =
+            new ObjectMapper();
+
+    public List<MrdFusionSourceRecordEntity>
+    toEntities(
+            String fusionId,
+            Map<String,
+                    List<Map<String,Object>>>
+                    sourceRecords)
+            throws Exception {
+
+        List<MrdFusionSourceRecordEntity> result =
+                new ArrayList<>();
+
+        for(var source :
+                sourceRecords.entrySet()) {
+
+            String entityType =
+                    source.getKey();
+
+            for(Map<String,Object> row :
+                    source.getValue()) {
+
+                MrdFusionSourceRecordEntity entity =
+                        new MrdFusionSourceRecordEntity();
+
+                entity.setFusionId(
+                        fusionId);
+
+                entity.setEntityType(
+                        entityType);
+
+                entity.setPayload(
+                        mapper.writeValueAsString(
+                                row));
+
+                entity.setActiveFlg(
+                        "Y");
+
+                result.add(entity);
+            }
+        }
+
+        return result;
+    }
+}
