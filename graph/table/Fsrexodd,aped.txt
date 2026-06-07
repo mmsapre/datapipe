@@ -1,0 +1,35 @@
+;
+
+import java.sql.Timestamp;
+
+public class MrdFusionRecordMapper {
+
+    public MrdFusionRecordEntity toEntity(
+            MrdFusionRecord fusion) {
+
+        MrdFusionRecordEntity entity =
+                new MrdFusionRecordEntity();
+
+        entity.setFusionId(
+                fusion.getFusionId());
+
+        entity.setRootEntityType(
+                fusion.getRootEntityType());
+
+        entity.setRootBusinessKey(
+                fusion.getRootBusinessKey());
+
+        entity.setActiveFlg(
+                fusion.isActive() ? "Y" : "N");
+
+        entity.setCreatedTs(
+                Timestamp.valueOf(
+                        fusion.getCreatedTs()));
+
+        entity.setUpdatedTs(
+                Timestamp.valueOf(
+                        fusion.getUpdatedTs()));
+
+        return entity;
+    }
+}
