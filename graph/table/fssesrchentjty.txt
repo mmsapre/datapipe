@@ -1,0 +1,76 @@
+
+
+import java.sql.Timestamp;
+
+public class fssesrchentjty {
+
+    private Long id;
+
+    private String fusionId;
+
+    private String fieldName;
+
+    private String fieldValue;
+
+    private String activeFlg;
+
+    private Timestamp createdTs;
+
+    private Timestamp updatedTs;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFusionId() {
+        return fusionId;
+    }
+
+    public void setFusionId(String fusionId) {
+        this.fusionId = fusionId;
+    }
+
+    public String getFieldName() {
+        return fieldName;
+    }
+
+    public void setFieldName(String fieldName) {
+        this.fieldName = fieldName;
+    }
+
+    public String getFieldValue() {
+        return fieldValue;
+    }
+
+    public void setFieldValue(String fieldValue) {
+        this.fieldValue = fieldValue;
+    }
+
+    public String getActiveFlg() {
+        return activeFlg;
+    }
+
+    public void setActiveFlg(String activeFlg) {
+        this.activeFlg = activeFlg;
+    }
+
+    public Timestamp getCreatedTs() {
+        return createdTs;
+    }
+
+    public void setCreatedTs(Timestamp createdTs) {
+        this.createdTs = createdTs;
+    }
+
+    public Timestamp getUpdatedTs() {
+        return updatedTs;
+    }
+
+    public void setUpdatedTs(Timestamp updatedTs) {
+        this.updatedTs = updatedTs;
+    }
+}
