@@ -1,0 +1,43 @@
+;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class FusionRelationshipMapper {
+
+    public List<MrdFusionRelationshipEntity>
+    toEntities(
+            String fusionId,
+            List<MrdFusionRelationship>
+                    relationships) {
+
+        List<MrdFusionRelationshipEntity> result =
+                new ArrayList<>();
+
+        for(MrdFusionRelationship relation :
+                relationships) {
+
+            MrdFusionRelationshipEntity entity =
+                    new MrdFusionRelationshipEntity();
+
+            entity.setFusionId(
+                    fusionId);
+
+            entity.setSourceEntity(
+                    relation.getSourceEntity());
+
+            entity.setTargetEntity(
+                    relation.getTargetEntity());
+
+            entity.setRelationshipName(
+                    relation.getRelationType());
+
+            entity.setActiveFlg(
+                    "Y");
+
+            result.add(entity);
+        }
+
+        return result;
+    }
+}
