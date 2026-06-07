@@ -1,0 +1,39 @@
+;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class FusionSearchFieldMapper {
+
+    public List<MrdFusionSearchFieldEntity> toEntities(
+            String fusionId,
+            Map<String,String> searchFields) {
+
+        List<MrdFusionSearchFieldEntity> result =
+                new ArrayList<>();
+
+        for(Map.Entry<String,String> entry :
+                searchFields.entrySet()) {
+
+            MrdFusionSearchFieldEntity entity =
+                    new MrdFusionSearchFieldEntity();
+
+            entity.setFusionId(
+                    fusionId);
+
+            entity.setFieldName(
+                    entry.getKey());
+
+            entity.setFieldValue(
+                    entry.getValue());
+
+            entity.setActiveFlg(
+                    "Y");
+
+            result.add(entity);
+        }
+
+        return result;
+    }
+}
