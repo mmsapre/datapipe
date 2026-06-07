@@ -1,0 +1,36 @@
+private String determineBusinessKey(
+        MrdDagExecutionContext context,
+        MrdRuntimeNode runtimeNode) {
+
+    String dataKeyField =
+            runtimeNode.getNode()
+                    .getDataKeyField();
+
+    MrdNodeContext nodeContext =
+            context.get(
+                    runtimeNode.getNode()
+                            .getEntityType());
+
+    if(nodeContext == null ||
+       nodeContext.getRecords().isEmpty()) {
+
+        throw new IllegalStateException(
+                "No root node records found");
+    }
+
+    Object value =
+            nodeContext.getRecords()
+                    .get(0)
+                    .getValues()
+                    .get(dataKeyField);
+
+    if(value == null) {
+
+        throw new IllegalStateException(
+                "Data key field "
+                + dataKeyField
+                + " not found");
+    }
+
+    return String.valueOf(value);
+}
