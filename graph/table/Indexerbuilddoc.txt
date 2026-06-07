@@ -1,0 +1,45 @@
+private MrdIgniteDocument buildDocument(
+        MrdFusionRecord fusion) {
+
+    MrdIgniteDocument doc =
+            new MrdIgniteDocument();
+
+    doc.setFusionId(
+            fusion.getFusionId());
+
+    doc.getSearchFields()
+            .putAll(
+                    fusion.getSearchFields());
+
+    doc.getDisplayFields()
+            .putAll(
+                    fusion.getDisplayFields());
+
+    StringBuilder searchText =
+            new StringBuilder();
+
+    fusion.getSearchFields()
+            .values()
+            .forEach(v ->
+                    searchText
+                            .append(v)
+                            .append(' '));
+
+    doc.setSearchText(
+            searchText.toString());
+
+    StringBuilder displayText =
+            new StringBuilder();
+
+    fusion.getDisplayFields()
+            .values()
+            .forEach(v ->
+                    displayText
+                            .append(v)
+                            .append(' '));
+
+    doc.setDisplayText(
+            displayText.toString());
+
+    return doc;
+}
