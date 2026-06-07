@@ -1,0 +1,22 @@
+public class ignitedocument {
+
+    private String fusionId;
+
+    private String rootEntityType;
+
+    private String rootBusinessKey;
+
+    private String searchText;
+
+    private String displayText;
+
+    private Map<String,String>
+            searchFields =
+            new LinkedHashMap<>();
+
+    private Map<String,String>
+            displayFields =
+            new LinkedHashMap<>();
+
+    // getters setters
+}
