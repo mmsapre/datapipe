@@ -1,0 +1,444 @@
+create table fusion_record
+(
+    fusion_id            varchar(200) primary key,
+
+    root_entity_type     varchar(100) not null,
+
+    root_business_key    varchar(500) not null,
+
+    active_flg           char(1) not null,
+
+    created_ts           timestamp not null,
+
+    updated_ts           timestamp not null
+);
+
+create index idx_fusion_record_root_key
+on fusion_record(root_business_key);
+
+create index idx_fusion_record_entity
+on fusion_record(root_entity_type);
+
+create table fusion_search_field
+(
+    id                   bigserial primary key,
+
+    fusion_id            varchar(200) not null,
+
+    field_name           varchar(200) not null,
+
+    field_value          varchar(4000),
+
+    active_flg           char(1) not null,
+
+    created_ts           timestamp not null,
+
+    updated_ts           timestamp not null
+);
+
+create index idx_fusion_search_fusion
+on fusion_search_field(fusion_id);
+
+create index idx_fusion_search_name
+on fusion_search_field(field_name);
+
+create table fusion_display_field
+(
+    id                   bigserial primary key,
+
+    fusion_id            varchar(200) not null,
+
+    field_name           varchar(200) not null,
+
+    field_value          varchar(4000),
+
+    display_order        integer,
+
+    active_flg           char(1) not null,
+
+    created_ts           timestamp not null,
+
+    updated_ts           timestamp not null
+);
+
+create index idx_fusion_display_fusion
+on fusion_display_field(fusion_id);
+
+
+
+create table fusion_source_record
+(
+    id                   bigserial primary key,
+
+    fusion_id            varchar(200) not null,
+
+    entity_type          varchar(100) not null,
+
+    source_key_field     varchar(200),
+
+    source_key           varchar(500),
+
+    active_flg           char(1) not null,
+
+    created_ts           timestamp not null,
+
+    updated_ts           timestamp not null
+);
+
+create index idx_fusion_source_fusion
+on fusion_source_record(fusion_id);
+
+create index idx_fusion_source_entity
+on fusion_source_record(entity_type);
+
+create index idx_fusion_source_key
+on fusion_source_record(source_key);
+
+
+create table fusion_relationship
+(
+    id                   bigserial primary key,
+
+    fusion_id            varchar(200) not null,
+
+    source_entity        varchar(100),
+
+    target_entity        varchar(100),
+
+    relationship_name    varchar(200),
+
+    active_flg           char(1) not null,
+
+    created_ts           timestamp not null,
+
+    updated_ts           timestamp not null
+);
+
+create index idx_fusion_rel_fusion
+on fusion_relationship(fusion_id);
+
+public class MrdFusionDisplayFieldEntity {
+
+    private Long id;
+
+    private String fusionId;
+
+    private String fieldName;
+
+    private String fieldValue;
+
+    private Integer displayOrder;
+
+    private String activeFlg;
+
+    private Timestamp createdTs;
+
+    private Timestamp updatedTs;
+
+    // getters setters
+}
+
+
+public class MrdFusionDisplayFieldMapper {
+
+    public List<MrdFusionDisplayFieldEntity>
+    toEntities(
+            String fusionId,
+            Map<String,String> displayFields) {
+
+        List<MrdFusionDisplayFieldEntity>
+                result =
+                new ArrayList<>();
+
+        int order = 1;
+
+        for(Map.Entry<String,String> entry :
+                displayFields.entrySet()) {
+
+            MrdFusionDisplayFieldEntity entity =
+                    new MrdFusionDisplayFieldEntity();
+
+            entity.setFusionId(
+                    fusionId);
+
+            entity.setFieldName(
+                    entry.getKey());
+
+            entity.setFieldValue(
+                    entry.getValue());
+
+            entity.setDisplayOrder(
+                    order++);
+
+            entity.setActiveFlg(
+                    "Y");
+
+            result.add(entity);
+        }
+
+        return result;
+    }
+}
+
+public interface MrdFusionDisplayFieldRepository {
+
+    void insert(
+            MrdFusionDisplayFieldEntity entity)
+            throws Exception;
+
+    void deactivate(
+            String fusionId)
+            throws Exception;
+}
+
+public class JdbcFusionDisplayFieldRepository
+        implements MrdFusionDisplayFieldRepository {
+
+    private final DataSource dataSource;
+
+    public JdbcFusionDisplayFieldRepository(
+            DataSource dataSource) {
+
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public void insert(
+            MrdFusionDisplayFieldEntity entity)
+            throws Exception {
+
+        String sql =
+                """
+                insert into fusion_display_field
+                (
+                    fusion_id,
+                    field_name,
+                    field_value,
+                    display_order,
+                    active_flg,
+                    created_ts,
+                    updated_ts
+                )
+                values
+                (
+                    ?,?,?,?,?,now(),now()
+                )
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    entity.getFusionId());
+
+            ps.setString(
+                    2,
+                    entity.getFieldName());
+
+            ps.setString(
+                    3,
+                    entity.getFieldValue());
+
+            ps.setInt(
+                    4,
+                    entity.getDisplayOrder());
+
+            ps.setString(
+                    5,
+                    entity.getActiveFlg());
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deactivate(
+            String fusionId)
+            throws Exception {
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(
+                            """
+                            update fusion_display_field
+                               set active_flg='N',
+                                   updated_ts=now()
+                             where fusion_id=?
+                            """)) {
+
+            ps.setString(
+                    1,
+                    fusionId);
+
+            ps.executeUpdate();
+        }
+    }
+}
+
+
+public class MrdFusionPersistenceService {
+
+    private final MrdFusionRepository fusionRepository;
+
+    private final MrdFusionSearchFieldRepository
+            searchFieldRepository;
+
+    private final MrdFusionDisplayFieldRepository
+            displayFieldRepository;
+
+    private final MrdFusionSourceRecordRepository
+            sourceRecordRepository;
+
+    private final MrdFusionRelationshipRepository
+            relationshipRepository;
+
+    private final MrdFusionRecordMapper
+            fusionRecordMapper;
+
+    private final MrdFusionSearchFieldMapper
+            searchFieldMapper;
+
+    private final MrdFusionDisplayFieldMapper
+            displayFieldMapper;
+
+    private final MrdFusionSourceRecordMapper
+            sourceRecordMapper;
+
+    private final MrdFusionRelationshipMapper
+            relationshipMapper;
+
+    public void persist(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        persistRecord(fusion);
+
+        persistSearchFields(fusion);
+
+        persistDisplayFields(fusion);
+
+        persistSourceRecords(fusion);
+
+        persistRelationships(fusion);
+    }
+
+
+private void persistDisplayFields(
+        MrdFusionRecord fusion)
+        throws Exception {
+
+    displayFieldRepository.deactivate(
+            fusion.getFusionId());
+
+    List<MrdFusionDisplayFieldEntity>
+            entities =
+            displayFieldMapper.toEntities(
+                    fusion.getFusionId(),
+                    fusion.getDisplayFields());
+
+    for(MrdFusionDisplayFieldEntity entity :
+            entities) {
+
+        displayFieldRepository.insert(
+                entity);
+    }
+}
+private void persistSourceRecords(
+        MrdFusionRecord fusion)
+        throws Exception {
+
+    sourceRecordRepository.deactivate(
+            fusion.getFusionId());
+
+    List<MrdFusionSourceRecordEntity>
+            entities =
+            sourceRecordMapper.toEntities(
+                    fusion.getFusionId(),
+                    fusion.getSourceRecords());
+
+    for(MrdFusionSourceRecordEntity entity :
+            entities) {
+
+        sourceRecordRepository.insert(
+                entity);
+    }
+}
+private void persistRelationships(
+        MrdFusionRecord fusion)
+        throws Exception {
+
+    relationshipRepository.deactivate(
+            fusion.getFusionId());
+
+    List<MrdFusionRelationshipEntity>
+            entities =
+            relationshipMapper.toEntities(
+                    fusion.getFusionId(),
+                    fusion.getRelationships());
+
+    for(MrdFusionRelationshipEntity entity :
+            entities) {
+
+        relationshipRepository.insert(
+                entity);
+    }
+}
+
+
+
+
+
+
+public class MrdFusionService {
+
+    private final FusionRecordBuilder
+            fusionRecordBuilder;
+
+    private final MrdFusionPersistenceService
+            persistenceService;
+
+    public MrdFusionService(
+            FusionRecordBuilder fusionRecordBuilder,
+            MrdFusionPersistenceService persistenceService) {
+
+        this.fusionRecordBuilder =
+                fusionRecordBuilder;
+
+        this.persistenceService =
+                persistenceService;
+    }
+
+    public MrdFusionRecord createFusion(
+            MrdDagExecutionContext context)
+            throws Exception {
+
+        MrdFusionRecord fusion =
+                fusionRecordBuilder.build(
+                        context);
+
+        persistenceService.persist(
+                fusion);
+
+        return fusion;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
