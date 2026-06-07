@@ -1,0 +1,170 @@
+private void addSourceRecords(
+        MrdFusionRecord fusion,
+        String entityType,
+        MrdNodeContext nodeContext) {
+
+    for(MrdImportedRecord record :
+            nodeContext.getRecords()) {
+
+        fusion.getSourceRecords()
+                .computeIfAbsent(
+                        entityType,
+                        k -> new ArrayList<>())
+                .add(
+                        buildSource(
+                                entityType,
+                                record));
+    }
+}
+
+
+private Map<String,Object> buildSource(
+        String entityType,
+        MrdImportedRecord record) {
+
+    MrdRuntimeNode runtimeNode =
+            dagRegistry.get(entityType);
+
+    String keyField =
+            runtimeNode.getNode()
+                    .getDataKeyField();
+
+    Object value =
+            record.getValues()
+                    .get(keyField);
+
+    Map<String,Object> source =
+            new LinkedHashMap<>();
+
+    source.put(
+            "sourceKeyField",
+            keyField);
+
+    source.put(
+            "sourceKey",
+            value);
+
+    return source;
+}
+
+public class MrdFusionSourceRecordEntity {
+
+    private Long id;
+
+    private String fusionId;
+
+    private String entityType;
+
+    private String sourceKeyField;
+
+    private String sourceKey;
+
+    private String activeFlg;
+
+    private Timestamp createdTs;
+
+    private Timestamp updatedTs;
+
+    // getters setters
+}
+
+
+public class MrdFusionSourceRecordMapper {
+
+    public List<MrdFusionSourceRecordEntity>
+    toEntities(
+            String fusionId,
+            Map<String,
+                    List<Map<String,Object>>>
+                    sourceRecords) {
+
+        List<MrdFusionSourceRecordEntity>
+                entities =
+                new ArrayList<>();
+
+        sourceRecords.forEach(
+                (entityType, rows) -> {
+
+                    for(Map<String,Object> row :
+                            rows) {
+
+                        MrdFusionSourceRecordEntity entity =
+                                new MrdFusionSourceRecordEntity();
+
+                        entity.setFusionId(
+                                fusionId);
+
+                        entity.setEntityType(
+                                entityType);
+
+                        entity.setSourceKeyField(
+                                String.valueOf(
+                                        row.get(
+                                                "sourceKeyField")));
+
+                        Object sourceKey =
+                                row.get(
+                                        "sourceKey");
+
+                        entity.setSourceKey(
+                                sourceKey == null
+                                        ? null
+                                        : String.valueOf(
+                                                sourceKey));
+
+                        entity.setActiveFlg(
+                                "Y");
+
+                        entities.add(entity);
+                    }
+                });
+
+        return entities;
+    }
+}
+
+private void persistSourceRecords(
+        MrdFusionRecord fusion)
+        throws Exception {
+
+    sourceRecordRepository
+            .deactivate(
+                    fusion.getFusionId());
+
+    List<MrdFusionSourceRecordEntity>
+            entities =
+            sourceRecordMapper
+                    .toEntities(
+                            fusion.getFusionId(),
+                            fusion.getSourceRecords());
+
+    for(MrdFusionSourceRecordEntity entity :
+            entities) {
+
+        sourceRecordRepository
+                .insert(entity);
+    }
+}
+
+
+create table fusion_source_record
+(
+    id                bigserial primary key,
+
+    fusion_id         varchar(200) not null,
+
+    entity_type       varchar(100) not null,
+
+    source_key_field  varchar(200),
+
+    source_key        varchar(500),
+
+    active_flg        char(1),
+
+    created_ts        timestamp,
+
+    updated_ts        timestamp
+);
+
+
+
