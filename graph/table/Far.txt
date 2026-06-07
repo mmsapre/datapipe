@@ -1,0 +1,894 @@
+package com.hsbc.gbm.hss.mrd.client360.fusion.repository;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.MrdFusionSourceRecordEntity;
+import java.util.List;
+
+public interface MrdFusionSourceRecordRepository {
+
+    void insert(MrdFusionSourceRecordEntity entity) throws Exception;
+
+    void deactivate(String fusionId) throws Exception;
+
+    List<MrdFusionSourceRecordEntity> findByFusionId(String fusionId) throws Exception;
+}
+
+package com.hsbc.gbm.hss.mrd.client360.fusion.repository.jdbc;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.MrdFusionSourceRecordEntity;
+import com.hsbc.gbm.hss.mrd.client360.fusion.repository.MrdFusionSourceRecordRepository;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class JdbcFusionSourceRecordRepository
+        implements MrdFusionSourceRecordRepository {
+
+    private final DataSource dataSource;
+
+    public JdbcFusionSourceRecordRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public void insert(MrdFusionSourceRecordEntity entity) throws Exception {
+        String sql = """
+            insert into fusion_source_record
+            (
+              fusion_id,
+              entity_type,
+              source_key_field,
+              source_key,
+              active_flg,
+              created_ts,
+              updated_ts
+            )
+            values
+            (?, ?, ?, ?, ?, now(), now())
+            """;
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, entity.getFusionId());
+            ps.setString(2, entity.getEntityType());
+            ps.setString(3, entity.getSourceKeyField());
+            ps.setString(4, entity.getSourceKey());
+            ps.setString(5, entity.getActiveFlg());
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deactivate(String fusionId) throws Exception {
+        String sql = """
+            update fusion_source_record
+               set active_flg = 'N',
+                   updated_ts = now()
+             where fusion_id = ?
+            """;
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, fusionId);
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public List<MrdFusionSourceRecordEntity> findByFusionId(String fusionId) throws Exception {
+        String sql = """
+            select *
+              from fusion_source_record
+             where fusion_id = ?
+               and active_flg = 'Y'
+            """;
+
+        List<MrdFusionSourceRecordEntity> result = new ArrayList<>();
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, fusionId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    MrdFusionSourceRecordEntity e =
+                            new MrdFusionSourceRecordEntity();
+
+                    e.setId(rs.getLong("id"));
+                    e.setFusionId(rs.getString("fusion_id"));
+                    e.setEntityType(rs.getString("entity_type"));
+                    e.setSourceKeyField(rs.getString("source_key_field"));
+                    e.setSourceKey(rs.getString("source_key"));
+                    e.setActiveFlg(rs.getString("active_flg"));
+                    e.setCreatedTs(rs.getTimestamp("created_ts"));
+                    e.setUpdatedTs(rs.getTimestamp("updated_ts"));
+
+                    result.add(e);
+                }
+            }
+        }
+
+        return result;
+    }
+
+
+
+
+}
+package com.hsbc.gbm.hss.mrd.client360.fusion.repository;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.MrdFusionRelationshipEntity;
+import java.util.List;
+
+public interface MrdFusionRelationshipRepository {
+
+    void insert(MrdFusionRelationshipEntity entity) throws Exception;
+
+    void deactivate(String fusionId) throws Exception;
+
+    List<MrdFusionRelationshipEntity> findByFusionId(String fusionId) throws Exception;
+}
+package com.hsbc.gbm.hss.mrd.client360.fusion.repository.jdbc;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.MrdFusionRelationshipEntity;
+import com.hsbc.gbm.hss.mrd.client360.fusion.repository.MrdFusionRelationshipRepository;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class JdbcFusionRelationshipRepository
+        implements MrdFusionRelationshipRepository {
+
+    private final DataSource dataSource;
+
+    public JdbcFusionRelationshipRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public void insert(MrdFusionRelationshipEntity entity) throws Exception {
+        String sql = """
+            insert into fusion_relationship
+            (
+              fusion_id,
+              source_entity,
+              target_entity,
+              relationship_name,
+              active_flg,
+              created_ts,
+              updated_ts
+            )
+            values
+            (?, ?, ?, ?, ?, now(), now())
+            """;
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, entity.getFusionId());
+            ps.setString(2, entity.getSourceEntity());
+            ps.setString(3, entity.getTargetEntity());
+            ps.setString(4, entity.getRelationshipName());
+            ps.setString(5, entity.getActiveFlg());
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deactivate(String fusionId) throws Exception {
+        String sql = """
+            update fusion_relationship
+               set active_flg = 'N',
+                   updated_ts = now()
+             where fusion_id = ?
+            """;
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, fusionId);
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public List<MrdFusionRelationshipEntity> findByFusionId(String fusionId) throws Exception {
+        String sql = """
+            select *
+              from fusion_relationship
+             where fusion_id = ?
+               and active_flg = 'Y'
+            """;
+
+        List<MrdFusionRelationshipEntity> result = new ArrayList<>();
+
+        try (Connection con = dataSource.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, fusionId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    MrdFusionRelationshipEntity e =
+                            new MrdFusionRelationshipEntity();
+
+                    e.setId(rs.getLong("id"));
+                    e.setFusionId(rs.getString("fusion_id"));
+                    e.setSourceEntity(rs.getString("source_entity"));
+                    e.setTargetEntity(rs.getString("target_entity"));
+                    e.setRelationshipName(rs.getString("relationship_name"));
+                    e.setActiveFlg(rs.getString("active_flg"));
+                    e.setCreatedTs(rs.getTimestamp("created_ts"));
+                    e.setUpdatedTs(rs.getTimestamp("updated_ts"));
+
+                    result.add(e);
+                }
+            }
+        }
+
+        return result;
+    }
+}
+package com.hsbc.gbm.hss.mrd.client360.fusion.service;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.MrdFusionRecord;
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.*;
+import com.hsbc.gbm.hss.mrd.client360.fusion.mapper.*;
+import com.hsbc.gbm.hss.mrd.client360.fusion.repository.*;
+
+import java.util.List;
+
+public class MrdFusionPersistenceService {
+
+    private final MrdFusionRepository fusionRepository;
+    private final MrdFusionSearchFieldRepository searchFieldRepository;
+    private final MrdFusionDisplayFieldRepository displayFieldRepository;
+    private final MrdFusionSourceRecordRepository sourceRecordRepository;
+    private final MrdFusionRelationshipRepository relationshipRepository;
+
+    private final MrdFusionRecordMapper recordMapper;
+    private final MrdFusionSearchFieldMapper searchFieldMapper;
+    private final MrdFusionDisplayFieldMapper displayFieldMapper;
+    private final MrdFusionSourceRecordMapper sourceRecordMapper;
+    private final MrdFusionRelationshipMapper relationshipMapper;
+
+    public MrdFusionPersistenceService(
+            MrdFusionRepository fusionRepository,
+            MrdFusionSearchFieldRepository searchFieldRepository,
+            MrdFusionDisplayFieldRepository displayFieldRepository,
+            MrdFusionSourceRecordRepository sourceRecordRepository,
+            MrdFusionRelationshipRepository relationshipRepository,
+            MrdFusionRecordMapper recordMapper,
+            MrdFusionSearchFieldMapper searchFieldMapper,
+            MrdFusionDisplayFieldMapper displayFieldMapper,
+            MrdFusionSourceRecordMapper sourceRecordMapper,
+            MrdFusionRelationshipMapper relationshipMapper) {
+
+        this.fusionRepository = fusionRepository;
+        this.searchFieldRepository = searchFieldRepository;
+        this.displayFieldRepository = displayFieldRepository;
+        this.sourceRecordRepository = sourceRecordRepository;
+        this.relationshipRepository = relationshipRepository;
+        this.recordMapper = recordMapper;
+        this.searchFieldMapper = searchFieldMapper;
+        this.displayFieldMapper = displayFieldMapper;
+        this.sourceRecordMapper = sourceRecordMapper;
+        this.relationshipMapper = relationshipMapper;
+    }
+
+    public void persist(MrdFusionRecord fusion) throws Exception {
+        persistRecord(fusion);
+        persistSearchFields(fusion);
+        persistDisplayFields(fusion);
+        persistSourceRecords(fusion);
+        persistRelationships(fusion);
+    }
+
+    private void persistRecord(MrdFusionRecord fusion) throws Exception {
+        fusionRepository.upsert(
+                recordMapper.toEntity(fusion));
+    }
+
+    private void persistSearchFields(MrdFusionRecord fusion) throws Exception {
+        searchFieldRepository.deactivate(fusion.getFusionId());
+
+        List<MrdFusionSearchFieldEntity> entities =
+                searchFieldMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getSearchFields());
+
+        for (MrdFusionSearchFieldEntity entity : entities) {
+            searchFieldRepository.insert(entity);
+        }
+    }
+
+    private void persistDisplayFields(MrdFusionRecord fusion) throws Exception {
+        displayFieldRepository.deactivate(fusion.getFusionId());
+
+        List<MrdFusionDisplayFieldEntity> entities =
+                displayFieldMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getDisplayFields());
+
+        for (MrdFusionDisplayFieldEntity entity : entities) {
+            displayFieldRepository.insert(entity);
+        }
+    }
+
+    private void persistSourceRecords(MrdFusionRecord fusion) throws Exception {
+        sourceRecordRepository.deactivate(fusion.getFusionId());
+
+        List<MrdFusionSourceRecordEntity> entities =
+                sourceRecordMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getSourceRecords());
+
+        for (MrdFusionSourceRecordEntity entity : entities) {
+            sourceRecordRepository.insert(entity);
+        }
+    }
+
+    private void persistRelationships(MrdFusionRecord fusion) throws Exception {
+        relationshipRepository.deactivate(fusion.getFusionId());
+
+        List<MrdFusionRelationshipEntity> entities =
+                relationshipMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getRelationships());
+
+        for (MrdFusionRelationshipEntity entity : entities) {
+            relationshipRepository.insert(entity);
+        }
+    }
+
+    public void deactivate(String fusionId) throws Exception {
+        fusionRepository.deactivate(fusionId);
+        searchFieldRepository.deactivate(fusionId);
+        displayFieldRepository.deactivate(fusionId);
+        sourceRecordRepository.deactivate(fusionId);
+        relationshipRepository.deactivate(fusionId);
+    }
+}
+
+
+
+package com.hsbc.gbm.hss.mrd.client360.fusion.service;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.FusionRecordBuilder;
+import com.hsbc.gbm.hss.mrd.client360.fusion.MrdFusionRecord;
+import com.hsbc.gbm.hss.mrd.client360.runtime.MrdDagExecutionContext;
+
+public class MrdFusionService {
+
+    private final FusionRecordBuilder fusionRecordBuilder;
+    private final MrdFusionPersistenceService persistenceService;
+
+    public MrdFusionService(
+            FusionRecordBuilder fusionRecordBuilder,
+            MrdFusionPersistenceService persistenceService) {
+
+        this.fusionRecordBuilder = fusionRecordBuilder;
+        this.persistenceService = persistenceService;
+    }
+
+    public MrdFusionRecord createFusion(
+            MrdDagExecutionContext context)
+            throws Exception {
+
+        MrdFusionRecord fusion =
+                fusionRecordBuilder.build(context);
+
+        persistenceService.persist(fusion);
+
+        return fusion;
+    }
+
+    public void deactivateFusion(String fusionId) throws Exception {
+        persistenceService.deactivate(fusionId);
+    }
+}
+
+
+package com.hsbc.gbm.hss.mrd.client360.fusion.repository;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.MrdFusionSearchFieldEntity;
+
+import java.util.List;
+
+public interface MrdFusionSearchFieldRepository {
+
+    void insert(
+            MrdFusionSearchFieldEntity entity)
+            throws Exception;
+
+    void deactivate(
+            String fusionId)
+            throws Exception;
+
+    List<MrdFusionSearchFieldEntity>
+    findByFusionId(
+            String fusionId)
+            throws Exception;
+}
+
+
+package com.hsbc.gbm.hss.mrd.client360.fusion.repository.jdbc;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.MrdFusionSearchFieldEntity;
+import com.hsbc.gbm.hss.mrd.client360.fusion.repository.MrdFusionSearchFieldRepository;
+
+import javax.sql.DataSource;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class JdbcFusionSearchFieldRepository
+        implements MrdFusionSearchFieldRepository {
+
+    private final DataSource dataSource;
+
+    public JdbcFusionSearchFieldRepository(
+            DataSource dataSource) {
+
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public void insert(
+            MrdFusionSearchFieldEntity entity)
+            throws Exception {
+
+        String sql =
+                """
+                insert into fusion_search_field
+                (
+                    fusion_id,
+                    field_name,
+                    field_value,
+                    active_flg,
+                    created_ts,
+                    updated_ts
+                )
+                values
+                (
+                    ?,?,?,?,
+                    now(),
+                    now()
+                )
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    entity.getFusionId());
+
+            ps.setString(
+                    2,
+                    entity.getFieldName());
+
+            ps.setString(
+                    3,
+                    entity.getFieldValue());
+
+            ps.setString(
+                    4,
+                    entity.getActiveFlg());
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public void deactivate(
+            String fusionId)
+            throws Exception {
+
+        String sql =
+                """
+                update fusion_search_field
+                   set active_flg='N',
+                       updated_ts=now()
+                 where fusion_id=?
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    fusionId);
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public List<MrdFusionSearchFieldEntity>
+    findByFusionId(
+            String fusionId)
+            throws Exception {
+
+        String sql =
+                """
+                select
+                    id,
+                    fusion_id,
+                    field_name,
+                    field_value,
+                    active_flg,
+                    created_ts,
+                    updated_ts
+                from fusion_search_field
+                where fusion_id = ?
+                  and active_flg = 'Y'
+                order by field_name
+                """;
+
+        List<MrdFusionSearchFieldEntity>
+                result =
+                new ArrayList<>();
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    fusionId);
+
+            try(ResultSet rs =
+                        ps.executeQuery()) {
+
+                while(rs.next()) {
+
+                    MrdFusionSearchFieldEntity entity =
+                            new MrdFusionSearchFieldEntity();
+
+                    entity.setId(
+                            rs.getLong("id"));
+
+                    entity.setFusionId(
+                            rs.getString(
+                                    "fusion_id"));
+
+                    entity.setFieldName(
+                            rs.getString(
+                                    "field_name"));
+
+                    entity.setFieldValue(
+                            rs.getString(
+                                    "field_value"));
+
+                    entity.setActiveFlg(
+                            rs.getString(
+                                    "active_flg"));
+
+                    entity.setCreatedTs(
+                            rs.getTimestamp(
+                                    "created_ts"));
+
+                    entity.setUpdatedTs(
+                            rs.getTimestamp(
+                                    "updated_ts"));
+
+                    result.add(entity);
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
+
+package com.hsbc.gbm.hss.mrd.client360.fusion.service;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.MrdFusionRecord;
+import com.hsbc.gbm.hss.mrd.client360.fusion.entity.*;
+import com.hsbc.gbm.hss.mrd.client360.fusion.mapper.*;
+import com.hsbc.gbm.hss.mrd.client360.fusion.repository.*;
+
+import java.util.List;
+
+public class MrdFusionPersistenceService {
+
+    private final MrdFusionRepository fusionRepository;
+
+    private final MrdFusionSearchFieldRepository
+            searchFieldRepository;
+
+    private final MrdFusionDisplayFieldRepository
+            displayFieldRepository;
+
+    private final MrdFusionSourceRecordRepository
+            sourceRecordRepository;
+
+    private final MrdFusionRelationshipRepository
+            relationshipRepository;
+
+    private final MrdFusionRecordMapper
+            fusionRecordMapper;
+
+    private final MrdFusionSearchFieldMapper
+            searchFieldMapper;
+
+    private final MrdFusionDisplayFieldMapper
+            displayFieldMapper;
+
+    private final MrdFusionSourceRecordMapper
+            sourceRecordMapper;
+
+    private final MrdFusionRelationshipMapper
+            relationshipMapper;
+
+    public MrdFusionPersistenceService(
+            MrdFusionRepository fusionRepository,
+            MrdFusionSearchFieldRepository searchFieldRepository,
+            MrdFusionDisplayFieldRepository displayFieldRepository,
+            MrdFusionSourceRecordRepository sourceRecordRepository,
+            MrdFusionRelationshipRepository relationshipRepository,
+            MrdFusionRecordMapper fusionRecordMapper,
+            MrdFusionSearchFieldMapper searchFieldMapper,
+            MrdFusionDisplayFieldMapper displayFieldMapper,
+            MrdFusionSourceRecordMapper sourceRecordMapper,
+            MrdFusionRelationshipMapper relationshipMapper) {
+
+        this.fusionRepository =
+                fusionRepository;
+
+        this.searchFieldRepository =
+                searchFieldRepository;
+
+        this.displayFieldRepository =
+                displayFieldRepository;
+
+        this.sourceRecordRepository =
+                sourceRecordRepository;
+
+        this.relationshipRepository =
+                relationshipRepository;
+
+        this.fusionRecordMapper =
+                fusionRecordMapper;
+
+        this.searchFieldMapper =
+                searchFieldMapper;
+
+        this.displayFieldMapper =
+                displayFieldMapper;
+
+        this.sourceRecordMapper =
+                sourceRecordMapper;
+
+        this.relationshipMapper =
+                relationshipMapper;
+    }
+
+    public void persist(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        persistFusionRecord(
+                fusion);
+
+        persistSearchFields(
+                fusion);
+
+        persistDisplayFields(
+                fusion);
+
+        persistSourceRecords(
+                fusion);
+
+        persistRelationships(
+                fusion);
+    }
+
+    public void deactivate(
+            String fusionId)
+            throws Exception {
+
+        fusionRepository.deactivate(
+                fusionId);
+
+        searchFieldRepository.deactivate(
+                fusionId);
+
+        displayFieldRepository.deactivate(
+                fusionId);
+
+        sourceRecordRepository.deactivate(
+                fusionId);
+
+        relationshipRepository.deactivate(
+                fusionId);
+    }
+
+    private void persistFusionRecord(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        MrdFusionRecordEntity entity =
+                fusionRecordMapper.toEntity(
+                        fusion);
+
+        fusionRepository.upsert(
+                entity);
+    }
+
+    private void persistSearchFields(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        searchFieldRepository.deactivate(
+                fusion.getFusionId());
+
+        List<MrdFusionSearchFieldEntity>
+                entities =
+                searchFieldMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getSearchFields());
+
+        for(MrdFusionSearchFieldEntity entity :
+                entities) {
+
+            searchFieldRepository.insert(
+                    entity);
+        }
+    }
+
+    private void persistDisplayFields(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        displayFieldRepository.deactivate(
+                fusion.getFusionId());
+
+        List<MrdFusionDisplayFieldEntity>
+                entities =
+                displayFieldMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getDisplayFields());
+
+        for(MrdFusionDisplayFieldEntity entity :
+                entities) {
+
+            displayFieldRepository.insert(
+                    entity);
+        }
+    }
+
+    private void persistSourceRecords(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        sourceRecordRepository.deactivate(
+                fusion.getFusionId());
+
+        List<MrdFusionSourceRecordEntity>
+                entities =
+                sourceRecordMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getSourceRecords());
+
+        for(MrdFusionSourceRecordEntity entity :
+                entities) {
+
+            sourceRecordRepository.insert(
+                    entity);
+        }
+    }
+
+    private void persistRelationships(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        relationshipRepository.deactivate(
+                fusion.getFusionId());
+
+        List<MrdFusionRelationshipEntity>
+                entities =
+                relationshipMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getRelationships());
+
+        for(MrdFusionRelationshipEntity entity :
+                entities) {
+
+            relationshipRepository.insert(
+                    entity);
+        }
+    }
+}
+
+
+package com.hsbc.gbm.hss.mrd.client360.fusion.service;
+
+import com.hsbc.gbm.hss.mrd.client360.fusion.FusionRecordBuilder;
+import com.hsbc.gbm.hss.mrd.client360.fusion.MrdFusionRecord;
+import com.hsbc.gbm.hss.mrd.client360.runtime.MrdDagExecutionContext;
+
+public class MrdFusionService {
+
+    private final FusionRecordBuilder
+            fusionRecordBuilder;
+
+    private final MrdFusionPersistenceService
+            persistenceService;
+
+    public MrdFusionService(
+            FusionRecordBuilder fusionRecordBuilder,
+            MrdFusionPersistenceService persistenceService) {
+
+        this.fusionRecordBuilder =
+                fusionRecordBuilder;
+
+        this.persistenceService =
+                persistenceService;
+    }
+
+    public MrdFusionRecord createFusion(
+            MrdDagExecutionContext context)
+            throws Exception {
+
+        MrdFusionRecord fusion =
+                fusionRecordBuilder.build(
+                        context);
+
+        persistenceService.persist(
+                fusion);
+
+        return fusion;
+    }
+
+    public MrdFusionRecord rebuildFusion(
+            MrdDagExecutionContext context)
+            throws Exception {
+
+        MrdFusionRecord fusion =
+                fusionRecordBuilder.build(
+                        context);
+
+        persistenceService.persist(
+                fusion);
+
+        return fusion;
+    }
+
+    public void deactivateFusion(
+            String fusionId)
+            throws Exception {
+
+        persistenceService.deactivate(
+                fusionId);
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
