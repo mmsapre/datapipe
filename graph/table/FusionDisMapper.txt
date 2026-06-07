@@ -1,0 +1,44 @@
+;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+public class FusionDisMapper {
+
+    public List<MrdFusionDisplayFieldEntity> toEntities(
+            String fusionId,
+            Map<String,String> displayFields) {
+
+        List<MrdFusionDisplayFieldEntity> result =
+                new ArrayList<>();
+
+        int order = 1;
+
+        for(Map.Entry<String,String> entry :
+                displayFields.entrySet()) {
+
+            MrdFusionDisplayFieldEntity entity =
+                    new MrdFusionDisplayFieldEntity();
+
+            entity.setFusionId(
+                    fusionId);
+
+            entity.setFieldName(
+                    entry.getKey());
+
+            entity.setFieldValue(
+                    entry.getValue());
+
+            entity.setDisplayOrder(
+                    order++);
+
+            entity.setActiveFlg(
+                    "Y");
+
+            result.add(entity);
+        }
+
+        return result;
+    }
+}
