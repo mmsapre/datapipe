@@ -1,0 +1,57 @@
+
+
+public class MrdFusionService {
+
+    private final FusionRecordBuilder
+            fusionRecordBuilder;
+
+    private final MrdFusionPersistenceService
+            persistenceService;
+
+    public MrdFusionService(
+            FusionRecordBuilder fusionRecordBuilder,
+            MrdFusionPersistenceService persistenceService) {
+
+        this.fusionRecordBuilder =
+                fusionRecordBuilder;
+
+        this.persistenceService =
+                persistenceService;
+    }
+
+    public MrdFusionRecord createFusion(
+            MrdDagExecutionContext context)
+            throws Exception {
+
+        MrdFusionRecord fusion =
+                fusionRecordBuilder.build(
+                        context);
+
+        persistenceService.persist(
+                fusion);
+
+        return fusion;
+    }
+
+    public MrdFusionRecord updateFusion(
+            MrdDagExecutionContext context)
+            throws Exception {
+
+        MrdFusionRecord fusion =
+                fusionRecordBuilder.build(
+                        context);
+
+        persistenceService.persist(
+                fusion);
+
+        return fusion;
+    }
+
+    public void deactivateFusion(
+            String fusionId)
+            throws Exception {
+
+        persistenceService.deactivate(
+                fusionId);
+    }
+}
