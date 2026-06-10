@@ -1,0 +1,174 @@
+
+import java.util.List;
+
+public class MrdFusionPersistenceService {
+
+    private final MrdFusionRepository fusionRepository;
+
+    private final MrdFusionSearchFieldRepository searchFieldRepository;
+
+    private final MrdFusionDisplayFieldRepository displayFieldRepository;
+
+    private final MrdFusionSourceRecordRepository sourceRecordRepository;
+
+    private final MrdFusionRelationshipRepository relationshipRepository;
+
+    private final MrdFusionRecordMapper fusionRecordMapper;
+
+    private final MrdFusionSearchFieldMapper searchFieldMapper;
+
+    private final MrdFusionDisplayFieldMapper displayFieldMapper;
+
+    private final MrdFusionSourceRecordMapper sourceRecordMapper;
+
+    private final MrdFusionRelationshipMapper relationshipMapper;
+
+    public MrdFusionPersistenceService(
+            MrdFusionRepository fusionRepository,
+            MrdFusionSearchFieldRepository searchFieldRepository,
+            MrdFusionDisplayFieldRepository displayFieldRepository,
+            MrdFusionSourceRecordRepository sourceRecordRepository,
+            MrdFusionRelationshipRepository relationshipRepository,
+            MrdFusionRecordMapper fusionRecordMapper,
+            MrdFusionSearchFieldMapper searchFieldMapper,
+            MrdFusionDisplayFieldMapper displayFieldMapper,
+            MrdFusionSourceRecordMapper sourceRecordMapper,
+            MrdFusionRelationshipMapper relationshipMapper) {
+
+        this.fusionRepository = fusionRepository;
+        this.searchFieldRepository = searchFieldRepository;
+        this.displayFieldRepository = displayFieldRepository;
+        this.sourceRecordRepository = sourceRecordRepository;
+        this.relationshipRepository = relationshipRepository;
+
+        this.fusionRecordMapper = fusionRecordMapper;
+        this.searchFieldMapper = searchFieldMapper;
+        this.displayFieldMapper = displayFieldMapper;
+        this.sourceRecordMapper = sourceRecordMapper;
+        this.relationshipMapper = relationshipMapper;
+    }
+
+    public void persist(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        persistFusionRecord(fusion);
+
+        persistSearchFields(fusion);
+
+        persistDisplayFields(fusion);
+
+        persistSourceRecords(fusion);
+
+        persistRelationships(fusion);
+    }
+
+    public void deactivate(
+            String fusionId)
+            throws Exception {
+
+        fusionRepository.deactivate(
+                fusionId);
+
+        searchFieldRepository.deactivate(
+                fusionId);
+
+        displayFieldRepository.deactivate(
+                fusionId);
+
+        sourceRecordRepository.deactivate(
+                fusionId);
+
+        relationshipRepository.deactivate(
+                fusionId);
+    }
+
+    private void persistFusionRecord(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        fusionRepository.upsert(
+                fusionRecordMapper.toEntity(
+                        fusion));
+    }
+
+    private void persistSearchFields(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        searchFieldRepository.deactivate(
+                fusion.getFusionId());
+
+        List<MrdFusionSearchFieldEntity> entities =
+                searchFieldMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getSearchFields());
+
+        for(MrdFusionSearchFieldEntity entity :
+                entities) {
+
+            searchFieldRepository.insert(
+                    entity);
+        }
+    }
+
+    private void persistDisplayFields(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        displayFieldRepository.deactivate(
+                fusion.getFusionId());
+
+        List<MrdFusionDisplayFieldEntity> entities =
+                displayFieldMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getDisplayFields());
+
+        for(MrdFusionDisplayFieldEntity entity :
+                entities) {
+
+            displayFieldRepository.insert(
+                    entity);
+        }
+    }
+
+    private void persistSourceRecords(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        sourceRecordRepository.deactivate(
+                fusion.getFusionId());
+
+        List<MrdFusionSourceRecordEntity> entities =
+                sourceRecordMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getSourceRecords());
+
+        for(MrdFusionSourceRecordEntity entity :
+                entities) {
+
+            sourceRecordRepository.insert(
+                    entity);
+        }
+    }
+
+    private void persistRelationships(
+            MrdFusionRecord fusion)
+            throws Exception {
+
+        relationshipRepository.deactivate(
+                fusion.getFusionId());
+
+        List<MrdFusionRelationshipEntity> entities =
+                relationshipMapper.toEntities(
+                        fusion.getFusionId(),
+                        fusion.getRelationships());
+
+        for(MrdFusionRelationshipEntity entity :
+                entities) {
+
+            relationshipRepository.insert(
+                    entity);
+        }
+    }
+}
