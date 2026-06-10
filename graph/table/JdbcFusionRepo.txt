@@ -1,0 +1,216 @@
+
+import javax.sql.DataSource;
+import java.sql.*;
+
+public class JdbcFusionRepository
+        implements MrdFusionRepository {
+
+    private final DataSource dataSource;
+
+    public JdbcFusionRepository(
+            DataSource dataSource) {
+
+        this.dataSource = dataSource;
+    }
+
+    @Override
+    public void upsert(
+            MrdFusionRecordEntity entity)
+            throws Exception {
+
+        String sql =
+                """
+                insert into fusion_record
+                (
+                    fusion_id,
+                    root_entity_type,
+                    root_business_key,
+                    active_flg,
+                    created_ts,
+                    updated_ts
+                )
+                values
+                (
+                    ?,?,?,?,
+                    now(),
+                    now()
+                )
+                on conflict (fusion_id)
+                do update
+                set
+                    root_entity_type =
+                        excluded.root_entity_type,
+
+                    root_business_key =
+                        excluded.root_business_key,
+
+                    active_flg =
+                        excluded.active_flg,
+
+                    updated_ts =
+                        now()
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    entity.getFusionId());
+
+            ps.setString(
+                    2,
+                    entity.getRootEntityType());
+
+            ps.setString(
+                    3,
+                    entity.getRootBusinessKey());
+
+            ps.setString(
+                    4,
+                    entity.getActiveFlg());
+
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public MrdFusionRecordEntity find(
+            String fusionId)
+            throws Exception {
+
+        String sql =
+                """
+                select *
+                from fusion_record
+                where fusion_id = ?
+                  and active_flg = 'Y'
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    fusionId);
+
+            try(ResultSet rs =
+                        ps.executeQuery()) {
+
+                if(rs.next()) {
+                    return map(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public MrdFusionRecordEntity findByBusinessKey(
+            String rootEntityType,
+            String rootBusinessKey)
+            throws Exception {
+
+        String sql =
+                """
+                select *
+                from fusion_record
+                where root_entity_type = ?
+                  and root_business_key = ?
+                  and active_flg = 'Y'
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    rootEntityType);
+
+            ps.setString(
+                    2,
+                    rootBusinessKey);
+
+            try(ResultSet rs =
+                        ps.executeQuery()) {
+
+                if(rs.next()) {
+                    return map(rs);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    @Override
+    public void deactivate(
+            String fusionId)
+            throws Exception {
+
+        String sql =
+                """
+                update fusion_record
+                   set active_flg='N',
+                       updated_ts=now()
+                 where fusion_id=?
+                """;
+
+        try(Connection con =
+                    dataSource.getConnection();
+
+            PreparedStatement ps =
+                    con.prepareStatement(sql)) {
+
+            ps.setString(
+                    1,
+                    fusionId);
+
+            ps.executeUpdate();
+        }
+    }
+
+    private MrdFusionRecordEntity map(
+            ResultSet rs)
+            throws Exception {
+
+        MrdFusionRecordEntity entity =
+                new MrdFusionRecordEntity();
+
+        entity.setFusionId(
+                rs.getString(
+                        "fusion_id"));
+
+        entity.setRootEntityType(
+                rs.getString(
+                        "root_entity_type"));
+
+        entity.setRootBusinessKey(
+                rs.getString(
+                        "root_business_key"));
+
+        entity.setActiveFlg(
+                rs.getString(
+                        "active_flg"));
+
+        entity.setCreatedTs(
+                rs.getTimestamp(
+                        "created_ts"));
+
+        entity.setUpdatedTs(
+                rs.getTimestamp(
+                        "updated_ts"));
+
+        return entity;
+    }
+}
