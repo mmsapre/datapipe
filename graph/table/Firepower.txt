@@ -1,0 +1,22 @@
+
+
+
+public interface MrdFusionRepository {
+
+    void upsert(
+            MrdFusionRecordEntity entity)
+            throws Exception;
+
+    MrdFusionRecordEntity find(
+            String fusionId)
+            throws Exception;
+
+    MrdFusionRecordEntity findByBusinessKey(
+            String rootEntityType,
+            String rootBusinessKey)
+            throws Exception;
+
+    void deactivate(
+            String fusionId)
+            throws Exception;
+}
