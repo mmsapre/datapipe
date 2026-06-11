@@ -1,0 +1,24 @@
+private static String cleanXml(String xml) {
+
+    if (xml == null) {
+        throw new IllegalArgumentException("XML input is null");
+    }
+
+    xml = xml.trim();
+
+    // remove UTF-8 BOM
+    if (!xml.isEmpty() && xml.charAt(0) == '\uFEFF') {
+        xml = xml.substring(1);
+    }
+
+    // remove hidden BOM if trim did not catch it
+    xml = xml.replace("\uFEFF", "");
+
+    int start = xml.indexOf('<');
+
+    if (start > 0) {
+        xml = xml.substring(start);
+    }
+
+    return xml;
+}
