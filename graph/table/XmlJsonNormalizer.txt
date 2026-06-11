@@ -1,0 +1,108 @@
+package com.example.xml;
+
+import com.github.underscore.U;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+public final class XmlJsonNormalizer {
+
+    private XmlJsonNormalizer() {
+    }
+
+    public static String normalize(String xml) {
+
+        Map<String, Object> xmlMap = U.fromXmlMap(xml);
+
+        Object normalized = normalizeObject(xmlMap);
+
+        return toJson(normalized);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object normalizeObject(Object value) {
+
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof String str) {
+
+            if (str.trim().isEmpty()) {
+                return null;
+            }
+
+            return str;
+        }
+
+        if (value instanceof Map<?, ?> map) {
+
+            if (map.isEmpty()) {
+                return null;
+            }
+
+            Map<String, Object> result =
+                    new LinkedHashMap<>();
+
+            for (Map.Entry<?, ?> entry : map.entrySet()) {
+
+                Object child =
+                        normalizeObject(entry.getValue());
+
+                String key =
+                        String.valueOf(entry.getKey());
+
+                /*
+                 * Similar to ACCEPT_SINGLE_VALUE_AS_ARRAY
+                 */
+                if (child instanceof Map) {
+
+                    List<Object> arr =
+                            new ArrayList<>();
+
+                    arr.add(child);
+
+                    result.put(key, arr);
+
+                } else {
+
+                    result.put(key, child);
+                }
+            }
+
+            return result;
+        }
+
+        if (value instanceof List<?> list) {
+
+            List<Object> result =
+                    new ArrayList<>();
+
+            for (Object item : list) {
+
+                result.add(
+                        normalizeObject(item));
+            }
+
+            return result;
+        }
+
+        return value;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static String toJson(Object value) {
+
+        if (value instanceof Map) {
+            return U.toJson((Map<String, Object>) value);
+        }
+
+        if (value instanceof List) {
+            return U.toJson((List<Object>) value);
+        }
+
+        return String.valueOf(value);
+    }
+}
