@@ -1,0 +1,48 @@
+public class MrdRoutingQueryExecutor {
+
+    private final MrdDatasourceRegistry
+            datasourceRegistry;
+
+    private final MrdJdbcQueryExecutor
+            jdbcExecutor;
+
+    private final MrdCalciteQueryExecutor
+            calciteExecutor;
+
+    public List<MrdImportedRecord> execute(
+            MrdConnectorConfig connector,
+            List<Object> params)
+            throws Exception {
+
+        MrdDatasourceConfig datasource =
+                datasourceRegistry.get(
+                        connector.getDatasource());
+
+        switch(
+                datasource.getType()
+                          .toUpperCase()) {
+
+            case "JDBC":
+            case "POSTGRES":
+            case "POSTGRESQL":
+            case "ORACLE":
+            case "MYSQL":
+
+                return jdbcExecutor.execute(
+                        connector,
+                        params);
+
+            case "CSV":
+
+                return calciteExecutor.execute(
+                        connector,
+                        params);
+
+            default:
+
+                throw new IllegalArgumentException(
+                        "Unsupported datasource type : "
+                        + datasource.getType());
+        }
+    }
+}
