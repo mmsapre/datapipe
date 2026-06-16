@@ -1,0 +1,107 @@
+package com.hsbc.gbm.hss.mrd.integ.executor;
+
+import com.hsbc.gbm.hss.mrd.integ.calcite.MrdCalciteManager;
+import com.hsbc.gbm.hss.mrd.integ.config.MrdConnectorConfig;
+import com.hsbc.gbm.hss.mrd.integ.model.MrdImportedRecord;
+
+import org.apache.calcite.jdbc.CalciteConnection;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MrdCalciteQueryExecutor {
+
+    private final MrdCalciteManager
+            calciteManager;
+
+    private final MrdSelectQueryBuilder
+            queryBuilder;
+
+    public MrdCalciteQueryExecutor(
+            MrdCalciteManager calciteManager,
+            MrdSelectQueryBuilder queryBuilder) {
+
+        this.calciteManager =
+                calciteManager;
+
+        this.queryBuilder =
+                queryBuilder;
+    }
+
+    public List<MrdImportedRecord> execute(
+            MrdConnectorConfig connector,
+            List<Object> parameters)
+            throws Exception {
+
+        String sql =
+                queryBuilder.build(
+                        connector);
+
+        try(CalciteConnection connection =
+                    calciteManager.getConnection();
+
+            PreparedStatement ps =
+                    connection.prepareStatement(
+                            sql)) {
+
+            bind(
+                    ps,
+                    parameters);
+
+            try(ResultSet rs =
+                        ps.executeQuery()) {
+
+                return map(
+                        rs);
+            }
+        }
+    }
+
+    private void bind(
+            PreparedStatement ps,
+            List<Object> parameters)
+            throws Exception {
+
+        for(int i=0;
+            i<parameters.size();
+            i++) {
+
+            ps.setObject(
+                    i + 1,
+                    parameters.get(i));
+        }
+    }
+
+    private List<MrdImportedRecord> map(
+            ResultSet rs)
+            throws Exception {
+
+        List<MrdImportedRecord>
+                records =
+                new ArrayList<>();
+
+        ResultSetMetaData meta =
+                rs.getMetaData();
+
+        while(rs.next()) {
+
+            MrdImportedRecord record =
+                    new MrdImportedRecord();
+
+            for(int i=1;
+                i<=meta.getColumnCount();
+                i++) {
+
+                record.put(
+                        meta.getColumnLabel(i),
+                        rs.getObject(i));
+            }
+
+            records.add(
+                    record);
+        }
+
+        return records;
+    }
+}
