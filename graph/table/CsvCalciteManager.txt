@@ -1,0 +1,69 @@
+package com.hsbc.gbm.hss.mrd.integ.calcite;
+
+import org.apache.calcite.adapter.csv.CsvSchema;
+import org.apache.calcite.jdbc.CalciteConnection;
+import org.apache.calcite.schema.SchemaPlus;
+
+import java.io.File;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.util.Properties;
+
+public class CsvCalciteManager
+        implements MrdCalciteManager {
+
+    private final String csvLocation;
+
+    public CsvCalciteManager(
+            String csvLocation) {
+
+        this.csvLocation =
+                csvLocation;
+    }
+
+    @Override
+    public CalciteConnection getConnection()
+            throws Exception {
+
+        Connection connection =
+                DriverManager.getConnection(
+                        "jdbc:calcite:",
+                        buildProperties());
+
+        CalciteConnection calcite =
+                connection.unwrap(
+                        CalciteConnection.class);
+
+        SchemaPlus root =
+                calcite.getRootSchema();
+
+        if(root.getSubSchema("FILES")
+                == null) {
+
+            root.add(
+                    "FILES",
+                    new CsvSchema(
+                            new File(
+                                    csvLocation),
+                            CsvSchema.Flavor.SCANNABLE));
+        }
+
+        return calcite;
+    }
+
+    private Properties buildProperties() {
+
+        Properties props =
+                new Properties();
+
+        props.setProperty(
+                "caseSensitive",
+                "false");
+
+        props.setProperty(
+                "lex",
+                "JAVA");
+
+        return props;
+    }
+}
