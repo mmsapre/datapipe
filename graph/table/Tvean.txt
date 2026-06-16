@@ -1,0 +1,24 @@
+@Bean
+public MrdJdbcQueryExecutor
+jdbcQueryExecutor(
+        MrdDatasourceFactory datasourceFactory,
+        MrdSelectQueryBuilder queryBuilder) {
+
+    return new MrdJdbcQueryExecutor(
+            datasourceFactory,
+            queryBuilder);
+}
+
+
+@Bean
+public MrdRoutingQueryExecutor
+routingQueryExecutor(
+        MrdDatasourceRegistry datasourceRegistry,
+        MrdJdbcQueryExecutor jdbcExecutor,
+        MrdCalciteQueryExecutor calciteExecutor) {
+
+    return new MrdRoutingQueryExecutor(
+            datasourceRegistry,
+            jdbcExecutor,
+            calciteExecutor);
+}
