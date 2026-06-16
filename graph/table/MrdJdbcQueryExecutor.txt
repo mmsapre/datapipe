@@ -1,0 +1,65 @@
+public class MrdJdbcQueryExecutor implements MrdQueryExecutor {
+
+    private final MrdDatasourceFactory datasourceFactory;
+    private final MrdSelectQueryBuilder queryBuilder;
+
+    public MrdJdbcQueryExecutor(
+            MrdDatasourceFactory datasourceFactory,
+            MrdSelectQueryBuilder queryBuilder) {
+
+        this.datasourceFactory = datasourceFactory;
+        this.queryBuilder = queryBuilder;
+    }
+
+    @Override
+    public List<MrdImportedRecord> execute(
+            MrdConnectorConfig connector,
+            List<Object> params)
+            throws Exception {
+
+        String sql = queryBuilder.build(connector);
+
+        DataSource ds =
+                datasourceFactory.getDatasource(connector.getDatasource());
+
+        try (Connection con = ds.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            bind(ps, params);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return map(rs);
+            }
+        }
+    }
+
+    private void bind(
+            PreparedStatement ps,
+            List<Object> params)
+            throws Exception {
+
+        for (int i = 0; i < params.size(); i++) {
+            ps.setObject(i + 1, params.get(i));
+        }
+    }
+
+    private List<MrdImportedRecord> map(
+            ResultSet rs)
+            throws Exception {
+
+        List<MrdImportedRecord> records = new ArrayList<>();
+        ResultSetMetaData md = rs.getMetaData();
+
+        while (rs.next()) {
+            MrdImportedRecord r = new MrdImportedRecord();
+
+            for (int i = 1; i <= md.getColumnCount(); i++) {
+                r.put(md.getColumnLabel(i), rs.getObject(i));
+            }
+
+            records.add(r);
+        }
+
+        return records;
+    }
+}
