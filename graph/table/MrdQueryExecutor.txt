@@ -1,0 +1,7 @@
+public interface MrdQueryExecutor {
+
+    List<MrdImportedRecord> execute(
+            MrdConnectorConfig connector,
+            List<Object> params)
+            throws Exception;
+}
