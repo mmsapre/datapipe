@@ -1,0 +1,40 @@
+public class MrdRoutingQueryExecutor {
+
+    private final MrdDatasourceRegistry datasourceRegistry;
+    private final MrdJdbcQueryExecutor jdbcExecutor;
+    private final MrdCalciteQueryExecutor calciteExecutor;
+
+    public MrdRoutingQueryExecutor(
+            MrdDatasourceRegistry datasourceRegistry,
+            MrdJdbcQueryExecutor jdbcExecutor,
+            MrdCalciteQueryExecutor calciteExecutor) {
+
+        this.datasourceRegistry = datasourceRegistry;
+        this.jdbcExecutor = jdbcExecutor;
+        this.calciteExecutor = calciteExecutor;
+    }
+
+    public List<MrdImportedRecord> execute(
+            MrdConnectorConfig connector,
+            List<Object> params)
+            throws Exception {
+
+        MrdDatasourceConfig ds =
+                datasourceRegistry.get(connector.getDatasource());
+
+        if ("JDBC".equalsIgnoreCase(ds.getType())
+                || "POSTGRES".equalsIgnoreCase(ds.getType())) {
+
+            return jdbcExecutor.execute(connector, params);
+        }
+
+        if ("CSV".equalsIgnoreCase(ds.getType())
+                || "FILE".equalsIgnoreCase(ds.getType())) {
+
+            return calciteExecutor.execute(connector, params);
+        }
+
+        throw new IllegalArgumentException(
+                "Unsupported datasource type: " + ds.getType());
+    }
+}
